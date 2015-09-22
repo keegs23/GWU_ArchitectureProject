@@ -1,3 +1,7 @@
+/**
+ * Constants are binary values
+ * Comments are octal values
+ */
 public class OpCode
 {
 	/**
@@ -8,7 +12,7 @@ public class OpCode
 	/**
 	 * Traps to memory address 0
 	 */
-	public static final String TRAP = "011110"; //30
+	public static final String TRAP = "011110"; //36
 	
 	/**
 	 * Load register from memory
@@ -28,12 +32,12 @@ public class OpCode
 	/**
 	 * Load index register from memory
 	 */
-	public static final String LDX  = "101001"; //41
+	public static final String LDX  = "100001"; //41
 	
 	/**
 	 * Store index register to memory
 	 */
-	public static final String STX  = "101010"; //42
+	public static final String STX  = "100010"; //42
 	
 	/**
 	 * Add memory to register
