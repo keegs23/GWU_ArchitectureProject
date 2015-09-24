@@ -54,6 +54,42 @@ public class MiniComputer
 		MFR = new Register(4); //PC register size is 4 bits
 	}
 	
+	public Register getPC()
+	{
+		//Get PC Register
+		return PC;
+	}
+
+	public Register getCC()
+	{
+		//Get PC Register
+		return CC;
+	}
+	public Register getIR()
+	{
+		//Get PC Register
+		return IR;
+	}
+	public Register getMAR()
+	{
+		//Get PC Register
+		return MAR;
+	}
+	public Register getMBR()
+	{
+		//Get PC Register
+		return MBR;
+	}
+	public Register getMSR()
+	{
+		//Get PC Register
+		return MSR;
+	}
+	public Register getMFR()
+	{
+		//Get PC Register
+		return MFR;
+	}
 	/**
 	 * Retrieves the General Purpose Register indicated by r.
 	 * @param r
