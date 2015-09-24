@@ -45,6 +45,13 @@ public class MiniComputer
 	public MiniComputer()
 	{
 		// TODO: Initialize Registers
+		PC = new Register(12); //PC register size is 12 bits
+		CC = new Register(4); //PC register size is 4 bits
+		IR = new Register(16); //PC register size is 16 bits
+		MAR = new Register(16); //PC register size is 16 bits
+		MBR = new Register(16); //PC register size is 16 bits
+		MSR = new Register(16); //PC register size is 16 bits
+		MFR = new Register(4); //PC register size is 4 bits
 	}
 	
 	/**
