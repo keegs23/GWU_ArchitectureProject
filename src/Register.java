@@ -13,4 +13,26 @@ public class Register
         }
         BitValue = new BitWord(tempBitValue);
     }
+    
+    public int getBitSize()
+    {
+    	return BitSize;
+    }
+    
+    public BitWord getBitValue()
+    {
+    	return BitValue;
+    }
+    
+    public void setBitValue(String value)
+    {
+    	if(value.length() == BitSize)
+    	{
+    		BitValue = new BitWord(value);
+    	}
+    	else
+    	{
+    		// TODO: Handle value of wrong size
+    	}
+    }
 }

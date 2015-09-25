@@ -1,6 +1,9 @@
+import java.util.HashMap;
+import java.util.Map;
+
 public class MiniComputer
 {
-	public static final String MAX_MEMORY_ADDRESS = "1111111111111111";
+	public static final String MAX_MEMORY_ADDRESS = "1111111111111111";	//16 one bits
 	
 	/**
 	 * Program Counter
@@ -42,52 +45,60 @@ public class MiniComputer
 	private Register X2;
 	private Register X3;
 	
+	/**
+	 * Key = String Address, Value = MemoryLocation object
+	 */
+	Map<String, MemoryLocation> memory;
+	
 	public MiniComputer()
 	{
-		// TODO: Initialize Registers
-		PC = new Register(12); //PC register size is 12 bits
-		CC = new Register(4); //PC register size is 4 bits
-		IR = new Register(16); //PC register size is 16 bits
-		MAR = new Register(16); //PC register size is 16 bits
-		MBR = new Register(16); //PC register size is 16 bits
-		MSR = new Register(16); //PC register size is 16 bits
-		MFR = new Register(4); //PC register size is 4 bits
+		// Initialize Registers
+		PC = new Register(12); //register size is 12 bits
+		CC = new Register(4); //register size is 4 bits
+		IR = new Register(16); //register size is 16 bits
+		MAR = new Register(16); //register size is 16 bits
+		MBR = new Register(16); //register size is 16 bits
+		MSR = new Register(16); //register size is 16 bits
+		MFR = new Register(4); //register size is 4 bits
+		R0 = new Register(16);
+		R1 = new Register(16);
+		R2 = new Register(16);
+		R3 = new Register(16);
+		X1 = new Register(16);
+		X2 = new Register(16);
+		X3 = new Register(16);
+		
+		// Initialize Memory
+		memory = new HashMap<String, MemoryLocation>();
 	}
 	
 	public Register getPC()
 	{
-		//Get PC Register
 		return PC;
 	}
 
 	public Register getCC()
 	{
-		//Get PC Register
 		return CC;
 	}
 	public Register getIR()
 	{
-		//Get PC Register
 		return IR;
 	}
 	public Register getMAR()
 	{
-		//Get PC Register
 		return MAR;
 	}
 	public Register getMBR()
 	{
-		//Get PC Register
 		return MBR;
 	}
 	public Register getMSR()
 	{
-		//Get PC Register
 		return MSR;
 	}
 	public Register getMFR()
 	{
-		//Get PC Register
 		return MFR;
 	}
 	/**
@@ -131,13 +142,114 @@ public class MiniComputer
 	}
 	
 	public BitWord calculateEffectiveAddress(int indexRegister, boolean isIndirectAddress, BitWord address)
-	{
-		// TODO
-		return new BitWord();	//dummy value
+	{		
+		if(!isIndirectAddress)
+		{
+			if(indexRegister == 0)
+			{
+				return address;
+			}
+			else if(indexRegister >= 1 && indexRegister <= 3)
+			{
+				String indexValue = X(indexRegister).getBitValue().getValue();
+				
+				String toAdd = address.getValue();
+						
+				String ea = addHelper(indexValue, toAdd);
+						
+				return new BitWord(ea);
+			}
+			else
+			{
+				// Should never reach here, but just in case
+				return address;	//does it make sense to return this?
+			}
+		}
+		else
+		{
+			String addr = "";
+			
+			if(indexRegister == 0)
+			{
+				addr = address.getValue();
+			}
+			else if(indexRegister >= 1 && indexRegister <= 3)
+			{
+				String indexValue = X(indexRegister).getBitValue().getValue();
+				
+				String toAdd = address.getValue();
+				
+				addr = addHelper(indexValue, toAdd);
+			}
+			
+			if(memory.containsKey(addr))	//MemoryLocation
+			{
+				return memory.get(addr).getValue();
+			}
+			else
+			{
+				// TODO: Check that addr is not beyond 2048 (decimal)
+				
+				return new BitWord();	//value is 0000000000000000 (16 zero bits)
+			}
+		}
 	}
 	
 	public static void main(String[] args)
 	{
 		// TODO: mimic flowchart from Lecture 1
+	}
+	
+	/**
+	 * Adds the 2 binary bit Strings
+	 * @param bitStr1
+	 * @param bitStr2
+	 * @return the binary sum of bitStr1 and bitStr2
+	 */
+	private String addHelper(String bitStr1, String bitStr2)
+	{
+		// How closely were we supposed to mimic how the computer actually does bit addition?
+		
+		String sum = "";
+		
+		// Make sure both are 16 bits
+		String bits1 = padZeros(bitStr1);
+		String bits2 = padZeros(bitStr2);
+		
+		int carryIn = 0;
+		int carryOut = 0;
+		
+		for(int k = 15; k <= 0; k--)
+		{
+			// Retrieve the next lowest bit
+			int a = Integer.parseInt(bits1.substring(k, k+1));
+			int b = Integer.parseInt(bits2.substring(k, k+1));
+			
+			// Calculate the next bit for the sum and the carryOut
+			int s = a + b + carryIn;
+			sum = Integer.toString(s % 2) + sum;
+			carryOut = s / 2;
+			
+			// Prepare for the next bit
+			carryIn = carryOut;
+		}
+		
+		// Check for overflow
+		if (carryOut > 0)
+		{
+			// TODO: Handle overflow
+		}
+		
+		return sum;
+	}
+	
+	/**
+	 * Pads with leading zeros until length is 16
+	 * @param value bit String with length < 16
+	 * @return 16-bit String
+	 */
+	private static String padZeros(String value)
+	{
+		return String.format("%016d", Integer.parseInt(value));
 	}
 }
