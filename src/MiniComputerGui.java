@@ -22,7 +22,7 @@ public class MiniComputerGui extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = -8217933506339143771L;
 	private static final int INSTRUCTION_SIZE = 16;
-    private Container mainPanel;
+	private Container mainPanel;
 	private JPanel leftPanel;
 	private JPanel rightPanel;
 	private JPanel iplPanel;
@@ -31,28 +31,28 @@ public class MiniComputerGui extends JFrame implements ActionListener {
 	private JPanel registerPanel;
 	private JPanel memoryPanel;
 	private JLabel[] indicators;
-    private JToggleButton[] toggles;
-    private JTextField pcInput;
-    private JButton iplButton;
-    private JButton singleStepButton;
+	private JToggleButton[] toggles;
+	private JTextField pcInput;
+	private JButton iplButton;
+	private JButton singleStepButton;
 
 	public MiniComputerGui() {
 
-		mainPanel = 		getContentPane();
-		leftPanel = 		new JPanel();
-		rightPanel = 		new JPanel();
-		iplPanel = 			new JPanel();
-		instructionPanel = 	new JPanel();
-		pcPanel = 			new JPanel();
-		registerPanel = 	new JPanel();
-		memoryPanel = 		new JPanel();
-		indicators = 		new JLabel[INSTRUCTION_SIZE];
-		toggles = 			new JToggleButton[INSTRUCTION_SIZE];
-		pcInput = 			new JTextField(10);
-		iplButton = 		new JButton("IPL");
-		singleStepButton = 	new JButton("Single Step");
+		mainPanel = getContentPane();
+		leftPanel = new JPanel();
+		rightPanel = new JPanel();
+		iplPanel = new JPanel();
+		instructionPanel = new JPanel();
+		pcPanel = new JPanel();
+		registerPanel = new JPanel();
+		memoryPanel = new JPanel();
+		indicators = new JLabel[INSTRUCTION_SIZE];
+		toggles = new JToggleButton[INSTRUCTION_SIZE];
+		pcInput = new JTextField(10);
+		iplButton = new JButton("IPL");
+		singleStepButton = new JButton("Single Step");
 		
-        initUI();
+		initUI();
     }
 
     private void initUI() {
