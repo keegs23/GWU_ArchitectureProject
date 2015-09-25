@@ -15,10 +15,16 @@ public class MemoryLocation
 	private BitWord value;
 	private BitWord address;
 	
-	public MemoryLocation(String tempAddress, String val) throws Exception
+	public MemoryLocation(String tempAddress, String val)
 	{		
 		value = new BitWord(val);
 		address = new BitWord(tempAddress);
+	}
+	
+	public MemoryLocation(BitWord tempAddress, BitWord val)
+	{
+		value = tempAddress;
+		address = val;
 	}
 	
 	public BitWord getValue()

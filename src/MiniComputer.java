@@ -72,6 +72,8 @@ public class MiniComputer
 		memory = new HashMap<String, MemoryLocation>();
 	}
 	
+	/* Register getters */
+	
 	public Register getPC()
 	{
 		return PC;
@@ -106,7 +108,7 @@ public class MiniComputer
 	 * @param r
 	 * @return R0, R1, R2, R3, or null
 	 */
-	public Register R(int r)
+	public Register getR(int r)
 	{
 		switch(r) {
 			case 0:
@@ -127,7 +129,7 @@ public class MiniComputer
 	 * @param x
 	 * @return X1, X2, X3, or null
 	 */
-	public Register X(int x)
+	public Register getX(int x)
 	{
 		switch(x) {
 			case 1:
@@ -141,6 +143,73 @@ public class MiniComputer
 		}
 	}
 	
+	/* End Register Getters */
+	
+	public static void main(String[] args)
+	{
+		// TODO: mimic flowchart from Lecture 1
+	}
+	
+	/* Instruction methods */
+	
+	/**
+	 * Loads the value of the effective address into the specified register
+	 * @param register 0-3
+	 * @param index 0-3 (0 if no indexing)
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void loadRegisterFromMemory(int register, int index, boolean isIndirectAddress, BitWord address)
+	{
+		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+
+		Register r = getR(register);
+		
+		if(r != null)
+		{
+			if(memory.containsKey(ea))
+			{
+				r.setBitValue(memory.get(ea).getValue());
+			}
+			else
+			{
+				r.setBitValue(BitWord.DEFAULT_VALUE);
+			}
+		}
+	}
+	
+	public void storeRegisterToMemory(int register, int index, boolean isIndirectAddress, BitWord address)
+	{
+		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+		
+		Register r = getR(register);
+		
+		MemoryLocation memLoc = new MemoryLocation(ea, r.getBitValue());
+		// The HashMap automatically replaces the value and adds a new key if necessary 
+		memory.put(ea.getValue(), memLoc);
+	}
+	
+	public void loadRegisterWithAddress(int register, int index, boolean isIndirectAddress, BitWord address)
+	{
+		// TODO
+	}
+	
+	public void loadIndexRegisterFromMemory(int register, int index, boolean isIndirectAddress, BitWord address)
+	{
+		// TODO
+	}
+	
+	public void storeIndexRegisterToMemory(int register, int index, boolean isIndirectAddress, BitWord address)
+	{
+		// TODO
+	}
+	
+	// TODO in other parts: other instructions
+	
+	/* End Instruction methods */
+	
+	/* Helpers */
+	
 	public BitWord calculateEffectiveAddress(int indexRegister, boolean isIndirectAddress, BitWord address)
 	{		
 		if(!isIndirectAddress)
@@ -151,7 +220,7 @@ public class MiniComputer
 			}
 			else if(indexRegister >= 1 && indexRegister <= 3)
 			{
-				String indexValue = X(indexRegister).getBitValue().getValue();
+				String indexValue = getX(indexRegister).getBitValue().getValue();
 				
 				String toAdd = address.getValue();
 						
@@ -175,7 +244,7 @@ public class MiniComputer
 			}
 			else if(indexRegister >= 1 && indexRegister <= 3)
 			{
-				String indexValue = X(indexRegister).getBitValue().getValue();
+				String indexValue = getX(indexRegister).getBitValue().getValue();
 				
 				String toAdd = address.getValue();
 				
@@ -193,37 +262,6 @@ public class MiniComputer
 				return new BitWord();	//value is 0000000000000000 (16 zero bits)
 			}
 		}
-	}
-	
-	/**
-	 * Loads the value of the effective address into the specified register
-	 * @param register 0-3
-	 * @param index 0-3 (0 if no indexing)
-	 * @param isIndirectAddress
-	 * @param address
-	 */
-	public void loadRegisterFromMemory(int register, int index, boolean isIndirectAddress, BitWord address)
-	{
-		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
-		
-		Register r = R(register);
-		
-		if(r != null)
-		{
-			if(memory.containsKey(ea))
-			{
-				r.setBitValue(memory.get(ea).getValue());
-			}
-			else
-			{
-				r.setBitValue(BitWord.DEFAULT_VALUE);
-			}
-		}
-	}
-	
-	public static void main(String[] args)
-	{
-		// TODO: mimic flowchart from Lecture 1
 	}
 	
 	/**
@@ -278,4 +316,6 @@ public class MiniComputer
 	{
 		return String.format("%016d", Integer.parseInt(value));
 	}
+	
+	/* End Helpers */
 }
