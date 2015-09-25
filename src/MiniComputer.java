@@ -195,6 +195,32 @@ public class MiniComputer
 		}
 	}
 	
+	/**
+	 * Loads the value of the effective address into the specified register
+	 * @param register 0-3
+	 * @param index 0-3 (0 if no indexing)
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void loadRegisterFromMemory(int register, int index, boolean isIndirectAddress, BitWord address)
+	{
+		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+		
+		Register r = R(register);
+		
+		if(r != null)
+		{
+			if(memory.containsKey(ea))
+			{
+				r.setBitValue(memory.get(ea).getValue());
+			}
+			else
+			{
+				r.setBitValue(BitWord.DEFAULT_VALUE);
+			}
+		}
+	}
+	
 	public static void main(String[] args)
 	{
 		// TODO: mimic flowchart from Lecture 1

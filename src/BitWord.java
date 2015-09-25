@@ -1,5 +1,5 @@
 public class BitWord {
-	private static final String DEFAULT_VALUE = "0000000000000000";
+	public static final String DEFAULT_VALUE = "0000000000000000";	//16 zero bits
 	
 	protected final String value;
 	

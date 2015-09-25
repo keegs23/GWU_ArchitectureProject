@@ -26,9 +26,15 @@ public class Register
     
     public void setBitValue(String value)
     {
-    	if(value.length() == BitSize)
+    	// Overload for convenience
+    	setBitValue(new BitWord(value));
+    }
+    
+    public void setBitValue(BitWord bitWord)
+    {
+    	if(bitWord.getSize() == BitSize)
     	{
-    		BitValue = new BitWord(value);
+    		BitValue = bitWord;
     	}
     	else
     	{
