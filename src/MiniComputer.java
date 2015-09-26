@@ -33,6 +33,14 @@ public class MiniComputer
 	 * Machine Fault Register
 	 */
 	private Register MFR;
+	/**
+	 * Internal Address Register
+	 */
+	private Register IAR;
+	/**
+	 * Internal Result Register
+	 */
+	private Register IRR;
 	
 	// General Purpose Registers
 	private Register R0;
@@ -60,6 +68,8 @@ public class MiniComputer
 		MBR = new Register(16); //register size is 16 bits
 		MSR = new Register(16); //register size is 16 bits
 		MFR = new Register(4); //register size is 4 bits
+		IAR = new Register(16);
+		IRR = new Register(16);
 		R0 = new Register(16);
 		R1 = new Register(16);
 		R2 = new Register(16);
@@ -103,9 +113,17 @@ public class MiniComputer
 	{
 		return MFR;
 	}
+	public Register getIAR()
+	{
+		return IAR;
+	}
+	public Register getIRR()
+	{
+		return IRR;
+	}
 	/**
 	 * Retrieves the General Purpose Register indicated by r.
-	 * @param r
+	 * @param r 0-3
 	 * @return R0, R1, R2, R3, or null
 	 */
 	public Register getR(int r)
@@ -126,7 +144,7 @@ public class MiniComputer
 	
 	/**
 	 * Retrieves the Index Register indicated by x.
-	 * @param x
+	 * @param x 1-3
 	 * @return X1, X2, X3, or null
 	 */
 	public Register getX(int x)
@@ -161,50 +179,84 @@ public class MiniComputer
 	 */
 	public void loadRegisterFromMemory(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
+		// Retrieve the specified register
+		Register registerSelect1 = getR(register);
+		
+		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 
-		Register r = getR(register);
+		// Move the EA to the Internal Address Register (IAR)
+		IAR.setBitValue(ea);
 		
-		if(r != null)
+		// Move the contents of IAR to the MAR
+		MAR.setBitValue(IAR.getBitValue());
+		
+		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
+		
+		// Fetch the contents in memory at the address specified by MAR into the MBR
+		if(memory.containsKey(MAR.getBitValue()))
 		{
-			if(memory.containsKey(ea))
-			{
-				r.setBitValue(memory.get(ea).getValue());
-			}
-			else
-			{
-				r.setBitValue(BitWord.DEFAULT_VALUE);
-			}
+			MBR.setBitValue(memory.get(MAR.getBitValue()).getValue());
+		}
+		else
+		{			
+			MBR.setBitValue(BitWord.DEFAULT_VALUE);
+		}
+		
+		// Move the data from the MBR to an Internal Result Register (IRR)
+		IRR.setBitValue(MBR.getBitValue());
+		
+		// Store IRR contents into the specified register
+		if(registerSelect1 != null)
+		{
+			registerSelect1.setBitValue(IRR.getBitValue());
 		}
 	}
 	
 	public void storeRegisterToMemory(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
+		// Retrieve the specified register
+		Register registerSelect1 = getR(register);
+		
+		// Calculate the effective address (EA)	
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
-		Register r = getR(register);
+		// Move the EA to the Internal Address Register (IAR)
+		IAR.setBitValue(ea);
 		
-		MemoryLocation memLoc = new MemoryLocation(ea, r.getBitValue());
-		// The HashMap automatically replaces the value and adds a new key if necessary 
-		memory.put(ea.getValue(), memLoc);
+		// Move the contents of IAR to the MAR
+		MAR.setBitValue(IAR.getBitValue());
+		
+		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
+		
+		// Move the contents of the specified register to the IRR
+		IRR.setBitValue(registerSelect1.getBitValue());
+		
+		// Move contents of IRR to MBR
+		MBR.setBitValue(IRR.getBitValue());
+		
+		// Move contents of MBR to memory at address specified by MAR		
+		MemoryLocation memLoc = new MemoryLocation(MAR.getBitValue(), MBR.getBitValue());
+		// HashMap.put() automatically replaces the value and adds a new key if necessary 
+		memory.put(MAR.getBitValue().getValue(), memLoc);
 	}
 	
 	public void loadRegisterWithAddress(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
-		// TODO
+		// KEEGAN TODO
 	}
 	
-	public void loadIndexRegisterFromMemory(int register, int index, boolean isIndirectAddress, BitWord address)
+	public void loadIndexRegisterFromMemory(int index, boolean isIndirectAddress, BitWord address)
 	{
-		// TODO
+		// BEN TODO
 	}
 	
-	public void storeIndexRegisterToMemory(int register, int index, boolean isIndirectAddress, BitWord address)
+	public void storeIndexRegisterToMemory(int index, boolean isIndirectAddress, BitWord address)
 	{
-		// TODO
+		// CHIHOON TODO
 	}
 	
-	// TODO in other parts: other instructions
+	// TODO in later parts: other instructions
 	
 	/* End Instruction methods */
 	
@@ -251,14 +303,14 @@ public class MiniComputer
 				addr = addHelper(indexValue, toAdd);
 			}
 			
+			// TODO: Check that addr is valid (not reserved, not larger than max)
+			
 			if(memory.containsKey(addr))	//MemoryLocation
 			{
 				return memory.get(addr).getValue();
 			}
 			else
 			{
-				// TODO: Check that addr is not beyond 2048 (decimal)
-				
 				return new BitWord();	//value is 0000000000000000 (16 zero bits)
 			}
 		}
@@ -266,6 +318,7 @@ public class MiniComputer
 	
 	/**
 	 * Adds the 2 binary bit Strings
+	 * TODO: Probably move to a new Arithmetic Logic Unit (ALU) class
 	 * @param bitStr1
 	 * @param bitStr2
 	 * @return the binary sum of bitStr1 and bitStr2
@@ -309,7 +362,7 @@ public class MiniComputer
 	
 	/**
 	 * Pads with leading zeros until length is 16
-	 * @param value bit String with length < 16
+	 * @param value bit String with length <= 16
 	 * @return 16-bit String
 	 */
 	private static String padZeros(String value)
