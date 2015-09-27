@@ -11,11 +11,11 @@ public class MiniComputer
 	public static final String MAX_MEMORY_ADDRESS = "0000011111111111";	//11 one bits = 2048 (decimal)
 	
 	/**
-	 * Program Counter
+	 * Program Counter (12 bits)
 	 */
 	private Register PC;
 	/**
-	 * Condition Code Register
+	 * Condition Code Register (4 bits)
 	 */
 	private Register CC;
 	/**
@@ -35,7 +35,7 @@ public class MiniComputer
 	 */
 	private Register MSR;
 	/**
-	 * Machine Fault Register
+	 * Machine Fault Register (4 bits)
 	 */
 	private Register MFR;
 	/**
@@ -196,16 +196,22 @@ public class MiniComputer
 			BufferedReader br = new BufferedReader(new InputStreamReader(fileIn));
 		 
 			String line = null;
-			String address = MemoryLocation.ADDRESS_BOOT_PRGM_START;
+			String bootPrgmStart = MemoryLocation.ADDRESS_BOOT_PRGM_START;
+			String address = bootPrgmStart;
 			while ((line = br.readLine()) != null) {
 				// Read the 16-bit instruction
 				String instruction = line.substring(0, 16);
 				
 				// Store the instruction in memory
 				
+				
 				// Increment address
 				address = addHelper(address, "1");
 			}
+			
+			// Set PC back to the start of the boot program
+			// PC can only hold 12 bits, so chop off the leading zeros
+			PC.setBitValue(bootPrgmStart.substring(4, 16));
 		 
 			br.close();
 		}
@@ -254,7 +260,7 @@ public class MiniComputer
 		
 		// Parse instruction
 		BitInstruction instruction = new BitInstruction(IR.getBitValue());
-		Map<String, BitWord> instructionParse = instruction.ParseInstruction()
+		Map<String, BitWord> instructionParse = instruction.ParseInstruction();
 		
 		// Switch-case on opcode to call the appropriate instruction method
 		boolean isTransferInstruction = false;
@@ -324,7 +330,10 @@ public class MiniComputer
         else
         {
         	// Increment PC
-        	PC.setBitValue(addHelper(PC.getBitValue().getValue(), "1"));
+        	String pc = addHelper(PC.getBitValue().getValue(), "1");
+        	// PC can only hold 12 bits, so chop off the leading zeros
+        	pc = pc.substring(4, 16);
+        	PC.setBitValue(pc);
         }
 	}
 	

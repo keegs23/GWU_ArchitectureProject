@@ -39,6 +39,7 @@ public class Register
     	else
     	{
     		// TODO: Handle value of wrong size
+    		System.out.println("Value is not of size " + BitSize + "!");
     	}
     }
 }
