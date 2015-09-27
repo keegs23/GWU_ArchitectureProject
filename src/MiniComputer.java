@@ -254,69 +254,89 @@ public class MiniComputer
 		// Parse instruction
 		Map<String, BitWord> instructionParse = instruction.ParseInstruction();
 		
+		boolean isTransferInstruction = false;
+		
 		// Switch-case on opcode to call the appropriate instruction method
 		BitWord opcode = instructionParse.get(BitInstruction.KEY_OPCODE);
         switch (opcode.getValue())
         {
             case OpCode.HLT:
-                //KEEGAN TODO
+                //TODO
                 break;
             case OpCode.TRAP:
-                //KEEGAN TODO
+                //TODO
                 break;
             case OpCode.LDR:
             	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue()); 
             	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue()); 
             	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
             	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	loadRegisterFromMemory(register, index, isIndirectAddress, address);
+            	ldr(register, index, isIndirectAddress, address);
                 break;
             case OpCode.STR:
             	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue()); 
             	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue()); 
             	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
             	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	storeRegisterToMemory(register, index, isIndirectAddress, address);
+            	str(register, index, isIndirectAddress, address);
                 break;
             case OpCode.LDA:
-                //KEEGAN TODO
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue()); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue()); 
+            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+            	lda(register, index, isIndirectAddress, address);
                 break;
             case OpCode.LDX:
-                //KEEGAN TODO
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue()); 
+            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+            	ldx(index, isIndirectAddress, address);
                 break;
             case OpCode.STX:
-                //KEEGAN TODO
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue()); 
+            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+            	stx(index, isIndirectAddress, address);
                 break;
             case OpCode.AMR:
-                //do soemthing
+                //TODO
                 break;
             case OpCode.SMR:
-                //blah
+                //TODO
                 break;
             case OpCode.AIR:
-                //do something
+                //TODO
                 break;
             case OpCode.SIR:
-                //do soemthing
+                //TODO
                 break;
             default:
                 break;                        
         }
 		
 		// Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
-        //TODO  --- Based on opcode execute jump/pc sequencing
+        if(isTransferInstruction)
+        {
+        	// TODO
+        }
+        else
+        {
+        	// Increment PC
+        }
 	}
 	
 	/* Instruction methods */
 	
 	/**
+	 * Load Register From Memory
 	 * Loads the value of the effective address into the specified register
 	 * @param register 0-3
 	 * @param index 0-3 (0 if no indexing)
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void loadRegisterFromMemory(int register, int index, boolean isIndirectAddress, BitWord address)
+	public void ldr(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
 		// Retrieve the specified register
 		Register registerSelect1 = getR(register);
@@ -353,13 +373,13 @@ public class MiniComputer
 	}
 	
 	/**
-	 * STR
+	 * Store Register To Memory
 	 * @param register
 	 * @param index
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void storeRegisterToMemory(int register, int index, boolean isIndirectAddress, BitWord address)
+	public void str(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
 		// Retrieve the specified register
 		Register registerSelect1 = getR(register);
@@ -391,7 +411,14 @@ public class MiniComputer
 		memory.put(IAR.getBitValue().getValue(), memLoc);
 	}
 	
-	public void loadRegisterWithAddress(int register, int index, boolean isIndirectAddress, BitWord address)
+	/**
+	 * Load Register With Address
+	 * @param register
+	 * @param index
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void lda(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
 		// Retrieve the specified Index Register (IR a.k.a X)
 		Register registerSelect1 = getR(register);
@@ -415,7 +442,13 @@ public class MiniComputer
 		}
 	}
 	
-	public void loadIndexRegisterFromMemory(int index, boolean isIndirectAddress, BitWord address)
+	/**
+	 * Load Index Register From Memory
+	 * @param index
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void ldx(int index, boolean isIndirectAddress, BitWord address)
 	{
 		// Retrieve the specified Index Register (IR a.k.a X)
 		Register registerSelect1 = getX(index);
@@ -451,7 +484,13 @@ public class MiniComputer
 		}
 	}
 	
-	public void storeIndexRegisterToMemory(int index, boolean isIndirectAddress, BitWord address)
+	/**
+	 * Store Index Register To Memory
+	 * @param index
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void stx(int index, boolean isIndirectAddress, BitWord address)
 	{
 		// Retrieve the specified index register
 		Register indexSelect1 = getX(index);
