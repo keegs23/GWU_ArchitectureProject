@@ -1,6 +1,8 @@
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,7 +11,6 @@ import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -26,7 +27,7 @@ public class MiniComputerGui extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = -8217933506339143771L;
 	private static final int INSTRUCTION_SIZE = 16;
-	private static final String[] INSTRUCTION_LIST_CHOICES = {"IR", "R0", "R1", "R2", "R3"};
+	private MiniComputer cpu;
 	private Container mainPanel;
 	private JPanel leftPanel;
 	private JPanel rightPanel;
@@ -37,7 +38,6 @@ public class MiniComputerGui extends JFrame implements ActionListener {
 	private JPanel memoryPanel;
 	private JLabel[] indicators;
 	private JToggleButton[] toggles;
-	private JComboBox<String> instructionLoadList;
 	private JButton instructionLoadButton;
 	private JTextField pcInput;
 	private JButton iplButton;
@@ -49,6 +49,7 @@ public class MiniComputerGui extends JFrame implements ActionListener {
 
 	public MiniComputerGui() {
 
+		cpu = new MiniComputer();
 		mainPanel = getContentPane();
 		leftPanel = new JPanel();
 		rightPanel = new JPanel();
@@ -59,7 +60,6 @@ public class MiniComputerGui extends JFrame implements ActionListener {
 		memoryPanel = new JPanel();
 		indicators = new JLabel[INSTRUCTION_SIZE];
 		toggles = new JToggleButton[INSTRUCTION_SIZE];
-		instructionLoadList = new JComboBox<String>(INSTRUCTION_LIST_CHOICES);
 		instructionLoadButton = new JButton("Load Instruction");
 		pcInput = new JTextField(10);
 		iplButton = new JButton("IPL");
@@ -120,6 +120,8 @@ public class MiniComputerGui extends JFrame implements ActionListener {
     
     private void addToIplPanel() {
     	
+    	iplButton.setPreferredSize(new Dimension(200,100));
+    	iplButton.setFont(new Font("Arial", Font.PLAIN, 40));
     	iplButton.addActionListener(this);
         iplPanel.add(iplButton);
     }
@@ -145,7 +147,7 @@ public class MiniComputerGui extends JFrame implements ActionListener {
         instructionLoadButton.addActionListener(this);
         instructionPanel.add(new JLabel(""));
         instructionPanel.add(new JLabel(""));
-        instructionPanel.add(instructionLoadList);
+        instructionPanel.add(new JLabel(""));
         instructionPanel.add(instructionLoadButton);
     }
     
@@ -227,10 +229,6 @@ public class MiniComputerGui extends JFrame implements ActionListener {
     	return sb.toString();
     }
     
-    public String getInstructionLoadChoice() {
-    	return instructionLoadList.getSelectedItem().toString();
-    }
-    
     public void populateRegisterRow(String registerName, Register register) {
     	
     	for (int i = 0; i < registerModel.getRowCount(); i++) {
@@ -304,37 +302,25 @@ public class MiniComputerGui extends JFrame implements ActionListener {
     public void runIpl() {
     	
     	System.out.println("IPL BUTTON CLICKED!");
-		// TODO
+		
+    	cpu.loadROM();
     }
     
     public void runInstructionLoad() {
     	
     	System.out.println("INSTRUCTION LOAD BUTTON CLICKED!");
 		System.out.println(getInstructionWord());
-		System.out.println(getInstructionLoadChoice());
 		
-		String selected = getInstructionLoadChoice();
-		
-		if (selected.equals("IR")) {
-			// TODO
-		} else if (selected.equals("R0")) {
-			
-		} else if (selected.equals("R1")) {
-			
-		} else if (selected.equals("R2")) {
-			
-		} else if (selected.equals("R3")) {
-			
-		} else {
-			
-		}
+		cpu.loadToggleInstruction(getInstructionWord());
     }
     
     public void runSingleStep() {
     	
     	System.out.println("SINGLE STEP BUTTON CLICKED!");
 		System.out.println(getPcInput());
-		// TODO
+		
+		cpu.getPC().setBitValue(getPcInput());
+		cpu.singleStep();
     }
 
     public static void main(String[] args) {
