@@ -179,7 +179,7 @@ public class MiniComputer
 	}
 	
 	/**
-	 * Loads the memory from rom.txt.
+	 * Loads the ROM contents.
 	 * Called when IPL button is pressed.
 	 */
 	public void loadROM()
@@ -187,7 +187,7 @@ public class MiniComputer
 		// Read in and parse rom.txt 
 		// rom.txt is formatted so that each instruction is on a separate line, first 16 characters of each line are the instruction, rest are comments
 		// Make sure to only read the first 16 characters of each row (i.e. ignore the comments)
-		File file = new File("rom.txt");
+		File file = new File("BootProgram.txt");
 		try 
 		{
 			FileInputStream fileIn = new FileInputStream(file);
@@ -195,25 +195,40 @@ public class MiniComputer
 			//Construct BufferedReader from InputStreamReader
 			BufferedReader br = new BufferedReader(new InputStreamReader(fileIn));
 		 
+			int bootPrgmLength = 0;
 			String line = null;
-			String bootPrgmStart = MemoryLocation.ADDRESS_BOOT_PRGM_START;
-			String address = bootPrgmStart;
+			String bootPrgmStart16Bits = MemoryLocation.ADDRESS_BOOT_PRGM_START;
+			String address = bootPrgmStart16Bits;
 			while ((line = br.readLine()) != null) {
 				// Read the 16-bit instruction
 				String instruction = line.substring(0, 16);
+				bootPrgmLength++;
 				
 				// Store the instruction in memory
-				
+				// Since technically the ROM is already supposed to be in the computer,
+				// we will input it directly into memory
+				// instead of constructing instructions to input the boot program instructions into memory
+				MemoryLocation memLoc = new MemoryLocation(address, instruction);
+				memory.put(address, memLoc);
 				
 				// Increment address
 				address = addHelper(address, "1");
 			}
 			
+			br.close();
+			
+			// Execute boot program (mostly load/store)
+			// PC can only hold 12 bits, so chop off the leading zeros
+			String bootPrgmStart12Bits = bootPrgmStart16Bits.substring(4, 16);
+			PC.setBitValue(bootPrgmStart12Bits);
+			for(int k = 1; k <= bootPrgmLength; k++)
+			{
+				singleStep();
+			}
+			
 			// Set PC back to the start of the boot program
 			// PC can only hold 12 bits, so chop off the leading zeros
-			PC.setBitValue(bootPrgmStart.substring(4, 16));
-		 
-			br.close();
+			PC.setBitValue(bootPrgmStart12Bits);
 		}
 		catch(Exception ex)
 		{
