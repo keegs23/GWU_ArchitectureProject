@@ -10,26 +10,25 @@ public class BitInstruction extends BitWord
     public static final String KEY_INDIRECT_ADDR = "indirectAddr";
     public static final String KEY_IMMEDIATE = "immediate";
     
-    //Key = Instruction Name (ex. OpCode), Value = Instruction Bits (ex. "0001")
-    private Map<String, BitWord> instructionParts;     
+         
     
     public BitInstruction()
     {
         super();
-    	instructionParts = new HashMap<String, BitWord>();
     }
     
     public BitInstruction(BitWord instruction)
     {
     	super(instruction.getValue());
-        instructionParts = new HashMap<String, BitWord>();
     }
     
     public Map<String, BitWord> ParseInstruction()
     {         
+    	//Key = Instruction Name (ex. OpCode), Value = Instruction Bits (ex. "0001")
+        Map<String, BitWord> instructionParts = new HashMap<String, BitWord>();
         String opCode = value.substring(0, 6);
         
-        switch (value)
+        switch (opCode)
         {
             case OpCode.HLT:
                 //KEEGAN TODO
@@ -38,19 +37,19 @@ public class BitInstruction extends BitWord
                 //KEEGAN TODO
                 break;
             case OpCode.LDR:
-                instructionParts = parseLDR();
+                instructionParts = parseLoadStore();
                 break;
             case OpCode.STR:
-                instructionParts = parseSTR();
+                instructionParts = parseLoadStore();
                 break;
             case OpCode.LDA:
-            	instructionParts = parseLDA();
+            	instructionParts = parseLoadStore();
                 break;
             case OpCode.LDX:
-            	instructionParts = parseLDX();
+            	instructionParts = parseLoadStoreIndex();
                 break;
             case OpCode.STX:
-            	instructionParts = parseSTX();
+            	instructionParts = parseLoadStoreIndex();
                 break;
             case OpCode.AMR:
                 //do soemthing
@@ -65,13 +64,14 @@ public class BitInstruction extends BitWord
                 //do soemthing
                 break;
             default:
+            	
                 break;                        
         }
         
         return instructionParts;
     }  
     
-    private Map<String, BitWord> parseLDR()
+    private Map<String, BitWord> parseLoadStore()
     {
         Map<String, BitWord> ldrParse = new HashMap<String, BitWord>();
         
@@ -85,33 +85,24 @@ public class BitInstruction extends BitWord
         ldrParse.put(KEY_INDEX, new BitWord(index));
         ldrParse.put(KEY_INDIRECT_ADDR, new BitWord(indirectAddr));
         ldrParse.put(KEY_ADDRESS, new BitWord(address));
-        // Add the other relevant key-value pairs
         
         return ldrParse;
     }
     
-    private Map<String, BitWord> parseSTR()
+    private Map<String, BitWord> parseLoadStoreIndex()
     {
-        return parseLDR();
+        Map<String, BitWord> ldrParse = new HashMap<String, BitWord>();
+        
+        String index = value.substring(8, 10);
+        String indirectAddr = value.substring(10, 11);    
+        String address = value.substring(11, 16);
+        
+        ldrParse.put(KEY_OPCODE, new BitWord(OpCode.LDR));
+        ldrParse.put(KEY_INDEX, new BitWord(index));
+        ldrParse.put(KEY_INDIRECT_ADDR, new BitWord(indirectAddr));
+        ldrParse.put(KEY_ADDRESS, new BitWord(address));
+        
+        return ldrParse;
     }
-    
-    private Map<String, BitWord> parseLDA()
-    {
-    	return parseLDR();
-    }
-    
-    private Map<String, BitWord> parseLDX()
-    {
-    	return parseLDR();
-    }
-    
-    private Map<String, BitWord> parseSTX()
-    {
-    	return parseLDR();
-    }
-    
-    public Map<String, BitWord> getInstructionParts()
-    {
-        return instructionParts;
-    }
+
 }
