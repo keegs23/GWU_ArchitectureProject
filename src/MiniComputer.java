@@ -60,7 +60,7 @@ public class MiniComputer
 	
 	public MiniComputer()
 	{
-		// Initialize Registers
+		// Initialize Registers (sizes specified by the table in the project description)
 		PC = new Register(12); //register size is 12 bits
 		CC = new Register(4); //register size is 4 bits
 		IR = new Register(16); //register size is 16 bits
@@ -224,21 +224,25 @@ public class MiniComputer
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);
 		
-		// Move the contents of IAR to the MAR
-		MAR.setBitValue(IAR.getBitValue());
+		// Since this instruction does not retrieve from memory, MAR and MBR will not be used for this instruction
 		
-		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
+		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
 		
 		// Move the contents of the specified register to the IRR
-		IRR.setBitValue(registerSelect1.getBitValue());
+		if(registerSelect1 != null)
+		{
+			IRR.setBitValue(registerSelect1.getBitValue());
+		}
+		else
+		{
+			// Should never reach here, but just in case
+			IRR.setBitValue(BitWord.DEFAULT_VALUE);
+		}
 		
-		// Move contents of IRR to MBR
-		MBR.setBitValue(IRR.getBitValue());
-		
-		// Move contents of MBR to memory at address specified by MAR		
-		MemoryLocation memLoc = new MemoryLocation(MAR.getBitValue(), MBR.getBitValue());
+		// Move contents of IRR to memory at address specified by IAR		
+		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR.getBitValue());
 		// HashMap.put() automatically replaces the value and adds a new key if necessary 
-		memory.put(MAR.getBitValue().getValue(), memLoc);
+		memory.put(IAR.getBitValue().getValue(), memLoc);
 	}
 	
 	public void loadRegisterWithAddress(int register, int index, boolean isIndirectAddress, BitWord address)
@@ -312,25 +316,22 @@ public class MiniComputer
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);
 		
-		// Move the contents of IAR to the MAR
-		MAR.setBitValue(IAR.getBitValue());
+		// Since this instruction is not fetching from memory, MAR and MBR will not be used
 		
-		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
+		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
 		
 		// Move the contents of the specified register to the IRR
 		if (indexSelect1 != null) {
 			IRR.setBitValue(indexSelect1.getBitValue());
 		} else {
+			// Should never reach here, but just in case
 			IRR.setBitValue(new BitWord());
 		}
 		
-		// Move contents of IRR to MBR
-		MBR.setBitValue(IRR.getBitValue());
-		
-		// Move contents of MBR to memory at address specified by MAR		
-		MemoryLocation memLoc = new MemoryLocation(MAR.getBitValue(), MBR.getBitValue());
+		// Move contents of IRR to memory at address specified by IAR		
+		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR.getBitValue());
 		// HashMap.put() automatically replaces the value and adds a new key if necessary 
-		memory.put(MAR.getBitValue().getValue(), memLoc);
+		memory.put(IAR.getBitValue().getValue(), memLoc);
 	}
 	
 	// TODO in later parts: other instructions
