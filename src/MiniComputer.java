@@ -183,6 +183,8 @@ public class MiniComputer
 	public void loadToggleInstruction(String instruction)
 	{
 		// Store the toggle inputs into MemoryLocation.RESERVED_ADDRESS_TOGGLE_INSTRUCTION
+		memory.put(MemoryLocation.RESERVED_ADDRESS_TOGGLE_INSTRUCTION, 
+				new MemoryLocation(MemoryLocation.RESERVED_ADDRESS_TOGGLE_INSTRUCTION, instruction));
 	}
 	
 	/**
