@@ -4,9 +4,12 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -14,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
@@ -22,6 +26,7 @@ public class MiniComputerGui extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = -8217933506339143771L;
 	private static final int INSTRUCTION_SIZE = 16;
+	private static final String[] INSTRUCTION_LIST_CHOICES = {"IR", "R0", "R1", "R2", "R3"};
 	private Container mainPanel;
 	private JPanel leftPanel;
 	private JPanel rightPanel;
@@ -32,9 +37,15 @@ public class MiniComputerGui extends JFrame implements ActionListener {
 	private JPanel memoryPanel;
 	private JLabel[] indicators;
 	private JToggleButton[] toggles;
+	private JComboBox<String> instructionLoadList;
+	private JButton instructionLoadButton;
 	private JTextField pcInput;
 	private JButton iplButton;
 	private JButton singleStepButton;
+	private DefaultTableModel registerModel;
+	private DefaultTableModel memoryModel;
+	private JTable registerTable;
+	private JTable memoryTable;
 
 	public MiniComputerGui() {
 
@@ -48,9 +59,15 @@ public class MiniComputerGui extends JFrame implements ActionListener {
 		memoryPanel = new JPanel();
 		indicators = new JLabel[INSTRUCTION_SIZE];
 		toggles = new JToggleButton[INSTRUCTION_SIZE];
+		instructionLoadList = new JComboBox<String>(INSTRUCTION_LIST_CHOICES);
+		instructionLoadButton = new JButton("Load Instruction");
 		pcInput = new JTextField(10);
 		iplButton = new JButton("IPL");
 		singleStepButton = new JButton("Single Step");
+		registerModel = new DefaultTableModel();
+		memoryModel = new DefaultTableModel();
+		registerTable = new JTable(registerModel);
+		memoryTable = new JTable(memoryModel);
 		
 		initUI();
     }
@@ -70,6 +87,9 @@ public class MiniComputerGui extends JFrame implements ActionListener {
         addToPcPanel();
         addToRegisterPanel();
         addToMemoryPanel();
+        
+        initRegisterTable();
+        initMemoryTable();
         
         addToLeftPanel();
         addToRightPanel();
@@ -110,7 +130,8 @@ public class MiniComputerGui extends JFrame implements ActionListener {
         instructionPanel.add(new JLabel("Position"));
         
         for (int i = 0; i < INSTRUCTION_SIZE; i++) {
-        	indicators[i] = new JLabel();
+        	
+        	indicators[i] = new JLabel("0", SwingConstants.CENTER);
         	toggles[i] = new JToggleButton(i + "");
         	
         	indicators[i].setOpaque(true);
@@ -120,6 +141,12 @@ public class MiniComputerGui extends JFrame implements ActionListener {
         	instructionPanel.add(indicators[i]);
         	instructionPanel.add(toggles[i]);
         }
+        
+        instructionLoadButton.addActionListener(this);
+        instructionPanel.add(new JLabel(""));
+        instructionPanel.add(new JLabel(""));
+        instructionPanel.add(instructionLoadList);
+        instructionPanel.add(instructionLoadButton);
     }
     
     private void addToPcPanel() {
@@ -131,10 +158,17 @@ public class MiniComputerGui extends JFrame implements ActionListener {
     }
     
     private void addToRegisterPanel() {
+        registerPanel.add(new JScrollPane(registerTable));
+    }
+    
+    private void addToMemoryPanel() {
+        memoryPanel.add(new JScrollPane(memoryTable));
+    }
+    
+    private void initRegisterTable() {
     	
-    	DefaultTableModel registerModel = new DefaultTableModel();
-        
-        registerModel.addColumn("Register");
+    	registerModel.setRowCount(0);
+    	registerModel.addColumn("Register");
         registerModel.addColumn("Value (base-2)");
         registerModel.addRow(new Object[]{"R0", "0000 0000 0000 0000"});
         registerModel.addRow(new Object[]{"R1", "0000 0000 0000 0000"});
@@ -143,25 +177,14 @@ public class MiniComputerGui extends JFrame implements ActionListener {
         registerModel.addRow(new Object[]{"X1", "0000 0000 0000 0000"});
         registerModel.addRow(new Object[]{"X2", "0000 0000 0000 0000"});
         registerModel.addRow(new Object[]{"X3", "0000 0000 0000 0000"});
-        
-        JTable registerTable = new JTable(registerModel);
-        registerPanel.add(new JScrollPane(registerTable));
     }
     
-    private void addToMemoryPanel() {
+    private void initMemoryTable() {
     	
-    	DefaultTableModel memoryModel = new DefaultTableModel();
-    	final int MAX_MEMORY = 128;
-        
-        memoryModel.addColumn("Address (base-10)");
+    	memoryModel.setRowCount(0);
+    	memoryModel.addColumn("Address (base-2)");
         memoryModel.addColumn("Value (base-2)");
-        
-        for (int i = 0; i < MAX_MEMORY; i++) {
-        	memoryModel.addRow(new Object[]{i, "0000 0000 0000 0000"});
-        }
-        
-        JTable memoryTable = new JTable(memoryModel);
-        memoryPanel.add(new JScrollPane(memoryTable));
+        memoryModel.addRow(new Object[]{"", ""});
     }
     
     private void addToLeftPanel() {
@@ -204,12 +227,43 @@ public class MiniComputerGui extends JFrame implements ActionListener {
     	return sb.toString();
     }
     
-    public void setRegisterValue(String register, BitWord value) {
-    	// TODO
+    public String getInstructionLoadChoice() {
+    	return instructionLoadList.getSelectedItem().toString();
     }
     
-    public void setMemoryValue(String address, BitWord value) {
-    	// TODO
+    public void populateRegisterRow(String registerName, Register register) {
+    	
+    	for (int i = 0; i < registerModel.getRowCount(); i++) {
+    		if (registerModel.getValueAt(i, 0).equals(registerName)) {
+    			registerModel.setValueAt(register.getBitValue().getValue(), i, 1);
+    			break;
+    		}
+    	}
+    }
+    
+    public void populateRegisterTable(Register R0, Register R1, Register R2, Register R3, Register X1, Register X2, Register X3) {
+    	
+    	registerModel.setRowCount(0);
+        registerModel.addRow(new Object[]{"R0", R0.getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"R1", R1.getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"R2", R2.getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"R3", R3.getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"X1", X1.getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"X2", X2.getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"X3", X3.getBitValue().getValue()});
+    }
+    
+    public void populateMemoryTable(HashMap<String, MemoryLocation> memoryMap) {
+    	
+    	memoryModel.setRowCount(0);
+        
+    	for (Map.Entry<String, MemoryLocation> m : memoryMap.entrySet()) {
+    		
+    		String address = m.getValue().getAddress().getValue();
+    		String value = m.getValue().getValue().getValue();
+    		
+    		memoryModel.addRow(new Object[]{address, value});
+    	}
     }
     
     public void actionPerformed(ActionEvent ae) {
@@ -225,26 +279,63 @@ public class MiniComputerGui extends JFrame implements ActionListener {
     		}
     	}
     	
-    	if (index > -1 ) { // if a toggle button was clicked, change the color
+    	if (index > -1 ) { // if a toggle button was clicked
     		if (toggles[index].isSelected()) {
     			indicators[index].setBackground(Color.GREEN);
+    			indicators[index].setText("1");
     		} else {
     			indicators[index].setBackground(Color.RED);
+    			indicators[index].setText("0");
     		}
-    	} else { // else check the other buttons
+    	} 
+    	else { // else check the other buttons
     		if (src == iplButton) {
-        		System.out.println("IPL BUTTON CLICKED!");
-        		// TODO
+        		runIpl();
+        	} else if (src == instructionLoadButton) {
+        		runInstructionLoad();
         	} else if (src == singleStepButton) {
-        		System.out.println("SINGLE STEP BUTTON CLICKED!");
-        		System.out.println(getPcInput());
-        		// TODO
+        		runSingleStep();
         	} else {
         		System.out.println("SOMETHING WENT WRONG!");
         	}
     	}	
     }
     
+    public void runIpl() {
+    	
+    	System.out.println("IPL BUTTON CLICKED!");
+		// TODO
+    }
+    
+    public void runInstructionLoad() {
+    	
+    	System.out.println("INSTRUCTION LOAD BUTTON CLICKED!");
+		System.out.println(getInstructionWord());
+		System.out.println(getInstructionLoadChoice());
+		
+		String selected = getInstructionLoadChoice();
+		
+		if (selected.equals("IR")) {
+			// TODO
+		} else if (selected.equals("R0")) {
+			
+		} else if (selected.equals("R1")) {
+			
+		} else if (selected.equals("R2")) {
+			
+		} else if (selected.equals("R3")) {
+			
+		} else {
+			
+		}
+    }
+    
+    public void runSingleStep() {
+    	
+    	System.out.println("SINGLE STEP BUTTON CLICKED!");
+		System.out.println(getPcInput());
+		// TODO
+    }
 
     public static void main(String[] args) {
 
