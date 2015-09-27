@@ -168,6 +168,42 @@ public class MiniComputer
 		// TODO: mimic flowchart from Lecture 1
 	}
 	
+	/**
+	 * Loads the memory.
+	 * Called when IPL button is pressed.
+	 */
+	public void loadROM()
+	{
+		// Read in and parse rom.txt (formatted so that each instruction is on a separate row, with comments)
+		// Make sure to only read the first 16 characters of each row (i.e. ignore the comments)
+		
+		// Execute the instructions to load values into memory
+	}
+	
+	public void loadToggleInstruction(String instruction)
+	{
+		// Store the toggle inputs into MemoryLocation.RESERVED_ADDRESS_TOGGLE_INSTRUCTION
+	}
+	
+	/**
+	 * Executes the instruction located at the address indicated by the PC
+	 * Assumes GUI has already stored the instruction address in PC
+	 */
+	public void singleStep()
+	{
+		// Retrieve PC value
+		
+		// Transfer address to MAR
+		
+		// Fetch word from memory located at address specified by MAR into MBR
+		
+		// Parse instruction
+		
+		// Switch-case on opcode to call the appropriate instruction method
+		
+		// Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
+	}
+	
 	/* Instruction methods */
 	
 	/**

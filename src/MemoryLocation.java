@@ -6,10 +6,7 @@ public class MemoryLocation
 	private static final String RESERVED_ADDRESS_3 =  "000000000000011";   		//Memory Address 3
 	private static final String RESERVED_ADDRESS_FAULT_PC =  "000000000000100";   //Memory Address 4
 	private static final String RESERVED_ADDRESS_5 =  "000000000000101";   		//Memory Address 5
-	//Question: Address is 5 bits with load instructions 2^5=32. 
-	//			MAR has 16 bits and holds the address 2^15= 32,768
-	//			2048 * 16 = 32,768 for all of Memory, but only 2048 addresses which is 2^11 or 12 bits needed (they use indexing to get around this)
-	// SHould the MAR be 12-13 bits? So if we keep
+	private static final String RESERVED_ADDRESS_TOGGLE_INSTRUCTION = "000000000000110";	//Memory Address 6
 	//private static final List<String> RESERVED_ADDRESSES = new ArrayList<String>() [ ADDRESS_TRAP, ADDRESS_FAULT, ADDRESS_TRAP_PC, ADDRESS_3, ADDRESS_FAULT_PC, ADDRESS_5];
 	
 	private BitWord value;
@@ -55,7 +52,8 @@ public class MemoryLocation
 				addr == RESERVED_ADDRESS_TRAP_PC || 
 				addr == RESERVED_ADDRESS_3 || 
 				addr == RESERVED_ADDRESS_FAULT_PC || 
-				addr == RESERVED_ADDRESS_5;
+				addr == RESERVED_ADDRESS_5 ||
+				addr == RESERVED_ADDRESS_TOGGLE_INSTRUCTION;
 	}
 	
 }
