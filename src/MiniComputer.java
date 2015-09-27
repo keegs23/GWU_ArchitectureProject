@@ -1,3 +1,8 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -169,15 +174,40 @@ public class MiniComputer
 	}
 	
 	/**
-	 * Loads the memory.
+	 * Loads the memory from rom.txt.
 	 * Called when IPL button is pressed.
 	 */
 	public void loadROM()
 	{
-		// Read in and parse rom.txt (formatted so that each instruction is on a separate row, with comments)
+		// Read in and parse rom.txt 
+		// rom.txt is formatted so that each instruction is on a separate line, first 16 characters of each line are the instruction, rest are comments
 		// Make sure to only read the first 16 characters of each row (i.e. ignore the comments)
-		
-		// Execute the instructions to load values into memory
+		File file = new File("rom.txt");
+		try 
+		{
+			FileInputStream fileIn = new FileInputStream(file);
+			
+			//Construct BufferedReader from InputStreamReader
+			BufferedReader br = new BufferedReader(new InputStreamReader(fileIn));
+		 
+			String line = null;
+			String address = MemoryLocation.ADDRESS_BOOT_PRGM_START;
+			while ((line = br.readLine()) != null) {
+				// Read the 16-bit instruction
+				String instruction = line.substring(0, 16);
+				
+				// Store the instruction in memory
+				
+				// Increment address
+			}
+		 
+			br.close();
+		}
+		catch(Exception ex)
+		{
+			// TODO: Handle exceptions
+			System.out.println(ex);
+		}
 	}
 	
 	public void loadToggleInstruction(String instruction)

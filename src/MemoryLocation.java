@@ -9,6 +9,8 @@ public class MemoryLocation
 	public static final String RESERVED_ADDRESS_TOGGLE_INSTRUCTION = "000000000000110";	//Memory Address 6
 	//public static final List<String> RESERVED_ADDRESSES = new ArrayList<String>() [ ADDRESS_TRAP, ADDRESS_FAULT, ADDRESS_TRAP_PC, ADDRESS_3, ADDRESS_FAULT_PC, ADDRESS_5];
 	
+	public static final String ADDRESS_BOOT_PRGM_START = "000000000001000";	//Memory Address 8 (octal 10)
+	
 	private BitWord value;
 	private BitWord address;
 	
