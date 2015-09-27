@@ -23,4 +23,23 @@ public class BitWord {
 	{
 		return value.length();
 	}
+	
+	/**
+	 * Returns true if the value is equal, ignoring leading zeros
+	 * @param other
+	 * @return
+	 */
+	@Override
+	public boolean equals(Object other)
+	{
+		if(other instanceof BitWord)
+		{
+			// If the value is the same, ignoring leading zeros
+			return Integer.parseInt(value) == Integer.parseInt(((BitWord) other).value);
+		}
+		else
+		{
+			return false;
+		}
+	}
 }
