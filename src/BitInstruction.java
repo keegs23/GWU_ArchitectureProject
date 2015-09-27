@@ -15,6 +15,13 @@ public class BitInstruction extends BitWord
     
     public BitInstruction()
     {
+        super();
+    	instructionParts = new HashMap<String, BitWord>();
+    }
+    
+    public BitInstruction(BitWord instruction)
+    {
+    	super(instruction.getValue());
         instructionParts = new HashMap<String, BitWord>();
     }
     

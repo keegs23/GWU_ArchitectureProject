@@ -190,18 +190,89 @@ public class MiniComputer
 	 * Assumes GUI has already stored the instruction address in PC
 	 */
 	public void singleStep()
-	{
+	{///////////////////////////////////under CONSTRUCTION//////////////////////////
+    	int register;
+    	int index; 
+    	boolean isIndirectAddress; 
+    	BitWord address; 
+		
 		// Retrieve PC value
+		BitWord ea = getPC().getBitValue();
+		
+		//Throw error checking on address value here!!!
+				
+		// Move the EA to the Internal Address Register (IAR)
+		IAR.setBitValue(ea);
 		
 		// Transfer address to MAR
+		MAR.setBitValue(IAR.getBitValue());
 		
 		// Fetch word from memory located at address specified by MAR into MBR
+		if(memory.containsKey(MAR.getBitValue()))
+		{
+			MBR.setBitValue(memory.get(MAR.getBitValue()).getValue());
+		}
+		else
+		{			
+			MBR.setBitValue(BitWord.DEFAULT_VALUE);
+		}
+		//
 		
+		BitInstruction instruction = new BitInstruction(MBR.getBitValue());
 		// Parse instruction
+		Map<String, BitWord> instructionParse = instruction.ParseInstruction();
 		
 		// Switch-case on opcode to call the appropriate instruction method
+		BitWord opcode = instructionParse.get(BitInstruction.KEY_OPCODE);
+        switch (opcode.getValue())
+        {
+            case OpCode.HLT:
+                //KEEGAN TODO
+                break;
+            case OpCode.TRAP:
+                //KEEGAN TODO
+                break;
+            case OpCode.LDR:
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue()); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue()); 
+            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+            	loadRegisterFromMemory(register, index, isIndirectAddress, address);
+                break;
+            case OpCode.STR:
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue()); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue()); 
+            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+            	storeRegisterToMemory(register, index, isIndirectAddress, address);
+                break;
+            case OpCode.LDA:
+                //KEEGAN TODO
+                break;
+            case OpCode.LDX:
+                //KEEGAN TODO
+                break;
+            case OpCode.STX:
+                //KEEGAN TODO
+                break;
+            case OpCode.AMR:
+                //do soemthing
+                break;
+            case OpCode.SMR:
+                //blah
+                break;
+            case OpCode.AIR:
+                //do something
+                break;
+            case OpCode.SIR:
+                //do soemthing
+                break;
+            default:
+                break;                        
+        }
 		
 		// Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
+        //TODO  --- Based on opcode execute jump/pc sequencing
 	}
 	
 	/* Instruction methods */
@@ -249,6 +320,13 @@ public class MiniComputer
 		}
 	}
 	
+	/**
+	 * STR
+	 * @param register
+	 * @param index
+	 * @param isIndirectAddress
+	 * @param address
+	 */
 	public void storeRegisterToMemory(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
 		// Retrieve the specified register
