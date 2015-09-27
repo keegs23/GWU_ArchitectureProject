@@ -204,6 +204,7 @@ public class MiniComputer
 				// Store the instruction in memory
 				
 				// Increment address
+				address = addHelper(address, "1");
 			}
 		 
 			br.close();
@@ -233,16 +234,10 @@ public class MiniComputer
     	boolean isIndirectAddress; 
     	BitWord address; 
 		
-		// Retrieve PC value
-		BitWord ea = getPC().getBitValue();
+		// Transfer PC value to MAR
+		MAR.setBitValue(PC.getBitValue());
 		
-		//Throw error checking on address value here!!!
-				
-		// Move the EA to the Internal Address Register (IAR)
-		IAR.setBitValue(ea);
-		
-		// Transfer address to MAR
-		MAR.setBitValue(IAR.getBitValue());
+		// TODO: Check if address is valid
 		
 		// Fetch word from memory located at address specified by MAR into MBR
 		if(memory.containsKey(MAR.getBitValue()))
@@ -253,23 +248,24 @@ public class MiniComputer
 		{			
 			MBR.setBitValue(BitWord.DEFAULT_VALUE);
 		}
-		//
 		
-		BitInstruction instruction = new BitInstruction(MBR.getBitValue());
+		// Load instruction from MBR into IR
+		IR.setBitValue(MBR.getBitValue());
+		
 		// Parse instruction
-		Map<String, BitWord> instructionParse = instruction.ParseInstruction();
-		
-		boolean isTransferInstruction = false;
+		BitInstruction instruction = new BitInstruction(IR.getBitValue());
+		Map<String, BitWord> instructionParse = instruction.ParseInstruction()
 		
 		// Switch-case on opcode to call the appropriate instruction method
+		boolean isTransferInstruction = false;
 		BitWord opcode = instructionParse.get(BitInstruction.KEY_OPCODE);
         switch (opcode.getValue())
         {
             case OpCode.HLT:
-                //TODO
+                //TODO in Part II
                 break;
             case OpCode.TRAP:
-                //TODO
+                //TODO in Part II
                 break;
             case OpCode.LDR:
             	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue()); 
@@ -305,16 +301,16 @@ public class MiniComputer
             	stx(index, isIndirectAddress, address);
                 break;
             case OpCode.AMR:
-                //TODO
+                //TODO in Part II
                 break;
             case OpCode.SMR:
-                //TODO
+                //TODO in Part II
                 break;
             case OpCode.AIR:
-                //TODO
+                //TODO in Part II
                 break;
             case OpCode.SIR:
-                //TODO
+                //TODO in Part II
                 break;
             default:
                 break;                        
@@ -323,11 +319,12 @@ public class MiniComputer
 		// Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
         if(isTransferInstruction)
         {
-        	// TODO
+        	// TODO in Part II
         }
         else
         {
         	// Increment PC
+        	PC.setBitValue(addHelper(PC.getBitValue().getValue(), "1"));
         }
 	}
 	
