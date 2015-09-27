@@ -37,13 +37,13 @@ public class BitInstruction extends BitWord
                 instructionParts = parseSTR();
                 break;
             case OpCode.LDA:
-                //KEEGAN TODO
+            	instructionParts = parseLDA();
                 break;
             case OpCode.LDX:
-                //KEEGAN TODO
+            	instructionParts = parseLDX();
                 break;
             case OpCode.STX:
-                //KEEGAN TODO
+            	instructionParts = parseSTX();
                 break;
             case OpCode.AMR:
                 //do soemthing
@@ -85,8 +85,24 @@ public class BitInstruction extends BitWord
     
     private Map<String, BitWord> parseSTR()
     {
-        
+        return parseLDR();
     }
+    
+    private Map<String, BitWord> parseLDA()
+    {
+    	return parseLDR();
+    }
+    
+    private Map<String, BitWord> parseLDX()
+    {
+    	return parseLDR();
+    }
+    
+    private Map<String, BitWord> parseSTX()
+    {
+    	return parseLDR();
+    }
+    
     public Map<String, BitWord> getInstructionParts()
     {
         return instructionParts;
