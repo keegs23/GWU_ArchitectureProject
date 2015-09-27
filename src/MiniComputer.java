@@ -243,12 +243,62 @@ public class MiniComputer
 	
 	public void loadRegisterWithAddress(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
-		// KEEGAN TODO
+		// Retrieve the specified Index Register (IR a.k.a X)
+		Register registerSelect1 = getR(register);
+		
+		// Calculate the effective address (EA)
+		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+
+		// Move the EA to the Internal Address Register (IAR)
+		IAR.setBitValue(ea);
+		
+		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
+		
+		// MAR and MBR are not used because this instruction does not fetch from memory
+		// Move the data from the IAR to an Internal Result Register (IRR)
+		IRR.setBitValue(IAR.getBitValue());
+		
+		// Store IRR contents into the specified register
+		if(registerSelect1 != null)
+		{
+			registerSelect1.setBitValue(IRR.getBitValue());
+		}
 	}
 	
 	public void loadIndexRegisterFromMemory(int index, boolean isIndirectAddress, BitWord address)
 	{
-		// BEN TODO
+		// Retrieve the specified Index Register (IR a.k.a X)
+		Register registerSelect1 = getX(index);
+		
+		// Calculate the effective address (EA)
+		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+
+		// Move the EA to the Internal Address Register (IAR)
+		IAR.setBitValue(ea);
+		
+		// Move the contents of IAR to the MAR
+		MAR.setBitValue(IAR.getBitValue());
+		
+		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
+		
+		// Fetch the contents in memory at the address specified by MAR into the MBR
+		if(memory.containsKey(MAR.getBitValue()))
+		{
+			MBR.setBitValue(memory.get(MAR.getBitValue()).getValue());
+		}
+		else
+		{			
+			MBR.setBitValue(BitWord.DEFAULT_VALUE);
+		}
+		
+		// Move the data from the MBR to an Internal Result Register (IRR)
+		IRR.setBitValue(MBR.getBitValue());
+		
+		// Store IRR contents into the specified register
+		if(registerSelect1 != null)
+		{
+			registerSelect1.setBitValue(IRR.getBitValue());
+		}
 	}
 	
 	public void storeIndexRegisterToMemory(int index, boolean isIndirectAddress, BitWord address)
