@@ -61,7 +61,7 @@ public class MiniComputer
 	/**
 	 * Key = String Address, Value = MemoryLocation object
 	 */
-	Map<String, MemoryLocation> memory;
+	private Map<String, MemoryLocation> memory;
 	
 	public MiniComputer()
 	{
@@ -167,6 +167,11 @@ public class MiniComputer
 	}
 	
 	/* End Register Getters */
+	
+	public Map<String, MemoryLocation> getMemory()
+	{
+		return memory;
+	}
 	
 	public static void main(String[] args)
 	{
