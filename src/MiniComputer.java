@@ -3,7 +3,7 @@ import java.util.Map;
 
 public class MiniComputer
 {
-	public static final String MAX_MEMORY_ADDRESS = "1111111111111111";	//16 one bits
+	public static final String MAX_MEMORY_ADDRESS = "0000011111111111";	//11 one bits = 2048 (decimal)
 	
 	/**
 	 * Program Counter
