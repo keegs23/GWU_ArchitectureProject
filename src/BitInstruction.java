@@ -37,19 +37,19 @@ public class BitInstruction extends BitWord
                 //KEEGAN TODO
                 break;
             case OpCode.LDR:
-                instructionParts = parseLoadStore();
+                instructionParts = parseLoadStore(opCode);
                 break;
             case OpCode.STR:
-                instructionParts = parseLoadStore();
+                instructionParts = parseLoadStore(opCode);
                 break;
             case OpCode.LDA:
-            	instructionParts = parseLoadStore();
+            	instructionParts = parseLoadStore(opCode);
                 break;
             case OpCode.LDX:
-            	instructionParts = parseLoadStoreIndex();
+            	instructionParts = parseLoadStoreIndex(opCode);
                 break;
             case OpCode.STX:
-            	instructionParts = parseLoadStoreIndex();
+            	instructionParts = parseLoadStoreIndex(opCode);
                 break;
             case OpCode.AMR:
                 //do soemthing
@@ -64,45 +64,44 @@ public class BitInstruction extends BitWord
                 //do soemthing
                 break;
             default:
-            	
                 break;                        
         }
         
         return instructionParts;
     }  
     
-    private Map<String, BitWord> parseLoadStore()
+    private Map<String, BitWord> parseLoadStore(String opCode)
     {
-        Map<String, BitWord> ldrParse = new HashMap<String, BitWord>();
+        Map<String, BitWord> parse = new HashMap<String, BitWord>();
         
         String register = value.substring(6, 8);
         String index = value.substring(8, 10);
         String indirectAddr = value.substring(10, 11);    
         String address = value.substring(11, 16);
         
-        ldrParse.put(KEY_OPCODE, new BitWord(OpCode.LDR));
-        ldrParse.put(KEY_REGISTER, new BitWord(register));
-        ldrParse.put(KEY_INDEX, new BitWord(index));
-        ldrParse.put(KEY_INDIRECT_ADDR, new BitWord(indirectAddr));
-        ldrParse.put(KEY_ADDRESS, new BitWord(address));
+        parse.put(KEY_OPCODE, new BitWord(opCode));
+        parse.put(KEY_REGISTER, new BitWord(register));
+        parse.put(KEY_INDEX, new BitWord(index));
+        parse.put(KEY_INDIRECT_ADDR, new BitWord(indirectAddr));
+        parse.put(KEY_ADDRESS, new BitWord(address));
         
-        return ldrParse;
+        return parse;
     }
     
-    private Map<String, BitWord> parseLoadStoreIndex()
+    private Map<String, BitWord> parseLoadStoreIndex(String opCode)
     {
-        Map<String, BitWord> ldrParse = new HashMap<String, BitWord>();
+        Map<String, BitWord> parse = new HashMap<String, BitWord>();
         
         String index = value.substring(8, 10);
         String indirectAddr = value.substring(10, 11);    
         String address = value.substring(11, 16);
         
-        ldrParse.put(KEY_OPCODE, new BitWord(OpCode.LDR));
-        ldrParse.put(KEY_INDEX, new BitWord(index));
-        ldrParse.put(KEY_INDIRECT_ADDR, new BitWord(indirectAddr));
-        ldrParse.put(KEY_ADDRESS, new BitWord(address));
+        parse.put(KEY_OPCODE, new BitWord(opCode));
+        parse.put(KEY_INDEX, new BitWord(index));
+        parse.put(KEY_INDIRECT_ADDR, new BitWord(indirectAddr));
+        parse.put(KEY_ADDRESS, new BitWord(address));
         
-        return ldrParse;
+        return parse;
     }
 
 }

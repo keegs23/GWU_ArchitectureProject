@@ -480,7 +480,8 @@ public class MiniComputer
 		Register registerSelect1 = getX(index);
 		
 		// Calculate the effective address (EA)
-		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+		// Pass in 0 for index since it is used to specify the index register to load into instead of for addressing like usual
+		BitWord ea = calculateEffectiveAddress(0, isIndirectAddress, address);
 
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);
@@ -522,7 +523,8 @@ public class MiniComputer
 		Register indexSelect1 = getX(index);
 		
 		// Calculate the effective address (EA)	
-		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+		// Pass in 0 for index since it is used to specify the index register to store into instead of for addressing like usual
+		BitWord ea = calculateEffectiveAddress(0, isIndirectAddress, address);
 		
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);

@@ -16,14 +16,14 @@ public class MemoryLocation
 	
 	public MemoryLocation(String tempAddress, String val)
 	{		
-		value = new BitWord(val);
 		address = new BitWord(tempAddress);
+		value = new BitWord(val);
 	}
 	
 	public MemoryLocation(BitWord tempAddress, BitWord val)
 	{
-		value = tempAddress;
-		address = val;
+		address = tempAddress;
+		value = val;
 	}
 	
 	public BitWord getValue()
