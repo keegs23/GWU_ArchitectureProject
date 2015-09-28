@@ -307,7 +307,7 @@ public class MiniComputerGui extends JFrame implements ActionListener {
     	System.out.println("IPL BUTTON CLICKED!");
 		
     	cpu.loadROM();
-    	
+    	populateRegisterTable();
     	populateMemoryTable();
     }
     

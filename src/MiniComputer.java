@@ -3,8 +3,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class MiniComputer
 {
@@ -84,7 +85,7 @@ public class MiniComputer
 		X3 = new Register(16);
 		
 		// Initialize Memory
-		memory = new HashMap<String, MemoryLocation>();
+		memory = new TreeMap<String, MemoryLocation>();
 	}
 	
 	/* Register getters */
@@ -433,7 +434,7 @@ public class MiniComputer
 		
 		// Move contents of IRR to memory at address specified by IAR		
 		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR.getBitValue());
-		// HashMap.put() automatically replaces the value and adds a new key if necessary 
+		// TreeMap.put() automatically replaces the value and adds a new key if necessary 
 		memory.put(IAR.getBitValue().getValue(), memLoc);
 	}
 	
@@ -543,7 +544,7 @@ public class MiniComputer
 		
 		// Move contents of IRR to memory at address specified by IAR		
 		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR.getBitValue());
-		// HashMap.put() automatically replaces the value and adds a new key if necessary 
+		// TreeMap.put() automatically replaces the value and adds a new key if necessary 
 		memory.put(IAR.getBitValue().getValue(), memLoc);
 	}
 	
