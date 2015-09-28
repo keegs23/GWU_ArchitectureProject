@@ -256,14 +256,14 @@ public class MiniComputer
     	BitWord address; 
 		
 		// Transfer PC value to MAR
-		MAR.setBitValue(PC.getBitValue());
+		MAR.setBitValue(padZeros(PC.getBitValue().getValue()));
 		
 		// TODO: Check if address is valid
 		
 		// Fetch word from memory located at address specified by MAR into MBR
-		if(memory.containsKey(MAR.getBitValue()))
+		if(memory.containsKey(MAR.getBitValue().getValue()))
 		{
-			MBR.setBitValue(memory.get(MAR.getBitValue()).getValue());
+			MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
 		}
 		else
 		{			
@@ -289,34 +289,34 @@ public class MiniComputer
                 //TODO in Part II
                 break;
             case OpCode.LDR:
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue()); 
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue()); 
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
             	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
             	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
             	ldr(register, index, isIndirectAddress, address);
                 break;
             case OpCode.STR:
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue()); 
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue()); 
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
             	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
             	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
             	str(register, index, isIndirectAddress, address);
                 break;
             case OpCode.LDA:
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue()); 
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue()); 
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
             	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
             	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
             	lda(register, index, isIndirectAddress, address);
                 break;
             case OpCode.LDX:
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue()); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
             	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
             	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
             	ldx(index, isIndirectAddress, address);
                 break;
             case OpCode.STX:
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue()); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
             	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
             	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
             	stx(index, isIndirectAddress, address);
@@ -379,9 +379,9 @@ public class MiniComputer
 		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
 		
 		// Fetch the contents in memory at the address specified by MAR into the MBR
-		if(memory.containsKey(MAR.getBitValue()))
+		if(memory.containsKey(MAR.getBitValue().getValue()))
 		{
-			MBR.setBitValue(memory.get(MAR.getBitValue()).getValue());
+			MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
 		}
 		else
 		{			
@@ -491,9 +491,9 @@ public class MiniComputer
 		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
 		
 		// Fetch the contents in memory at the address specified by MAR into the MBR
-		if(memory.containsKey(MAR.getBitValue()))
+		if(memory.containsKey(MAR.getBitValue().getValue()))
 		{
-			MBR.setBitValue(memory.get(MAR.getBitValue()).getValue());
+			MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
 		}
 		else
 		{			
@@ -557,7 +557,7 @@ public class MiniComputer
 		{
 			if(indexRegister == 0)
 			{
-				return address;
+				return new BitWord(padZeros(address.getValue()));
 			}
 			else if(indexRegister >= 1 && indexRegister <= 3)
 			{
@@ -572,7 +572,7 @@ public class MiniComputer
 			else
 			{
 				// Should never reach here, but just in case
-				return address;	//does it make sense to return this?
+				return new BitWord(padZeros(address.getValue()));	//does it make sense to return this?
 			}
 		}
 		else
@@ -581,7 +581,7 @@ public class MiniComputer
 			
 			if(indexRegister == 0)
 			{
-				addr = address.getValue();
+				addr = padZeros(address.getValue());
 			}
 			else if(indexRegister >= 1 && indexRegister <= 3)
 			{
@@ -625,7 +625,7 @@ public class MiniComputer
 		int carryIn = 0;
 		int carryOut = 0;
 		
-		for(int k = 15; k <= 0; k--)
+		for(int k = 15; k >= 0; k--)
 		{
 			// Retrieve the next lowest bit
 			int a = Integer.parseInt(bits1.substring(k, k+1));

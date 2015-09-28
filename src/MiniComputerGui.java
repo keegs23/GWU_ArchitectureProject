@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BoxLayout;
@@ -214,6 +213,10 @@ public class MiniComputerGui extends JFrame implements ActionListener {
     	return pcInput.getText();
     }
     
+    public void populatePcInput() {
+    	pcInput.setText(cpu.getPC().getBitValue().getValue());
+    }
+    
     public String getInstructionWord() {
     	
     	StringBuilder sb = new StringBuilder();
@@ -239,23 +242,23 @@ public class MiniComputerGui extends JFrame implements ActionListener {
     	}
     }
     
-    public void populateRegisterTable(Register R0, Register R1, Register R2, Register R3, Register X1, Register X2, Register X3) {
+    public void populateRegisterTable() {
     	
     	registerModel.setRowCount(0);
-        registerModel.addRow(new Object[]{"R0", R0.getBitValue().getValue()});
-        registerModel.addRow(new Object[]{"R1", R1.getBitValue().getValue()});
-        registerModel.addRow(new Object[]{"R2", R2.getBitValue().getValue()});
-        registerModel.addRow(new Object[]{"R3", R3.getBitValue().getValue()});
-        registerModel.addRow(new Object[]{"X1", X1.getBitValue().getValue()});
-        registerModel.addRow(new Object[]{"X2", X2.getBitValue().getValue()});
-        registerModel.addRow(new Object[]{"X3", X3.getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"R0", cpu.getR(0).getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"R1", cpu.getR(1).getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"R2", cpu.getR(2).getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"R3", cpu.getR(3).getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"X1", cpu.getX(1).getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"X2", cpu.getX(2).getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"X3", cpu.getX(3).getBitValue().getValue()});
     }
     
-    public void populateMemoryTable(HashMap<String, MemoryLocation> memoryMap) {
+    public void populateMemoryTable() {
     	
     	memoryModel.setRowCount(0);
         
-    	for (Map.Entry<String, MemoryLocation> m : memoryMap.entrySet()) {
+    	for (Map.Entry<String, MemoryLocation> m : cpu.getMemory().entrySet()) {
     		
     		String address = m.getValue().getAddress().getValue();
     		String value = m.getValue().getValue().getValue();
@@ -304,14 +307,18 @@ public class MiniComputerGui extends JFrame implements ActionListener {
     	System.out.println("IPL BUTTON CLICKED!");
 		
     	cpu.loadROM();
+    	
+    	populateMemoryTable();
     }
     
     public void runInstructionLoad() {
     	
     	System.out.println("INSTRUCTION LOAD BUTTON CLICKED!");
-		System.out.println(getInstructionWord());
+		//System.out.println(getInstructionWord());
 		
 		cpu.loadToggleInstruction(getInstructionWord());
+		populateMemoryTable();
+		//System.out.println(cpu.getMemory().get(MemoryLocation.RESERVED_ADDRESS_TOGGLE_INSTRUCTION).getValue().getValue());
     }
     
     public void runSingleStep() {
@@ -321,6 +328,10 @@ public class MiniComputerGui extends JFrame implements ActionListener {
 		
 		cpu.getPC().setBitValue(getPcInput());
 		cpu.singleStep();
+		
+		populateRegisterTable();
+		populateMemoryTable();
+		populatePcInput();
     }
 
     public static void main(String[] args) {
