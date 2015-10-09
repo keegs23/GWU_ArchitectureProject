@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -24,7 +26,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
-public class MiniComputerGui extends JFrame implements ActionListener {
+public class MiniComputerGui extends JFrame implements ActionListener, Observer {
 
 	private static final long serialVersionUID = -8217933506339143771L;
 	private static final int INSTRUCTION_SIZE = 16;
@@ -53,6 +55,7 @@ public class MiniComputerGui extends JFrame implements ActionListener {
 	private JTable memoryTable;
 	private JTextArea consolePrinterOutput;
 	private JTextArea consoleKeyboardInput;
+	private JButton consoleKeyboardButton;
 
 	public MiniComputerGui() {
 
@@ -81,6 +84,7 @@ public class MiniComputerGui extends JFrame implements ActionListener {
 		memoryTable = new JTable(memoryModel);
 		consolePrinterOutput = new JTextArea();
 		consoleKeyboardInput = new JTextArea();
+		consoleKeyboardButton = new JButton("Enter");
 		
 		initUI();
     }
@@ -113,6 +117,8 @@ public class MiniComputerGui extends JFrame implements ActionListener {
         addToCenterPanel();
         addToRightPanel();
         addToMainPanel();
+        
+        cpu.addObserver(this);
         
     }
     
@@ -212,7 +218,10 @@ public class MiniComputerGui extends JFrame implements ActionListener {
     	
     	consoleKeyboardInput.setLineWrap(true);
     	consoleKeyboardInput.setWrapStyleWord(true);
-    	consoleKeyboardPanel.add(new JScrollPane(consoleKeyboardInput));
+    	consoleKeyboardPanel.add(new JScrollPane(consoleKeyboardInput), BorderLayout.CENTER);
+    	
+    	consoleKeyboardButton.addActionListener(this);
+    	consoleKeyboardPanel.add(consoleKeyboardButton, BorderLayout.SOUTH);
     }
     
     private void initRegisterTable() {
@@ -345,6 +354,22 @@ public class MiniComputerGui extends JFrame implements ActionListener {
     	}
     }
     
+    public void update(Observable o, Object opCode) {
+    	
+    	if (opCode == OpCode.IN) {
+    		
+    		System.out.println("Input Instruction called.");
+    		// TODO
+    	} else if (opCode == OpCode.OUT) {
+    		
+    		System.out.println("Output Instruction called.");
+    		// TODO
+    	} else {
+    		
+    		System.out.println("ERROR: UNKNOWN OBSERVABLE SOURCE!");
+    	}
+    }
+    
     public void actionPerformed(ActionEvent ae) {
     	
     	Object src = ae.getSource();
@@ -376,6 +401,8 @@ public class MiniComputerGui extends JFrame implements ActionListener {
         		runInstructionLoad();
         	} else if (src == singleStepButton) {
         		runSingleStep();
+        	} else if (src == consoleKeyboardButton) {
+        		runConsoleKeyboard();
         	} else {
         		System.out.println("ERROR: UNKNOWN EVENT SOURCE!");
         	}
@@ -419,6 +446,13 @@ public class MiniComputerGui extends JFrame implements ActionListener {
 		populateRegisterTable();
 		populateMemoryTable();
 		populatePcInput();
+    }
+    
+    private void runConsoleKeyboard() {
+    	
+    	System.out.println("ENTER BUTTON CLICKED!");
+    	
+    	//Do something
     }
 
     public static void main(String[] args) {

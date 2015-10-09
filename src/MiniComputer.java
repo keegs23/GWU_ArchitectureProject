@@ -3,9 +3,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.Observable;
 import java.util.TreeMap;
 
-public class MiniComputer
+public class MiniComputer extends Observable
 {
 	public static final String MAX_MEMORY_ADDRESS = "0000011111111111";	//11 one bits = 2048 (decimal)
 	
@@ -207,7 +208,7 @@ public class MiniComputer
 				memory.put(address, memLoc);
 				
 				// Increment address
-				address = addHelper(address, "1");
+				address = ArithmeticLogicUnit.addHelper(address, "1");
 			}
 			
 			br.close();
@@ -251,7 +252,7 @@ public class MiniComputer
     	BitWord address; 
 		
 		// Transfer PC value to MAR
-		MAR.setBitValue(padZeros(PC.getBitValue().getValue()));
+		MAR.setBitValue(ArithmeticLogicUnit.padZeros(PC.getBitValue().getValue()));
 		
 		// TODO: Check if address is valid
 		
@@ -340,7 +341,7 @@ public class MiniComputer
         else
         {
         	// Increment PC
-        	String pc = addHelper(PC.getBitValue().getValue(), "1");
+        	String pc = ArithmeticLogicUnit.addHelper(PC.getBitValue().getValue(), "1");
         	// PC can only hold 12 bits, so chop off the leading zeros
         	pc = pc.substring(4, 16);
         	PC.setBitValue(pc);
@@ -542,6 +543,30 @@ public class MiniComputer
 		memory.put(IAR.getBitValue().getValue(), memLoc);
 	}
 	
+	/**
+	 * Input character to register from device
+	 * @param register
+	 * @param devId
+	 */
+	public void in(int register, BitWord devId)
+	{
+		setChanged();
+		notifyObservers(OpCode.IN);
+		// TODO
+	}
+	
+	/**
+	 * Output character to device from register
+	 * @param register
+	 * @param devId
+	 */
+	public void out(int register, BitWord devId)
+	{
+		setChanged();
+		notifyObservers(OpCode.OUT);
+		// TODO
+	}
+	
 	// TODO in later parts: other instructions
 	
 	/* End Instruction methods */
@@ -554,7 +579,7 @@ public class MiniComputer
 		{
 			if(indexRegister == 0)
 			{
-				return new BitWord(padZeros(address.getValue()));
+				return new BitWord(ArithmeticLogicUnit.padZeros(address.getValue()));
 			}
 			else if(indexRegister >= 1 && indexRegister <= 3)
 			{
@@ -562,14 +587,14 @@ public class MiniComputer
 				
 				String toAdd = address.getValue();
 						
-				String ea = addHelper(indexValue, toAdd);
+				String ea = ArithmeticLogicUnit.addHelper(indexValue, toAdd);
 						
 				return new BitWord(ea);
 			}
 			else
 			{
 				// Should never reach here, but just in case
-				return new BitWord(padZeros(address.getValue()));	//does it make sense to return this?
+				return new BitWord(ArithmeticLogicUnit.padZeros(address.getValue()));	//does it make sense to return this?
 			}
 		}
 		else
@@ -578,7 +603,7 @@ public class MiniComputer
 			
 			if(indexRegister == 0)
 			{
-				addr = padZeros(address.getValue());
+				addr = ArithmeticLogicUnit.padZeros(address.getValue());
 			}
 			else if(indexRegister >= 1 && indexRegister <= 3)
 			{
@@ -586,7 +611,7 @@ public class MiniComputer
 				
 				String toAdd = address.getValue();
 				
-				addr = addHelper(indexValue, toAdd);
+				addr = ArithmeticLogicUnit.addHelper(indexValue, toAdd);
 			}
 			
 			// TODO: Check that addr is valid (not reserved, not larger than max)
@@ -600,60 +625,6 @@ public class MiniComputer
 				return new BitWord();	//value is 0000000000000000 (16 zero bits)
 			}
 		}
-	}
-	
-	/**
-	 * Adds the 2 binary bit Strings
-	 * TODO: Probably move to a new Arithmetic Logic Unit (ALU) class
-	 * @param bitStr1
-	 * @param bitStr2
-	 * @return the binary sum of bitStr1 and bitStr2
-	 */
-	private String addHelper(String bitStr1, String bitStr2)
-	{
-		// How closely were we supposed to mimic how the computer actually does bit addition?
-		
-		String sum = "";
-		
-		// Make sure both are 16 bits
-		String bits1 = padZeros(bitStr1);
-		String bits2 = padZeros(bitStr2);
-		
-		int carryIn = 0;
-		int carryOut = 0;
-		
-		for(int k = 15; k >= 0; k--)
-		{
-			// Retrieve the next lowest bit
-			int a = Integer.parseInt(bits1.substring(k, k+1));
-			int b = Integer.parseInt(bits2.substring(k, k+1));
-			
-			// Calculate the next bit for the sum and the carryOut
-			int s = a + b + carryIn;
-			sum = Integer.toString(s % 2) + sum;
-			carryOut = s / 2;
-			
-			// Prepare for the next bit
-			carryIn = carryOut;
-		}
-		
-		// Check for overflow
-		if (carryOut > 0)
-		{
-			// TODO: Handle overflow
-		}
-		
-		return sum;
-	}
-	
-	/**
-	 * Pads with leading zeros until length is 16
-	 * @param value bit String with length <= 16
-	 * @return 16-bit String
-	 */
-	private static String padZeros(String value)
-	{
-		return String.format("%016d", Integer.parseInt(value));
 	}
 	
 	/* End Helpers */

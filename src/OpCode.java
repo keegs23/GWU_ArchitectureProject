@@ -58,5 +58,15 @@ public class OpCode
 	 * Substract immediate from register
 	 */
 	public static final String SIR  = "000111"; //7
+	
+	/**
+	 * Input character to register from device
+	 */
+	public static final String IN  = "110001"; //61
+	
+	/**
+	 * Output character to device from register
+	 */
+	public static final String OUT  = "110010"; //62
 
 }
