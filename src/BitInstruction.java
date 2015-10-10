@@ -9,8 +9,8 @@ public class BitInstruction extends BitWord
     public static final String KEY_ADDRESS = "address";
     public static final String KEY_INDIRECT_ADDR = "indirectAddr";
     public static final String KEY_IMMEDIATE = "immediate";
+    public static final String KEY_CONDITION_CODE = "conditionCode";
     
-         
     
     public BitInstruction()
     {
@@ -64,16 +64,19 @@ public class BitInstruction extends BitWord
                 //CHIHOON TODO
                 break;
             case OpCode.JZ:
-            	//ANNE TODO
+            	//Instruction schema is similar to that of the load/store instructions
+            	instructionParts = parseLoadStore(opCode);
             	break;
             case OpCode.JNE:
-            	//ANNE TODO
+            	//Instruction schema is similar to that of the load/store instructions
+            	instructionParts = parseLoadStore(opCode);
             	break;
             case OpCode.JCC:
-            	//ANNE TODO
+            	instructionParts = parseJCC();
             	break;
             case OpCode.JMA:
-            	//ANNE TODO
+            	//Instruction schema is similar to that of the load/store instructions for index registers
+            	instructionParts = parseLoadStoreIndex(opCode);
             	break;
             case OpCode.JSR:
             	//KEEGAN TODO
@@ -82,10 +85,12 @@ public class BitInstruction extends BitWord
             	//KEEGAN TODO
             	break;
             case OpCode.SOB:
-            	//ANNE TODO
+            	//Instruction schema is similar to that of the load/store instructions
+            	instructionParts = parseLoadStore(opCode);
             	break;
             case OpCode.JGE:
-            	//ANNE TODO
+            	//Instruction schema is similar to that of the load/store instructions
+            	instructionParts = parseLoadStore(opCode);
             	break;
             default:
                 break;                        
@@ -137,5 +142,26 @@ public class BitInstruction extends BitWord
         
         return parse;
     }
-
+    
+    /**
+     * Parses the condition code, index, indirectAddr, and address
+     * @return
+     */
+    private Map<String, BitWord> parseJCC()
+    {
+    	Map<String, BitWord> parse = new HashMap<String, BitWord>();
+    
+    	String condCode = value.substring(6, 8);
+        String index = value.substring(8, 10);
+        String indirectAddr = value.substring(10, 11);    
+        String address = value.substring(11, 16);
+        
+        parse.put(KEY_OPCODE, new BitWord(OpCode.JCC));
+        parse.put(KEY_CONDITION_CODE, new BitWord(condCode));
+        parse.put(KEY_INDEX, new BitWord(index));
+        parse.put(KEY_INDIRECT_ADDR, new BitWord(indirectAddr));
+        parse.put(KEY_ADDRESS, new BitWord(address));
+        
+        return parse;
+    }
 }
