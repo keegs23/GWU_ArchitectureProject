@@ -688,7 +688,7 @@ public class MiniComputer extends Observable
 	
 	/* Helpers */
 	
-	public BitWord calculateEffectiveAddress(int indexRegister, boolean isIndirectAddress, BitWord address)
+	private BitWord calculateEffectiveAddress(int indexRegister, boolean isIndirectAddress, BitWord address)
 	{		
 		if(!isIndirectAddress)
 		{
