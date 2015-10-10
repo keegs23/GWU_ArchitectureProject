@@ -7,9 +7,9 @@ public final class ArithmeticLogicUnit {
 	 * Adds the 2 binary bit Strings
 	 * @param bitStr1
 	 * @param bitStr2
-	 * @return the binary sum of bitStr1 and bitStr2
+	 * @return the binary sum of bitStr1 and bitStr2 as a 16-bit String
 	 */
-	public static String addHelper(String bitStr1, String bitStr2)
+	public static String add(String bitStr1, String bitStr2)
 	{
 		// How closely were we supposed to mimic how the computer actually does bit addition?
 		
@@ -46,7 +46,13 @@ public final class ArithmeticLogicUnit {
 		return sum;
 	}
 	
-	public static String subtractionHelper(String bitStr1, String bitStr2)
+	/**
+	 * Subtracts the 2 binary bit Strings
+	 * @param bitStr1
+	 * @param bitStr2
+	 * @return the binary difference of bitStr1 and bitStr2 as a 16-bit String
+	 */
+	public static String subtract(String bitStr1, String bitStr2)
 	{
 		// TODO
 		return "";

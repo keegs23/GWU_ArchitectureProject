@@ -208,7 +208,7 @@ public class MiniComputer extends Observable
 				memory.put(address, memLoc);
 				
 				// Increment address
-				address = ArithmeticLogicUnit.addHelper(address, "1");
+				address = ArithmeticLogicUnit.add(address, "1");
 			}
 			
 			br.close();
@@ -341,7 +341,7 @@ public class MiniComputer extends Observable
         else
         {
         	// Increment PC
-        	String pc = ArithmeticLogicUnit.addHelper(PC.getBitValue().getValue(), "1");
+        	String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), "1");
         	// PC can only hold 12 bits, so chop off the leading zeros
         	pc = pc.substring(4, 16);
         	PC.setBitValue(pc);
@@ -587,7 +587,7 @@ public class MiniComputer extends Observable
 				
 				String toAdd = address.getValue();
 						
-				String ea = ArithmeticLogicUnit.addHelper(indexValue, toAdd);
+				String ea = ArithmeticLogicUnit.add(indexValue, toAdd);
 						
 				return new BitWord(ea);
 			}
@@ -611,7 +611,7 @@ public class MiniComputer extends Observable
 				
 				String toAdd = address.getValue();
 				
-				addr = ArithmeticLogicUnit.addHelper(indexValue, toAdd);
+				addr = ArithmeticLogicUnit.add(indexValue, toAdd);
 			}
 			
 			// TODO: Check that addr is valid (not reserved, not larger than max)
