@@ -69,4 +69,43 @@ public class OpCode
 	 */
 	public static final String OUT  = "110010"; //62
 
+	/**
+	 * Jump If Zero
+	 */
+	public static final String JZ = "001000";	//10
+	
+	/**
+	 * Jump If Not Equal
+	 */
+	public static final String JNE = "001001";	//11
+	
+	/**
+	 * Jump If Condition Code
+	 */
+	public static final String JCC = "001010";	//12
+	
+	/**
+	 * Unconditional Jump To Address
+	 */
+	public static final String JMA = "001011";	//13
+	
+	/**
+	 * Jump and Save Return Address
+	 */
+	public static final String JSR = "001100";	//14
+	
+	/**
+	 * Return From Subroutine
+	 */
+	public static final String RFS = "001101";	//15
+	
+	/**
+	 * Subtract One and Branch
+	 */
+	public static final String SOB = "001110";	//16
+	
+	/**
+	 * Jump If Greater Than or Equal To
+	 */
+	public static final String JGE = "001111";	//17
 }

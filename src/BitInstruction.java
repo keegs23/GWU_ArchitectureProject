@@ -31,10 +31,10 @@ public class BitInstruction extends BitWord
         switch (opCode)
         {
             case OpCode.HLT:
-                //KEEGAN TODO
+                //BEN TODO
                 break;
             case OpCode.TRAP:
-                //KEEGAN TODO
+                //TODO in Part III
                 break;
             case OpCode.LDR:
                 instructionParts = parseLoadStore(opCode);
@@ -52,16 +52,16 @@ public class BitInstruction extends BitWord
             	instructionParts = parseLoadStoreIndex(opCode);
                 break;
             case OpCode.AMR:
-                //do soemthing
+                //CHIHOON TODO
                 break;
             case OpCode.SMR:
-                //blah
+                //CHIHOON TODO
                 break;
             case OpCode.AIR:
-                //do something
+                //CHIHOON TODO
                 break;
             case OpCode.SIR:
-                //do soemthing
+                //CHIHOON TODO
                 break;
             default:
                 break;                        

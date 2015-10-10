@@ -318,17 +318,41 @@ public class MiniComputer extends Observable
             	stx(index, isIndirectAddress, address);
                 break;
             case OpCode.AMR:
-                //TODO in Part II
+                //CHIHOON TODO
                 break;
             case OpCode.SMR:
-                //TODO in Part II
+                //CHIHOON TODO
                 break;
             case OpCode.AIR:
-                //TODO in Part II
+                //CHIHOON TODO
                 break;
             case OpCode.SIR:
-                //TODO in Part II
+                //CHIHOON TODO
                 break;
+            case OpCode.JZ:
+            	//ANNE TODO
+            	break;
+            case OpCode.JNE:
+            	//ANNE TODO
+            	break;
+            case OpCode.JCC:
+            	//ANNE TODO
+            	break;
+            case OpCode.JMA:
+            	//ANNE TODO
+            	break;
+            case OpCode.JSR:
+            	//KEEGAN TODO
+            	break;
+            case OpCode.RFS:
+            	//KEEGAN TODO
+            	break;
+            case OpCode.SOB:
+            	//ANNE TODO
+            	break;
+            case OpCode.JGE:
+            	//ANNE TODO
+            	break;
             default:
                 break;                        
         }
