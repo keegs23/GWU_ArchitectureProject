@@ -576,7 +576,7 @@ public class MiniComputer extends Observable
 	{
 		setChanged();
 		notifyObservers(OpCode.IN);
-		// TODO
+		// CHIHOON TODO
 	}
 	
 	/**
@@ -588,7 +588,98 @@ public class MiniComputer extends Observable
 	{
 		setChanged();
 		notifyObservers(OpCode.OUT);
-		// TODO
+		// CHIHOON TODO
+	}
+	
+	/**
+	 * Jump If Zero
+	 * @param register
+	 * @param index
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void jz(int register, int index, boolean isIndirectAddress, BitWord address)
+	{
+		//ANNE TODO
+	}
+	
+	/**
+	 * Jump If Not Equal
+	 * @param register
+	 * @param index
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void jne(int register, int index, boolean isIndirectAddress, BitWord address)
+	{
+		//ANNE TODO
+	}
+	
+	/**
+	 * Jump If Condition Code
+	 * @param conditionCode
+	 * @param index
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void jcc(int conditionCode, int index, boolean isIndirectAddress, BitWord address)
+	{
+		//ANNE TODO
+	}
+	
+	/**
+	 * Unconditional Jump To Address
+	 * @param index
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void jma(int index, boolean isIndirectAddress, BitWord address)
+	{
+		//ANNE TODO
+	}
+	
+	/**
+	 * Jump and Save Return Address
+	 * @param index
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void jsr(int index, boolean isIndirectAddress, BitWord address)
+	{
+		//KEEGAN TODO
+	}
+	
+	/**
+	 * Return From Subroutine w/ return code as Immed
+	 * @param immed
+	 */
+	public void rfs(BitWord immed)
+	{
+		//KEEGAN TODO
+	}
+	
+	/**
+	 * Subtract One and Branch
+	 * @param register
+	 * @param index
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void sob(int register, int index, boolean isIndirectAddress, BitWord address)
+	{
+		//ANNE TODO
+	}
+	
+	/**
+	 * Jump If Greater Than or Equal To Zero
+	 * @param register
+	 * @param index
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void jge(int register, int index, boolean isIndirectAddress, BitWord address)
+	{
+		//ANNE TODO
 	}
 	
 	// TODO in later parts: other instructions
