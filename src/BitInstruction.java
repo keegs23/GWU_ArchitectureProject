@@ -63,6 +63,30 @@ public class BitInstruction extends BitWord
             case OpCode.SIR:
                 //CHIHOON TODO
                 break;
+            case OpCode.JZ:
+            	//ANNE TODO
+            	break;
+            case OpCode.JNE:
+            	//ANNE TODO
+            	break;
+            case OpCode.JCC:
+            	//ANNE TODO
+            	break;
+            case OpCode.JMA:
+            	//ANNE TODO
+            	break;
+            case OpCode.JSR:
+            	//KEEGAN TODO
+            	break;
+            case OpCode.RFS:
+            	//KEEGAN TODO
+            	break;
+            case OpCode.SOB:
+            	//ANNE TODO
+            	break;
+            case OpCode.JGE:
+            	//ANNE TODO
+            	break;
             default:
                 break;                        
         }
@@ -70,6 +94,11 @@ public class BitInstruction extends BitWord
         return instructionParts;
     }  
     
+    /**
+     * Parses the register, index, indirectAddr, and address
+     * @param opCode
+     * @return
+     */
     private Map<String, BitWord> parseLoadStore(String opCode)
     {
         Map<String, BitWord> parse = new HashMap<String, BitWord>();
@@ -88,6 +117,11 @@ public class BitInstruction extends BitWord
         return parse;
     }
     
+    /**
+     * Parses the index, indirectAddr, and address
+     * @param opCode
+     * @return
+     */
     private Map<String, BitWord> parseLoadStoreIndex(String opCode)
     {
         Map<String, BitWord> parse = new HashMap<String, BitWord>();
