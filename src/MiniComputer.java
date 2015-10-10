@@ -246,10 +246,11 @@ public class MiniComputer extends Observable
 	 */
 	public void singleStep()
 	{///////////////////////////////////under CONSTRUCTION//////////////////////////
-    	int register;
-    	int index; 
+    	int register;	//in decimal
+    	int index; 	//in decimal
     	boolean isIndirectAddress; 
     	BitWord address; 
+    	int conditionCode;	//in decimal
 		
 		// Transfer PC value to MAR
 		MAR.setBitValue(ArithmeticLogicUnit.padZeros(PC.getBitValue().getValue()));
@@ -330,39 +331,66 @@ public class MiniComputer extends Observable
                 //CHIHOON TODO
                 break;
             case OpCode.JZ:
-            	//ANNE TODO
-            	break;
+            	isTransferInstruction = true;
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+            	jz(register, index, isIndirectAddress, address);
+                break;
             case OpCode.JNE:
-            	//ANNE TODO
+            	isTransferInstruction = true;
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+            	jne(register, index, isIndirectAddress, address);
             	break;
             case OpCode.JCC:
-            	//ANNE TODO
+            	isTransferInstruction = true;
+            	conditionCode = Integer.parseInt(instructionParse.get(BitInstruction.KEY_CONDITION_CODE).getValue(), 2); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+            	jcc(conditionCode, index, isIndirectAddress, address);
             	break;
             case OpCode.JMA:
-            	//ANNE TODO
+            	isTransferInstruction = true;
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+            	jma(index, isIndirectAddress, address);
             	break;
             case OpCode.JSR:
+            	isTransferInstruction = true;
             	//KEEGAN TODO
             	break;
             case OpCode.RFS:
+            	isTransferInstruction = true;
             	//KEEGAN TODO
             	break;
             case OpCode.SOB:
-            	//ANNE TODO
+            	isTransferInstruction = true;
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+            	sob(register, index, isIndirectAddress, address);
             	break;
             case OpCode.JGE:
-            	//ANNE TODO
+            	isTransferInstruction = true;
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+            	jge(register, index, isIndirectAddress, address);
             	break;
             default:
                 break;                        
         }
 		
 		// Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
-        if(isTransferInstruction)
-        {
-        	// TODO in Part II
-        }
-        else
+        if(!isTransferInstruction)
         {
         	// Increment PC
         	String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), "1");
@@ -370,6 +398,7 @@ public class MiniComputer extends Observable
         	pc = pc.substring(4, 16);
         	PC.setBitValue(pc);
         }
+        // For transfer instructions, PC is set when executing that instruction
 	}
 	
 	/* Instruction methods */
