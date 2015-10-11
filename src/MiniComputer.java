@@ -601,11 +601,34 @@ public class MiniComputer extends Observable
 	 * @param register
 	 * @param devId
 	 */
-	public void in(int register, BitWord devId)
+	public void in(int register, String devId)
 	{
+		// IN PROGRESS
+		IOObject inputObject = new IOObject();
+		
+		inputObject.setOpCode(OpCode.IN);
+		inputObject.setRegisterId(register);
+		inputObject.setDevId(devId);
+		
 		setChanged();
-		notifyObservers(OpCode.IN);
+		notifyObservers(inputObject);
+		
+		while (MiniComputerGui.inputButtonClicked == false) {
+    		try {
+    			Thread.sleep(500);
+    		}
+    		catch (InterruptedException ie) {
+    			System.out.println("Exception: " + ie.getMessage());
+    		}
+    	}
+		
+		MiniComputerGui.inputButtonClicked = false;
 		// CHIHOON TODO
+		// multithreaded mess
+		// when IN is called, observer notifies gui
+		// gui observer enables Input button
+		// IN waits until button is clicked
+		// how to let gui know which register to save to?
 	}
 	
 	/**
@@ -613,11 +636,16 @@ public class MiniComputer extends Observable
 	 * @param register
 	 * @param devId
 	 */
-	public void out(int register, BitWord devId)
+	public void out(int register, String devId)
 	{
+		IOObject outputObject = new IOObject();
+		
+		outputObject.setOpCode(OpCode.OUT);
+		outputObject.setRegisterId(register);
+		outputObject.setDevId(devId);
+		
 		setChanged();
-		notifyObservers(OpCode.OUT);
-		// CHIHOON TODO
+		notifyObservers(outputObject);
 	}
 	
 	/**

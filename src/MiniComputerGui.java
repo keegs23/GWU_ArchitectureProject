@@ -28,8 +28,9 @@ import javax.swing.table.DefaultTableModel;
 
 public class MiniComputerGui extends JFrame implements ActionListener, Observer {
 
+	protected static volatile boolean inputButtonClicked = false;
 	private static final long serialVersionUID = -8217933506339143771L;
-	private static final int INSTRUCTION_SIZE = 16;
+	private static final int INSTRUCTION_SIZE = 16;	
 	private MiniComputer cpu;
 	private Container mainPanel;
 	private JPanel leftPanel;
@@ -220,6 +221,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     	consoleKeyboardInput.setWrapStyleWord(true);
     	consoleKeyboardPanel.add(new JScrollPane(consoleKeyboardInput), BorderLayout.CENTER);
     	
+    	consoleKeyboardButton.setEnabled(false);
     	consoleKeyboardButton.addActionListener(this);
     	consoleKeyboardPanel.add(consoleKeyboardButton, BorderLayout.SOUTH);
     }
@@ -354,21 +356,52 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     	}
     }
     
-    public void update(Observable o, Object opCode) {
+    /* Observer Methods */
+    
+    public void update(Observable o, Object io) {
     	
-    	if (opCode == OpCode.IN) {
+    	IOObject ioObject = null;
+    	
+    	try {
+    		ioObject = (IOObject) io;
+    	}
+    	catch (Exception e) {
+    		System.out.println("Exception: " + e.getMessage());
+    	}
+    	
+    	if (ioObject.getOpCode().equals(OpCode.IN) 
+    			&& ioObject.getDevId().equals(DeviceId.CONSOLE_KEYBOARD)) {
+    		runConsoleKeyboardInput(ioObject.getRegisterId());
     		
-    		System.out.println("Input Instruction called.");
-    		// TODO
-    	} else if (opCode == OpCode.OUT) {
+    	} else if (ioObject.getOpCode().equals(OpCode.OUT) 
+    			&& ioObject.getDevId().equals(DeviceId.CONSOLE_PRINTER)) {
+    		runConsolePrinterOutput(ioObject.getRegisterId());
     		
-    		System.out.println("Output Instruction called.");
-    		// TODO
     	} else {
-    		
     		System.out.println("ERROR: UNKNOWN OBSERVABLE SOURCE!");
     	}
     }
+    
+    private void runConsoleKeyboardInput(int registerId) {
+    	
+    	System.out.println("Inputting from console keyboard.");
+    	
+    	consoleKeyboardInput.setEnabled(true);
+    	
+    }
+    
+    private void runConsolePrinterOutput(int registerId) {
+    	
+    	System.out.println("Outputting to console printer.");
+    	
+    	String registerValue = cpu.getR(registerId).getBitValue().getValue();
+    	
+		consolePrinterOutput.append(registerValue);
+    }
+    
+    /* End Observer Methods */
+    
+    /* ActionListener Methods */
     
     public void actionPerformed(ActionEvent ae) {
     	
@@ -422,7 +455,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     	
     	System.out.println("HALT BUTTON CLICKED!");
     	
-    	//Do something
+    	//TODO
     }
     
     private void runInstructionLoad() {
@@ -452,8 +485,13 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     	
     	System.out.println("ENTER BUTTON CLICKED!");
     	
-    	//Do something
+    	inputButtonClicked = true;
+    	
+    	consoleKeyboardButton.setEnabled(false);
+    	//TODO Chihoon
     }
+    
+    /* End ActionListener Methods */
 
     public static void main(String[] args) {
 
