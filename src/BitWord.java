@@ -1,11 +1,13 @@
 public class BitWord {
-	public static final String DEFAULT_VALUE = "0000000000000000";	//16 zero bits
+	public static final String VALUE_ZERO = "0000000000000000";	//16 zero bits
+	public static final String VALUE_ONE = "0000000000000001";	//15 zeros then a one
+	public static final String VALUE_DEFAULT = VALUE_ZERO;
 	
 	protected final String value;
 	
 	public BitWord()
 	{
-		value = DEFAULT_VALUE;
+		value = VALUE_DEFAULT;
 	}
 	
 	public BitWord(String val)

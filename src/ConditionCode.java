@@ -1,7 +1,7 @@
 public enum ConditionCode
 {
-    OVERFLOW,
-    UNDERFLOW,
-    DIVZERO,
-    EQUALORNOT
+    OVERFLOW,	//0
+    UNDERFLOW,	//1
+    DIVZERO,	//2
+    EQUALORNOT	//3
 }
