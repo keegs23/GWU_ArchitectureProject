@@ -54,8 +54,55 @@ public final class ArithmeticLogicUnit {
 	 */
 	public static String subtract(String bitStr1, String bitStr2)
 	{
-		// TODO
-		return "";
+		// Currently only works when bitStr1 >= bitStr2 and both are non-negative numbers
+		
+		String difference = "";
+		boolean borrow = false;
+		
+		// Make sure both are 16 bits
+		String bits1 = padZeros(bitStr1);
+		String bits2 = padZeros(bitStr2);
+		
+		if (Integer.parseInt(bits1) == Integer.parseInt(bits2))
+		{
+			return BitWord.DEFAULT_VALUE;
+		}
+		if (Integer.parseInt(bits2) == 0)
+		{
+			return bits1;
+		}
+		
+		for (int k = 15; k >= 0; k--)
+		{
+			// Retrieve the next lowest bit
+			int a = Integer.parseInt(bits1.substring(k, k+1));
+			int b = Integer.parseInt(bits2.substring(k, k+1));
+			
+			if (borrow == true)
+			{
+				if (a == 1)
+				{
+					a = 0;
+					borrow = false;
+				}
+				else
+				{
+					a = 1;
+				}
+			}
+			
+			if (a >= b)
+			{
+				difference = (a - b) + difference;
+			}
+			else
+			{
+				difference = "1" + difference;
+				borrow = true;
+			}
+		}
+		
+		return difference;
 	}
 	
 	/**
