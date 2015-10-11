@@ -208,7 +208,7 @@ public class MiniComputer extends Observable
 				memory.put(address, memLoc);
 				
 				// Increment address
-				address = ArithmeticLogicUnit.add(address, "1");
+				address = ArithmeticLogicUnit.add(address, BitWord.VALUE_ONE);
 			}
 			
 			br.close();
@@ -264,7 +264,7 @@ public class MiniComputer extends Observable
 		}
 		else
 		{			
-			MBR.setBitValue(BitWord.DEFAULT_VALUE);
+			MBR.setBitValue(BitWord.VALUE_DEFAULT);
 		}
 		
 		// Load instruction from MBR into IR
@@ -393,7 +393,7 @@ public class MiniComputer extends Observable
         if(!isTransferInstruction)
         {
         	// Increment PC
-        	String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), "1");
+        	String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE);
         	// PC can only hold 12 bits, so chop off the leading zeros
         	pc = pc.substring(4, 16);
         	PC.setBitValue(pc);
@@ -434,7 +434,7 @@ public class MiniComputer extends Observable
 		}
 		else
 		{			
-			MBR.setBitValue(BitWord.DEFAULT_VALUE);
+			MBR.setBitValue(BitWord.VALUE_DEFAULT);
 		}
 		
 		// Move the data from the MBR to an Internal Result Register (IRR)
@@ -477,7 +477,7 @@ public class MiniComputer extends Observable
 		else
 		{
 			// Should never reach here, but just in case
-			IRR.setBitValue(BitWord.DEFAULT_VALUE);
+			IRR.setBitValue(BitWord.VALUE_DEFAULT);
 		}
 		
 		// Move contents of IRR to memory at address specified by IAR		
@@ -547,7 +547,7 @@ public class MiniComputer extends Observable
 		}
 		else
 		{			
-			MBR.setBitValue(BitWord.DEFAULT_VALUE);
+			MBR.setBitValue(BitWord.VALUE_DEFAULT);
 		}
 		
 		// Move the data from the MBR to an Internal Result Register (IRR)
@@ -629,11 +629,35 @@ public class MiniComputer extends Observable
 	 */
 	public void jz(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
-		//ANNE TODO
+		// Retrieve the specified register
+		Register registerSelect1 = getR(register);
+		
+		// Calculate the effective address (EA)
+		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+		
+		// Move the register contents into the Internal Result Register (IRR)?
+		IRR.setBitValue(registerSelect1.getBitValue());
+
+		// If IRR contents is zero, move the EA to the Internal Address Register (IAR)
+		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
+		int irr = Integer.parseInt(IRR.getBitValue().getValue());
+		if(irr == 0) {
+			IAR.setBitValue(ea);
+		} else {
+			// Else set IAR value to PC contents + 1
+			IAR.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+		}
+		
+		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
+		
+		// Store IAR contents into the PC
+		// PC can only hold 12 bits so chop off the leading zeros
+		String pc = IAR.getBitValue().getValue().substring(4, 16);
+		PC.setBitValue(pc);
 	}
 	
 	/**
-	 * Jump If Not Equal
+	 * Jump If Not Equal To Zero
 	 * @param register
 	 * @param index
 	 * @param isIndirectAddress
@@ -641,19 +665,63 @@ public class MiniComputer extends Observable
 	 */
 	public void jne(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
-		//ANNE TODO
+		// Retrieve the specified register
+		Register registerSelect1 = getR(register);
+		
+		// Calculate the effective address (EA)
+		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+		
+		// Move the register contents into the Internal Result Register (IRR)?
+		IRR.setBitValue(registerSelect1.getBitValue());
+
+		// If IRR contents is NOT zero, move the EA to the Internal Address Register (IAR)
+		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
+		int irr = Integer.parseInt(IRR.getBitValue().getValue());
+		if(irr != 0) {
+			IAR.setBitValue(ea);
+		} else {
+			// Else set IAR value to PC contents + 1
+			IAR.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+		}
+		
+		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
+		
+		// Store IAR contents into the PC
+		// PC can only hold 12 bits so chop off the leading zeros
+		String pc = IAR.getBitValue().getValue().substring(4, 16);
+		PC.setBitValue(pc);
 	}
 	
 	/**
 	 * Jump If Condition Code
-	 * @param conditionCode
+	 * @param conditionCode 0-3
 	 * @param index
 	 * @param isIndirectAddress
 	 * @param address
 	 */
 	public void jcc(int conditionCode, int index, boolean isIndirectAddress, BitWord address)
-	{
-		//ANNE TODO
+	{		
+		// Calculate the effective address (EA)
+		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+		
+		// Copy the specified bit from the CC register into the Internal Result Register (IRR)
+		IRR.setBitValue(ArithmeticLogicUnit.padZeros(CC.getBitValue().getValue().substring(conditionCode, conditionCode+1)));
+
+		// If the specified CC bit is 1, move the EA to the Internal Address Register (IAR)
+		int irr = Integer.parseInt(IRR.getBitValue().getValue());
+		if(irr == 1) {
+			IAR.setBitValue(ea);
+		} else {
+			// Else set IAR value to PC contents + 1
+			IAR.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+		}
+		
+		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
+		
+		// Store IAR contents into the PC
+		// PC can only hold 12 bits so chop off the leading zeros
+		String pc = IAR.getBitValue().getValue().substring(4, 16);
+		PC.setBitValue(pc);
 	}
 	
 	/**
@@ -663,8 +731,19 @@ public class MiniComputer extends Observable
 	 * @param address
 	 */
 	public void jma(int index, boolean isIndirectAddress, BitWord address)
-	{
-		//ANNE TODO
+	{		
+		// Calculate the effective address (EA)
+		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+
+		// Move the EA to the Internal Address Register (IAR)
+		IAR.setBitValue(ea);
+		
+		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
+		
+		// Store IAR contents into the PC
+		// PC can only hold 12 bits so chop off the leading zeros
+		String pc = IAR.getBitValue().getValue().substring(4, 16);
+		PC.setBitValue(pc);
 	}
 	
 	/**
@@ -696,7 +775,34 @@ public class MiniComputer extends Observable
 	 */
 	public void sob(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
-		//ANNE TODO
+		// Retrieve the specified register
+		Register registerSelect1 = getR(register);
+		
+		// Subtract one from the register contents
+		registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE));
+		
+		// Calculate the effective address (EA)
+		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+		
+		// Move the register contents into the Internal Result Register (IRR)?
+		IRR.setBitValue(registerSelect1.getBitValue());
+
+		// If IRR contents is > 0, move the EA to the Internal Address Register (IAR)
+		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
+		int irr = Integer.parseInt(IRR.getBitValue().getValue());
+		if(irr > 0) {
+			IAR.setBitValue(ea);
+		} else {
+			// Else set IAR value to PC contents + 1
+			IAR.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+		}
+		
+		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
+		
+		// Store IAR contents into the PC
+		// PC can only hold 12 bits so chop off the leading zeros
+		String pc = IAR.getBitValue().getValue().substring(4, 16);
+		PC.setBitValue(pc);
 	}
 	
 	/**
@@ -708,7 +814,31 @@ public class MiniComputer extends Observable
 	 */
 	public void jge(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
-		//ANNE TODO
+		// Retrieve the specified register
+		Register registerSelect1 = getR(register);
+		
+		// Calculate the effective address (EA)
+		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+		
+		// Move the register contents into the Internal Result Register (IRR)?
+		IRR.setBitValue(registerSelect1.getBitValue());
+
+		// If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
+		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
+		int irr = Integer.parseInt(IRR.getBitValue().getValue());
+		if(irr >= 0) {
+			IAR.setBitValue(ea);
+		} else {
+			// Else set IAR value to PC contents + 1
+			IAR.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+		}
+		
+		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
+		
+		// Store IAR contents into the PC
+		// PC can only hold 12 bits so chop off the leading zeros
+		String pc = IAR.getBitValue().getValue().substring(4, 16);
+		PC.setBitValue(pc);
 	}
 	
 	// TODO in later parts: other instructions

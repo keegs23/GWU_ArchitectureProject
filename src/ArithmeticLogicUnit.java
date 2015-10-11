@@ -65,7 +65,7 @@ public final class ArithmeticLogicUnit {
 		
 		if (Integer.parseInt(bits1) == Integer.parseInt(bits2))
 		{
-			return BitWord.DEFAULT_VALUE;
+			return BitWord.VALUE_ZERO;
 		}
 		if (Integer.parseInt(bits2) == 0)
 		{
