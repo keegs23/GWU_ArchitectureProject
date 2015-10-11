@@ -62,6 +62,8 @@ public class MiniComputer extends Observable
 	 * Key = String Address, Value = MemoryLocation object
 	 */
 	private Map<String, MemoryLocation> memory;
+	private IOObject inputObject;
+	private IOObject outputObject;
 	
 	public MiniComputer()
 	{
@@ -85,6 +87,8 @@ public class MiniComputer extends Observable
 		
 		// Initialize Memory
 		memory = new TreeMap<String, MemoryLocation>();
+		inputObject = new IOObject();
+		outputObject = new IOObject();
 	}
 	
 	/* Register getters */
@@ -597,15 +601,12 @@ public class MiniComputer extends Observable
 	}
 	
 	/**
-	 * Input character to register from device
+	 * Notifies GUI that program is ready to receive text input
 	 * @param register
 	 * @param devId
 	 */
 	public void in(int register, String devId)
 	{
-		// IN PROGRESS
-		IOObject inputObject = new IOObject();
-		
 		inputObject.setOpCode(OpCode.IN);
 		inputObject.setRegisterId(register);
 		inputObject.setDevId(devId);
@@ -624,11 +625,24 @@ public class MiniComputer extends Observable
 		
 		MiniComputerGui.inputButtonClicked = false;
 		// CHIHOON TODO
-		// multithreaded mess
-		// when IN is called, observer notifies gui
-		// gui observer enables Input button
-		// IN waits until button is clicked
-		// how to let gui know which register to save to?
+	}
+	
+	/**
+	 * Input character to register from device
+	 * @param inputString
+	 *
+	 */
+	public void inProcessing(String inputString)
+	{
+		// Retrieve the specified Index Register (IR a.k.a X)
+		Register registerSelect1 = getR(inputObject.getRegisterId());
+		
+		// Store IRR contents into the specified register
+		if(registerSelect1 != null)
+		{
+			registerSelect1.setBitValue(DataConversion.textToBinary(inputString));
+		}
+		
 	}
 	
 	/**
@@ -638,8 +652,6 @@ public class MiniComputer extends Observable
 	 */
 	public void out(int register, String devId)
 	{
-		IOObject outputObject = new IOObject();
-		
 		outputObject.setOpCode(OpCode.OUT);
 		outputObject.setRegisterId(register);
 		outputObject.setDevId(devId);

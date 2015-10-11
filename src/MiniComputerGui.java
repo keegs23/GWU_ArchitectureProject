@@ -371,7 +371,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     	
     	if (ioObject.getOpCode().equals(OpCode.IN) 
     			&& ioObject.getDevId().equals(DeviceId.CONSOLE_KEYBOARD)) {
-    		runConsoleKeyboardInput(ioObject.getRegisterId());
+    		runConsoleKeyboardInput();
     		
     	} else if (ioObject.getOpCode().equals(OpCode.OUT) 
     			&& ioObject.getDevId().equals(DeviceId.CONSOLE_PRINTER)) {
@@ -382,11 +382,11 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     	}
     }
     
-    private void runConsoleKeyboardInput(int registerId) {
+    private void runConsoleKeyboardInput() {
     	
     	System.out.println("Inputting from console keyboard.");
     	
-    	consoleKeyboardInput.setEnabled(true);
+    	consoleKeyboardButton.setEnabled(true);
     	
     }
     
@@ -484,11 +484,11 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     private void runConsoleKeyboard() {
     	
     	System.out.println("ENTER BUTTON CLICKED!");
+
+    	cpu.inProcessing(consoleKeyboardInput.getText());
     	
     	inputButtonClicked = true;
-    	
     	consoleKeyboardButton.setEnabled(false);
-    	//TODO Chihoon
     }
     
     /* End ActionListener Methods */
