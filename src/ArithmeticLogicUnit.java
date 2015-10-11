@@ -273,5 +273,112 @@ public final class ArithmeticLogicUnit {
 				}
 			}
 		}
-	}	
+	}
+	/**
+	 * SHIFT Register Command
+	 * @param bitword : which is a bitString
+	 * @return The register will shift left/right, logic/arithmetic, 1-15 units 
+	 */	
+	public static void src(String bitword)
+	{
+	//Parse bitword
+	// this parse may have to occur in the main program and the Register passed in??
+	String Opcode = bitword.substring(0, 6);
+	Register r = bitword.substring(6, 8); //register
+	String ArithmeticOrLogic = bitword.substring(8, 9);  //this is a flag to adjust for a sign bit; 0 = arithmetic and 1 = logic;
+	String LeftOrRight = bitword.substring(9, 10);  // left = 1; right = 0;
+	String sCount = bitword.substring(12, 16);
+	//convert sCount from string to number, this will be the loop counter
+	int n = Integer.parseInt(sCount);
+	String buffer;
+	String keeper;
+	String shifted;
+
+	String	Registervalue = r.getBitValue(); //getBitValue(r);
+
+	// please note that the mechanics of the simple machine would in fact shift one bit at a time.
+	// and then loop through the ALU again to perform additional shifts to keep the real estate on 
+	// the chip small.  i.e. a 'two shift' isn't build into the hardware.
+	
+	/////we can use this same code for rotation by setting the Buffer = substring(0,1) or substring(15,16)////
+
+	for(int i = 0;i<n;i++)
+		{
+			//shift values left
+			if(LeftOrRight == "1")
+			{
+				keeper = Registervalue.substring(1, 16);
+				buffer = "0";
+				shifted = keeper + buffer;  ///shifted to the left
+				if(ArithmeticOrLogic == "0")  //i.e. arithmetic shift
+				{
+					String overflow = Registervalue.substring(1, 2);
+					if (overflow == "1" ) {BitWord SetOverflow = "1";}   /////////////do we have an ALU overflow flag set yet?????????????????????????
+				}
+			}
+			else
+			{
+				//shift values right  
+				keeper = Registervalue.substring(0, 15);
+				if(ArithmeticOrLogic == "0")  //i.e. arithmetic shift
+				{//if you are arithmetic shifting to the right, then you insert the sign bit
+					buffer = Registervalue.substring(0, 1); 
+				}
+				else
+				{
+					buffer = "0"; //if you are logic shifting you insert a zero
+				}
+				shifted = buffer + keeper;  ///shifted to the right
+			}
+			Registervalue = shifted;  // this is to get ready to loop through one more time 
+		}
+	r.setBitValue(Registervalue);   // this is to exit with final answer
+	}
+	/**
+	 * ROTATE Register Command
+	 * @param bitword : which is a bitString
+	 * @return The register will rotate left/right, 1-15 units 
+	 */	
+	public static void rrc(String bitword)
+	{
+	//Parse bitword
+	// this parse may have to occur in the main program and the Register passed in??
+	String Opcode = bitword.substring(0, 6);
+	Register r = bitword.substring(6, 8); //register
+	String ArithmeticOrLogic = bitword.substring(8, 9);  //this is a flag to adjust for a sign bit; 0 = arithmetic and 1 = logic;
+	String LeftOrRight = bitword.substring(9, 10);  // left = 1; right = 0;
+	String sCount = bitword.substring(12, 16);
+	//convert sCount from string to number, this will be the loop counter
+	int n = Integer.parseInt(sCount);
+	String buffer;
+	String keeper;
+	String shifted;
+
+	String	Registervalue = r.getBitValue(); //getBitValue(r);
+
+	// please note that the mechanics of the simple machine would in fact shift one bit at a time.
+	// and then loop through the ALU again to perform additional shifts to keep the real estate on 
+	// the chip small.  i.e. a 'two shift' isn't build into the hardware.
+
+	for(int i = 0;i<n;i++)
+		{
+			//shift values left
+			if(LeftOrRight == "1")
+			{
+				keeper = Registervalue.substring(1, 16);
+				buffer = Registervalue.substring(0, 1);
+				shifted = keeper + buffer;  ///shifted to the left
+			}
+			else
+			{
+				//shift values right  
+				keeper = Registervalue.substring(0, 15);
+				buffer = Registervalue.substring(15, 16);
+				shifted = buffer + keeper;  ///shifted to the right
+			}
+			Registervalue = shifted;  // this is to get ready to loop through one more time 
+		}
+	r.setBitValue(Registervalue);   // this is to exit with final answer
+	}			
+	
 }
