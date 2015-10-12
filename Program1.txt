@@ -44,4 +44,6 @@ Else, found the new closest match so add the value of the Min Diff Address back 
 Store R3 contents to the Min Diff Address
 Load the value indirect addressed by the Array Element Address into R2
 Subtract 1 from R1 and if > 0, branch to CLOSEST MATCH FOR LOOP START; NEXT ELEMENT
-Print the R2 contents
+Load the value of the Num To Match Address into R0
+Print the num to match (stored in R0)
+Print the closest match (stored in R2)
