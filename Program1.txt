@@ -3,7 +3,7 @@ R1 stores the for loop counter (starts at 20 in decimal and decreases)
 R2 stores the closest array value to the number to try to match so far
 R0 stores the number to be added to the array so far (starts at 0)
 Memory address 30? (decimal) stores the number to try to match AKA Num To Match Address (defaults at 0)
-Memory address 29? (decimal) stores the minimum difference between the the number to try to match and the closest array value
+Memory address 29? (decimal) stores the minimum difference between the the number to try to match and the closest array value AKA Min Diff Address
 Add 1 to Array Element Address by loading the Array Element Address contents into R3; ARRAY INPUT FOR LOOP START
 Then adding 1 (Immed) to R3
 Then storing the R3 contents back into the Array Element Address
@@ -38,4 +38,10 @@ Subtract the value indirect addressed by the Array Element Address from R3
 If R3 contents >= 0, jump to COMPARE DIFFS
 Else, Negate R3 contents by flipping the bits (NOT)
 Then adding 1 (Immed) to R3
-; COMPARE DIFFS
+Subtract the value of the Min Diff Address from R3; COMPARE DIFFS
+If R3 >= 0, jump to NEXT ELEMENT
+Else, found the new closest match so add the value of the Min Diff Address back to R3
+Store R3 contents to the Min Diff Address
+Load the value indirect addressed by the Array Element Address into R2
+Subtract 1 from R1 and if > 0, branch to CLOSEST MATCH FOR LOOP START; NEXT ELEMENT
+Print the R2 contents
