@@ -1,9 +1,10 @@
-Load the starting address of the array (32? in decimal--depends on how long this program is) into X1
+Memory address 31? (decimal) stores the current array address being working on AKA Array Element Address (start at address 31? in decimal, 1 behind the first element of the array--depends on how long this program is)
 R1 stores the for loop counter (starts at 20 in decimal and decreases)
-Memory address 31? (decimal) stores the address to be added to the index for the array AKA the Index+ Address (mirrors the R1 contents)
 R2 stores the closest array value to the number to try to match so far?
-R0 stores the number to be added to the array so far/the number to try to match
-Sync Index+ Address memory location (31?) with R1; ARRAY INPUT FOR LOOP START
+R0 stores the number to be added to the array so far (starts at 0)/the number to try to match
+Add 1 to Array Element Address by setting R3 to 1; ARRAY INPUT FOR LOOP START
+Then adding the Array Element Address to R3
+Then storing the R3 contents back into the Array Element Address
 Read in the character into R3
 Subtract the Enter key ASCII code (Immed=?) from R3
 If R3 contents = 0 character is Enter, jump to ALL DIGITS OF NUM ENTERED BRANCH
@@ -12,11 +13,12 @@ Multiply R0 contents by 10 (decimal) to move it to the tens place
 Add the R3 contents into R0
 Subtract 1 from R1 and if > 0, branch back to ARRAY INPUT FOR LOOP START
 Else, unconditional jump to ARRAY INPUT FOR LOOP END
-Store number from R0 into memory using X1 index and Index+ Address memory location (31?); ALL DIGITS OF NUM ENTERED BRANCH
+Store number from R0 into memory by indirect addressing the Array Element Address (31?); ALL DIGITS OF NUM ENTERED BRANCH
 Set R0 contents back to 0
 Unconditional jump back to ARRAY INPUT FOR LOOP START to read in next character of the number
 Set R1 back to 20 (decimal) to prep for next loop; ARRAY INPUT FOR LOOP END
 Set R0 back to 0
+Set Array Element Address back to 1 behind the first element of the array
 Read in the character of the number to try to match into R3; MATCH INPUT START
 Subtract the Enter key ASCII code (Immed=?) from R3
 If R3 contents = 0 character is Enter, jump to CLOSEST MATCH FOR LOOP START
@@ -24,4 +26,6 @@ Add Enter key ASCII code (Immed=?) back to R3
 Multiply R0 contents by 10 (decimal) to move it to the tens place
 Add the R3 contents into R0
 Unconditional jump back to MATCH INPUT START
-Sync Index+ Address memory location (31?) with R1; CLOSEST MATCH FOR LOOP START
+Add 1 to Array Element Address by setting R3 to 1; CLOSEST MATCH FOR LOOP START
+Then adding the Array Element Address to R3
+Then storing the R3 contents back into the Array Element Address
