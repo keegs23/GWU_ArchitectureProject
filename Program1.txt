@@ -2,7 +2,7 @@ Load the starting address of the array (32? in decimal--depends on how long this
 R1 stores the for loop counter (starts at 20 in decimal and decreases)
 Memory address 31? (decimal) stores the address to be added to the index for the array (mirrors the R1 contents)
 R2 stores the closest array value to the number to try to match so far?
-R0 stores the number to be added to the array so far
+R0 stores the number to be added to the array so far/the number to try to match
 Sync Indirect Address memory location (31?) with R1; ARRAY INPUT FOR LOOP START
 Read in the character into R3
 Subtract the Enter key ASCII code (Immed=?) from R3
@@ -12,9 +12,15 @@ Multiply R0 contents by 10 (decimal) to move it to the tens place
 Add the R3 contents into R0
 Subtract 1 from R1 and if > 0, branch back to ARRAY INPUT FOR LOOP START
 Else, unconditional jump to ARRAY INPUT FOR LOOP END
-Store character from R0 into memory using X1 index and Indirect Address memory location (31?); ALL DIGITS OF NUM ENTERED BRANCH
+Store number from R0 into memory using X1 index and Indirect Address memory location (31?); ALL DIGITS OF NUM ENTERED BRANCH
 Set R0 contents back to 0
 Unconditional jump back to ARRAY INPUT FOR LOOP START to read in next character of the number
 Set R1 back to 20 (decimal) to prep for next loop; ARRAY INPUT FOR LOOP END
-Read in the character of the number to try to match...
-; CLOSEST MATCH FOR LOOP START
+Set R0 back to 0
+Read in the character of the number to try to match into R3
+Subtract the Enter key ASCII code (Immed=?) from R3
+If R3 contents = 0 character is Enter, jump to CLOSEST MATCH FOR LOOP START
+Add Enter key ASCII code (Immed=?) back to R3
+Multiply R0 contents by 10 (decimal) to move it to the tens place
+Add the R3 contents into R0
+Sync Indirect Address memory location (31?) with R1; CLOSEST MATCH FOR LOOP START
