@@ -1,0 +1,49 @@
+Memory address 31? (decimal) stores the current array address being working on AKA Array Element Address (start at address 31? in decimal, 1 behind the first element of the array--depends on how long this program is)
+R1 stores the for loop counter (starts at 20 in decimal and decreases)
+R2 stores the closest array value to the number to try to match so far
+R0 stores the number to be added to the array so far (starts at 0)
+Memory address 30? (decimal) stores the number to try to match AKA Num To Match Address (defaults at 0)
+Memory address 29? (decimal) stores the minimum difference between the the number to try to match and the closest array value AKA Min Diff Address
+Add 1 to Array Element Address by loading the Array Element Address contents into R3; ARRAY INPUT FOR LOOP START
+Then adding 1 (Immed) to R3
+Then storing the R3 contents back into the Array Element Address
+Read in the character into R3
+Subtract the Enter key ASCII code (Immed=?) from R3
+If R3 contents = 0 character is Enter, jump to ALL DIGITS OF NUM ENTERED BRANCH
+Add Enter key ASCII code (Immed=?) back to R3
+Multiply R0 contents by 10 (decimal) to move it to the tens place
+Add the R3 contents into R0
+Subtract 1 from R1 and if > 0, branch back to ARRAY INPUT FOR LOOP START
+Else, unconditional jump to ARRAY INPUT FOR LOOP END
+Store number from R0 into memory by indirect addressing the Array Element Address (31?); ALL DIGITS OF NUM ENTERED BRANCH
+Set R0 contents back to 0
+Unconditional jump back to ARRAY INPUT FOR LOOP START to read in next character of the number
+Set R1 back to 20 (decimal) to prep for next loop; ARRAY INPUT FOR LOOP END
+Set R0 back to 0
+Set Array Element Address back to 1 behind the first element of the array (31? in decimal)
+Set R2 to the value of the first element of the array (indirect addressed by location 32? in decimal)
+Read in the character of the number to try to match into R3; MATCH INPUT START
+Subtract the Enter key ASCII code (Immed=? in ASCII, ? in binary) from R3
+If R3 contents = 0 character is Enter, jump to CLOSEST MATCH FOR LOOP START
+Add Enter key ASCII code (Immed=? in ASCII, ? in binary) back to R3
+Multiply R0 contents by 10 (decimal) to move it to the tens place
+Add the R3 contents into R0
+Store R0 contents into the Num to Match Address
+Unconditional jump back to MATCH INPUT START
+Add 1 to Array Element Address by loading the Array Element Address contents into R3; CLOSEST MATCH FOR LOOP START
+Then adding 1 (Immed) to R3
+Then storing the R3 contents back into the Array Element Address
+Load R3 with the value from the Num To Match Address
+Subtract the value indirect addressed by the Array Element Address from R3
+If R3 contents >= 0, jump to COMPARE DIFFS
+Else, Negate R3 contents by flipping the bits (NOT)
+Then adding 1 (Immed) to R3
+Subtract the value of the Min Diff Address from R3; COMPARE DIFFS
+If R3 >= 0, jump to NEXT ELEMENT
+Else, found the new closest match so add the value of the Min Diff Address back to R3
+Store R3 contents to the Min Diff Address
+Load the value indirect addressed by the Array Element Address into R2
+Subtract 1 from R1 and if > 0, branch to CLOSEST MATCH FOR LOOP START; NEXT ELEMENT
+Load the value of the Num To Match Address into R0
+Print the num to match (stored in R0)
+Print the closest match (stored in R2)
