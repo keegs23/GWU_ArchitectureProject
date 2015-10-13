@@ -52,16 +52,16 @@ public class BitInstruction extends BitWord
             	instructionParts = parseLoadStoreIndex(opCode);
                 break;
             case OpCode.AMR:
-                //CHIHOON TODO
+            	instructionParts = parseLoadStore(opCode);
                 break;
             case OpCode.SMR:
-                //CHIHOON TODO
+            	instructionParts = parseLoadStore(opCode);
                 break;
             case OpCode.AIR:
-                //CHIHOON TODO
+                instructionParts = parseImmediate(opCode);
                 break;
             case OpCode.SIR:
-                //CHIHOON TODO
+                instructionParts = parseImmediate(opCode);
                 break;
             case OpCode.JZ:
             	//Instruction schema is similar to that of the load/store instructions
@@ -161,6 +161,24 @@ public class BitInstruction extends BitWord
         parse.put(KEY_INDEX, new BitWord(index));
         parse.put(KEY_INDIRECT_ADDR, new BitWord(indirectAddr));
         parse.put(KEY_ADDRESS, new BitWord(address));
+        
+        return parse;
+    }
+    
+    /**
+     * Parses the register and immediate
+     * @return 
+     */
+    private Map<String, BitWord> parseImmediate(String opCode)
+    {
+        Map<String, BitWord> parse = new HashMap<String, BitWord>();
+        
+        String register = value.substring(6, 8);  
+        String immediate = value.substring(11, 16);
+        
+        parse.put(KEY_OPCODE, new BitWord(opCode));
+        parse.put(KEY_REGISTER, new BitWord(register));
+        parse.put(KEY_IMMEDIATE, new BitWord(immediate));
         
         return parse;
     }

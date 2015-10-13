@@ -254,6 +254,7 @@ public class MiniComputer extends Observable
     	int index; 	//in decimal
     	boolean isIndirectAddress; 
     	BitWord address; 
+    	BitWord immediate;
     	int conditionCode;	//in decimal
 		
 		// Transfer PC value to MAR
@@ -323,16 +324,28 @@ public class MiniComputer extends Observable
             	stx(index, isIndirectAddress, address);
                 break;
             case OpCode.AMR:
-                //CHIHOON TODO
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+            	amr(register, index, isIndirectAddress, address);
                 break;
             case OpCode.SMR:
-                //CHIHOON TODO
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+            	smr(register, index, isIndirectAddress, address);
                 break;
             case OpCode.AIR:
-                //CHIHOON TODO
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE); 
+            	air(register, immediate);
                 break;
             case OpCode.SIR:
-                //CHIHOON TODO
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE); 
+            	sir(register, immediate);
                 break;
             case OpCode.JZ:
             	isTransferInstruction = true;
@@ -601,6 +614,170 @@ public class MiniComputer extends Observable
 	}
 	
 	/**
+	 * Add Memory To Register
+	 * @param register
+	 * @param index
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void amr(int register, int index, boolean isIndirectAddress, BitWord address)
+	{
+		// Retrieve the specified register
+		Register registerSelect1 = getR(register);
+		
+		// Calculate the effective address (EA)
+		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+
+		// Move the EA to the Internal Address Register (IAR)
+		IAR.setBitValue(ea);
+		
+		// Move the contents of IAR to the MAR
+		MAR.setBitValue(IAR.getBitValue());
+		
+		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
+		
+		// Fetch the contents in memory at the address specified by MAR into the MBR
+		if(memory.containsKey(MAR.getBitValue().getValue()))
+		{
+			MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
+		}
+		else
+		{			
+			MBR.setBitValue(BitWord.VALUE_DEFAULT);
+		}
+		
+		// Move the contents of the specified register to the IRR
+		if(registerSelect1 != null)
+		{
+			IRR.setBitValue(registerSelect1.getBitValue());
+		}
+		else
+		{
+			// Should never reach here, but just in case
+			IRR.setBitValue(BitWord.VALUE_DEFAULT);
+		}
+		
+		// Store sum of IRR contents and MBR contents into the specified register
+		if(registerSelect1 != null)
+		{
+			registerSelect1.setBitValue(ArithmeticLogicUnit.add(IRR.getBitValue().getValue(), MBR.getBitValue().getValue()));
+		}
+	}
+	
+	/** Subtract Memory From Register
+	 * Load Register With Address
+	 * @param register
+	 * @param index
+	 * @param isIndirectAddress
+	 * @param address
+	 */
+	public void smr(int register, int index, boolean isIndirectAddress, BitWord address)
+	{
+		// Retrieve the specified register
+		Register registerSelect1 = getR(register);
+		
+		// Calculate the effective address (EA)
+		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+
+		// Move the EA to the Internal Address Register (IAR)
+		IAR.setBitValue(ea);
+		
+		// Move the contents of IAR to the MAR
+		MAR.setBitValue(IAR.getBitValue());
+		
+		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
+		
+		// Fetch the contents in memory at the address specified by MAR into the MBR
+		if(memory.containsKey(MAR.getBitValue().getValue()))
+		{
+			MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
+		}
+		else
+		{			
+			MBR.setBitValue(BitWord.VALUE_DEFAULT);
+		}
+		
+		// Move the contents of the specified register to the IRR
+		if(registerSelect1 != null)
+		{
+			IRR.setBitValue(registerSelect1.getBitValue());
+		}
+		else
+		{
+			// Should never reach here, but just in case
+			IRR.setBitValue(BitWord.VALUE_DEFAULT);
+		}
+		
+		// Store difference of IRR contents and MBR contents into the specified register
+		if(registerSelect1 != null)
+		{
+			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR.getBitValue().getValue(), MBR.getBitValue().getValue()));
+		}
+	}
+	
+	/**
+	 * Add Immediate To Register
+	 * @param register
+	 * @param immediate
+	 */
+	public void air(int register, BitWord immediate)
+	{
+		// Retrieve the specified register
+		Register registerSelect1 = getR(register);
+		
+		// Move the contents of the specified register to the IRR
+		if(registerSelect1 != null)
+		{
+			IRR.setBitValue(registerSelect1.getBitValue());
+		}
+		else
+		{
+			// Should never reach here, but just in case
+			IRR.setBitValue(BitWord.VALUE_DEFAULT);
+		}
+		
+		// Move immediate to MBR
+		MBR.setBitValue(immediate);
+		
+		// Store sum of IRR contents and MBR contents into the specified register
+		if(registerSelect1 != null)
+		{
+			registerSelect1.setBitValue(ArithmeticLogicUnit.add(IRR.getBitValue().getValue(), MBR.getBitValue().getValue()));
+		}
+	}
+	
+	/**
+	 * Subtract Immediate From Register
+	 * @param register
+	 * @param immediate
+	 */
+	public void sir(int register, BitWord immediate)
+	{
+		// Retrieve the specified register
+		Register registerSelect1 = getR(register);
+		
+		// Move the contents of the specified register to the IRR
+		if(registerSelect1 != null)
+		{
+			IRR.setBitValue(registerSelect1.getBitValue());
+		}
+		else
+		{
+			// Should never reach here, but just in case
+			IRR.setBitValue(BitWord.VALUE_DEFAULT);
+		}
+		
+		// Move immediate to MBR
+		MBR.setBitValue(immediate);
+		
+		// Store difference of IRR contents and MBR contents into the specified register
+		if(registerSelect1 != null)
+		{
+			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR.getBitValue().getValue(), MBR.getBitValue().getValue()));
+		}
+	}
+	
+	/**
 	 * Notifies GUI that program is ready to receive text input
 	 * @param register
 	 * @param devId
@@ -624,7 +801,6 @@ public class MiniComputer extends Observable
     	}
 		
 		MiniComputerGui.inputButtonClicked = false;
-		// CHIHOON TODO
 	}
 	
 	/**
