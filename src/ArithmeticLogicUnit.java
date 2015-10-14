@@ -104,6 +104,50 @@ public final class ArithmeticLogicUnit {
 		
 		return difference;
 	}
+        
+       	/**
+	 * Multiplies Register by Register
+	 * @param register1 bit String with length <= 16
+         * @param register2 bit String with length <= 16
+	 * @return Up to 32 bit string
+	 */
+        public static String multiply(String register1, String register2) {
+            String product = "0";
+            String zeroSuffix = "";
+            char currentBit;
+            //Make sure both strings are 16 bits
+            register1 = padZeros(register1);
+            register2 = padZeros(register2);
+            //Loop on the length of the second string
+            for (int i = register2.length() - 1; i >= 0; i--) {   
+                currentBit = register2.charAt(i);
+                if (currentBit == '1') {
+                    product = add(product, register1 + zeroSuffix);
+                }                     
+                zeroSuffix += "0";
+            }
+            
+            return product;
+        }
+        
+        public static int trr(String register1, String register2) {
+            int isEqual = 1; //default to equal true
+            char[] first  = register1.toLowerCase().toCharArray();
+            char[] second = register2.toLowerCase().toCharArray();
+
+            int minLength = Math.min(first.length, second.length);
+
+            for(int i = 0; i < minLength; i++)
+            {
+                if (first[i] != second[i])
+                {
+                    isEqual = 0; 
+                    //break out of the loop if any characters are not equal
+                    break;
+                }
+            } 
+            return isEqual;
+        }
 	
 	/**
 	 * Pads with leading zeros until length is 16
@@ -231,48 +275,48 @@ public final class ArithmeticLogicUnit {
 	 */		
 	public static void not(String p)
 	{
-	//register will be of length 16 bits
-		int n = 16;
-		for(int i = 0;i<n;i++)
-		{
-			String r = p.substring(i, i+1);
-			if (i==0)
-			{
-				//edge case: first bit
-				if (r == "1")
-				{
-					p= "0" + p.substring(i+1, n); //switch the first bit, save the rest
-				}
-				else if (r == "0")
-				{
-					p= "1" + p.substring(i+1, n);
-				}
+            //register will be of length 16 bits
+            int n = 16;
+            for(int i = 0;i<n;i++)
+            {
+                String r = p.substring(i, i+1);
+                if (i==0)
+                {
+                        //edge case: first bit
+                        if (r == "1")
+                        {
+                                p= "0" + p.substring(i+1, n); //switch the first bit, save the rest
+                        }
+                        else if (r == "0")
+                        {
+                                p= "1" + p.substring(i+1, n);
+                        }
 
-			}
-			else if (i==n)
-			{// edge case:  last bit
-				if (r == "0")
-				{
-					p= p.substring(0, i)+"1"; //save everything, but switch the last bit
-				}
-				else if (r == "1")
-				{
-					p= p.substring(0, i)+"0";
-				}
+                }
+                else if (i==n)
+                {// edge case:  last bit
+                        if (r == "0")
+                        {
+                                p= p.substring(0, i)+"1"; //save everything, but switch the last bit
+                        }
+                        else if (r == "1")
+                        {
+                                p= p.substring(0, i)+"0";
+                        }
 
-			}
-			else
-			{//general case
-				if (r == "0" )
-				{
-					p= p.substring(0, i)+"1"+ p.substring(i+1, n); //change the ith bit
-				}
-				else if (r == "1")
-				{
-					p= p.substring(0, i)+"0"+ p.substring(i+1, n);
-				}
-			}
-		}
+                }
+                else
+                {//general case
+                        if (r == "0" )
+                        {
+                                p= p.substring(0, i)+"1"+ p.substring(i+1, n); //change the ith bit
+                        }
+                        else if (r == "1")
+                        {
+                                p= p.substring(0, i)+"0"+ p.substring(i+1, n);
+                        }
+                }
+            }
 	}
 	/**
 	 * SHIFT Register Command
