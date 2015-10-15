@@ -255,7 +255,7 @@ public class MiniComputer extends Observable
     	boolean isIndirectAddress; 
     	BitWord address; 
     	BitWord immediate;
-    	int conditionCode;	//in decimal
+    	ConditionCode conditionCode;	//in decimal
 		
 		// Transfer PC value to MAR
 		MAR.setBitValue(ArithmeticLogicUnit.padZeros(PC.getBitValue().getValue()));
@@ -365,7 +365,7 @@ public class MiniComputer extends Observable
             	break;
             case OpCode.JCC:
             	isTransferInstruction = true;
-            	conditionCode = Integer.parseInt(instructionParse.get(BitInstruction.KEY_CONDITION_CODE).getValue(), 2); 
+            	conditionCode = ConditionCode.values()[Integer.parseInt(instructionParse.get(BitInstruction.KEY_CONDITION_CODE).getValue(), 2)]; 
             	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
             	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
             	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
@@ -915,13 +915,13 @@ public class MiniComputer extends Observable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void jcc(int conditionCode, int index, boolean isIndirectAddress, BitWord address)
+	public void jcc(ConditionCode conditionCode, int index, boolean isIndirectAddress, BitWord address)
 	{		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
 		// Copy the specified bit from the CC register into the Internal Result Register (IRR)
-		IRR.setBitValue(ArithmeticLogicUnit.padZeros(CC.getBitValue().getValue().substring(conditionCode, conditionCode+1)));
+		IRR.setBitValue(ArithmeticLogicUnit.padZeros(CC.getBitValue().getValue().substring(conditionCode.ordinal(), conditionCode.ordinal()+1)));
 
 		// If the specified CC bit is 1, move the EA to the Internal Address Register (IAR)
 		int irr = Integer.parseInt(IRR.getBitValue().getValue());
