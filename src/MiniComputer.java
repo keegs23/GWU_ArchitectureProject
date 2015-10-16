@@ -1,14 +1,19 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Observable;
 import java.util.TreeMap;
+import java.util.Vector;
 
 public class MiniComputer extends Observable
 {
 	public static final String MAX_MEMORY_ADDRESS = "0000011111111111";	//11 one bits = 2048 (decimal)
+	public static final String LOG_FILE_NAME = "trace-file.txt";
+	public final PrintWriter logger;
 	
 	/**
 	 * Program Counter (12 bits)
@@ -62,11 +67,19 @@ public class MiniComputer extends Observable
 	 * Key = String Address, Value = MemoryLocation object
 	 */
 	private Map<String, MemoryLocation> memory;
+	/**
+	 * Size 16
+	 */
+	private Vector<CacheLine> cache;
+	
 	private IOObject inputObject;
 	private IOObject outputObject;
 	
-	public MiniComputer()
+	public MiniComputer() throws FileNotFoundException
 	{
+		// Initialize logger
+		logger = new PrintWriter(new File(LOG_FILE_NAME));
+		
 		// Initialize Registers (sizes specified by the table in the project description)
 		PC = new Register(12); //register size is 12 bits
 		CC = new Register(4); //register size is 4 bits
@@ -85,8 +98,11 @@ public class MiniComputer extends Observable
 		X2 = new Register(16);
 		X3 = new Register(16);
 		
-		// Initialize Memory
+		// Initialize Memory and Cache
 		memory = new TreeMap<String, MemoryLocation>();
+		cache = new Vector<CacheLine>();
+		
+		// Initialize I/O transfer objects
 		inputObject = new IOObject();
 		outputObject = new IOObject();
 	}
