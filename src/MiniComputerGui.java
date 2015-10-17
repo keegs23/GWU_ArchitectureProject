@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -58,7 +59,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
 	private JTextArea consoleKeyboardInput;
 	private JButton consoleKeyboardButton;
 
-	public MiniComputerGui() {
+	public MiniComputerGui() throws FileNotFoundException {
 
 		cpu = new MiniComputer();
 		mainPanel = getContentPane();
@@ -243,7 +244,10 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
         registerModel.addRow(new Object[]{"MSR", SIXTEEN_ZEROS});
         registerModel.addRow(new Object[]{"MFR", FOUR_ZEROS});
         registerModel.addRow(new Object[]{"IAR", SIXTEEN_ZEROS});
-        registerModel.addRow(new Object[]{"IRR", SIXTEEN_ZEROS});
+        registerModel.addRow(new Object[]{"IRR [0]", SIXTEEN_ZEROS});
+        registerModel.addRow(new Object[]{"IRR [1]", SIXTEEN_ZEROS});
+        registerModel.addRow(new Object[]{"IRR [2]", SIXTEEN_ZEROS});
+        registerModel.addRow(new Object[]{"IRR [3]", SIXTEEN_ZEROS});
         registerModel.addRow(new Object[]{"R0", SIXTEEN_ZEROS});
         registerModel.addRow(new Object[]{"R1", SIXTEEN_ZEROS});
         registerModel.addRow(new Object[]{"R2", SIXTEEN_ZEROS});
@@ -333,7 +337,10 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
         registerModel.addRow(new Object[]{"MSR", cpu.getMSR().getBitValue().getValue()});
         registerModel.addRow(new Object[]{"MFR", cpu.getMFR().getBitValue().getValue()});
         registerModel.addRow(new Object[]{"IAR", cpu.getIAR().getBitValue().getValue()});
-        registerModel.addRow(new Object[]{"IRR", cpu.getIRR().getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"IRR [0]", cpu.getIRR()[0].getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"IRR [1]", cpu.getIRR()[1].getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"IRR [2]", cpu.getIRR()[2].getBitValue().getValue()});
+        registerModel.addRow(new Object[]{"IRR [3]", cpu.getIRR()[3].getBitValue().getValue()});
         registerModel.addRow(new Object[]{"R0", cpu.getR(0).getBitValue().getValue()});
         registerModel.addRow(new Object[]{"R1", cpu.getR(1).getBitValue().getValue()});
         registerModel.addRow(new Object[]{"R2", cpu.getR(2).getBitValue().getValue()});
@@ -499,8 +506,15 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
         
             @Override
             public void run() {
-                MiniComputerGui gui = new MiniComputerGui();
-                gui.setVisible(true);
+            	
+                MiniComputerGui gui;
+                
+				try {
+					gui = new MiniComputerGui();
+					gui.setVisible(true);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
             }
         });
     }

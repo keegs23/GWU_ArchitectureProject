@@ -1,14 +1,19 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Observable;
 import java.util.TreeMap;
+import java.util.Vector;
 
 public class MiniComputer extends Observable
 {
 	public static final String MAX_MEMORY_ADDRESS = "0000011111111111";	//11 one bits = 2048 (decimal)
+	public static final String LOG_FILE_NAME = "trace-file.txt";
+	public final PrintWriter logger;
 	
 	/**
 	 * Program Counter (12 bits)
@@ -43,9 +48,9 @@ public class MiniComputer extends Observable
 	 */
 	private Register IAR;
 	/**
-	 * Internal Result Register
+	 * Internal Result Register Array
 	 */
-	private Register IRR;
+	private Register[] IRR;
 	
 	// General Purpose Registers
 	private Register R0;
@@ -62,11 +67,19 @@ public class MiniComputer extends Observable
 	 * Key = String Address, Value = MemoryLocation object
 	 */
 	private Map<String, MemoryLocation> memory;
+	/**
+	 * Size 16
+	 */
+	private Vector<CacheLine> cache;
+	
 	private IOObject inputObject;
 	private IOObject outputObject;
 	
-	public MiniComputer()
+	public MiniComputer() throws FileNotFoundException
 	{
+		// Initialize logger
+		logger = new PrintWriter(new File(LOG_FILE_NAME));
+		
 		// Initialize Registers (sizes specified by the table in the project description)
 		PC = new Register(12); //register size is 12 bits
 		CC = new Register(4); //register size is 4 bits
@@ -76,7 +89,7 @@ public class MiniComputer extends Observable
 		MSR = new Register(16); //register size is 16 bits
 		MFR = new Register(4); //register size is 4 bits
 		IAR = new Register(16);
-		IRR = new Register(16);
+		IRR = new Register[4];
 		R0 = new Register(16);
 		R1 = new Register(16);
 		R2 = new Register(16);
@@ -85,10 +98,19 @@ public class MiniComputer extends Observable
 		X2 = new Register(16);
 		X3 = new Register(16);
 		
-		// Initialize Memory
+		// Initialize Memory and Cache
 		memory = new TreeMap<String, MemoryLocation>();
+		cache = new Vector<CacheLine>();
+		
+		// Initialize I/O transfer objects
 		inputObject = new IOObject();
 		outputObject = new IOObject();
+		
+		// Initialize IRR
+		for (int i = 0; i < IRR.length; i++)
+		{
+			IRR[i] = new Register(16);
+		}
 	}
 	
 	/* Register getters */
@@ -126,7 +148,7 @@ public class MiniComputer extends Observable
 	{
 		return IAR;
 	}
-	public Register getIRR()
+	public Register[] getIRR()
 	{
 		return IRR;
 	}
@@ -255,7 +277,7 @@ public class MiniComputer extends Observable
     	boolean isIndirectAddress; 
     	BitWord address; 
     	BitWord immediate;
-    	int conditionCode;	//in decimal
+    	ConditionCode conditionCode;	//in decimal
 		
 		// Transfer PC value to MAR
 		MAR.setBitValue(ArithmeticLogicUnit.padZeros(PC.getBitValue().getValue()));
@@ -365,7 +387,7 @@ public class MiniComputer extends Observable
             	break;
             case OpCode.JCC:
             	isTransferInstruction = true;
-            	conditionCode = Integer.parseInt(instructionParse.get(BitInstruction.KEY_CONDITION_CODE).getValue(), 2); 
+            	conditionCode = ConditionCode.values()[Integer.parseInt(instructionParse.get(BitInstruction.KEY_CONDITION_CODE).getValue(), 2)]; 
             	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
             	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
             	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
@@ -455,12 +477,12 @@ public class MiniComputer extends Observable
 		}
 		
 		// Move the data from the MBR to an Internal Result Register (IRR)
-		IRR.setBitValue(MBR.getBitValue());
+		IRR[0].setBitValue(MBR.getBitValue());
 		
 		// Store IRR contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(IRR.getBitValue());
+			registerSelect1.setBitValue(IRR[0].getBitValue());
 		}
 	}
 	
@@ -489,16 +511,16 @@ public class MiniComputer extends Observable
 		// Move the contents of the specified register to the IRR
 		if(registerSelect1 != null)
 		{
-			IRR.setBitValue(registerSelect1.getBitValue());
+			IRR[0].setBitValue(registerSelect1.getBitValue());
 		}
 		else
 		{
 			// Should never reach here, but just in case
-			IRR.setBitValue(BitWord.VALUE_DEFAULT);
+			IRR[0].setBitValue(BitWord.VALUE_DEFAULT);
 		}
 		
 		// Move contents of IRR to memory at address specified by IAR		
-		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR.getBitValue());
+		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR[0].getBitValue());
 		// TreeMap.put() automatically replaces the value and adds a new key if necessary 
 		memory.put(IAR.getBitValue().getValue(), memLoc);
 	}
@@ -525,12 +547,12 @@ public class MiniComputer extends Observable
 		
 		// MAR and MBR are not used because this instruction does not fetch from memory
 		// Move the data from the IAR to an Internal Result Register (IRR)
-		IRR.setBitValue(IAR.getBitValue());
+		IRR[0].setBitValue(IAR.getBitValue());
 		
 		// Store IRR contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(IRR.getBitValue());
+			registerSelect1.setBitValue(IRR[0].getBitValue());
 		}
 	}
 	
@@ -568,12 +590,12 @@ public class MiniComputer extends Observable
 		}
 		
 		// Move the data from the MBR to an Internal Result Register (IRR)
-		IRR.setBitValue(MBR.getBitValue());
+		IRR[0].setBitValue(MBR.getBitValue());
 		
 		// Store IRR contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(IRR.getBitValue());
+			registerSelect1.setBitValue(IRR[0].getBitValue());
 		}
 	}
 	
@@ -601,14 +623,14 @@ public class MiniComputer extends Observable
 		
 		// Move the contents of the specified register to the IRR
 		if (indexSelect1 != null) {
-			IRR.setBitValue(indexSelect1.getBitValue());
+			IRR[0].setBitValue(indexSelect1.getBitValue());
 		} else {
 			// Should never reach here, but just in case
-			IRR.setBitValue(new BitWord());
+			IRR[0].setBitValue(new BitWord());
 		}
 		
 		// Move contents of IRR to memory at address specified by IAR		
-		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR.getBitValue());
+		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR[0].getBitValue());
 		// TreeMap.put() automatically replaces the value and adds a new key if necessary 
 		memory.put(IAR.getBitValue().getValue(), memLoc);
 	}
@@ -649,18 +671,21 @@ public class MiniComputer extends Observable
 		// Move the contents of the specified register to the IRR
 		if(registerSelect1 != null)
 		{
-			IRR.setBitValue(registerSelect1.getBitValue());
+			IRR[0].setBitValue(registerSelect1.getBitValue());
 		}
 		else
 		{
 			// Should never reach here, but just in case
-			IRR.setBitValue(BitWord.VALUE_DEFAULT);
+			IRR[0].setBitValue(BitWord.VALUE_DEFAULT);
 		}
 		
-		// Store sum of IRR contents and MBR contents into the specified register
+		// Move the data from the MBR to an Internal Result Register (IRR)
+		IRR[1].setBitValue(MBR.getBitValue());
+				
+		// Store sum of register and memory contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(ArithmeticLogicUnit.add(IRR.getBitValue().getValue(), MBR.getBitValue().getValue()));
+			registerSelect1.setBitValue(ArithmeticLogicUnit.add(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue()));
 		}
 	}
 	
@@ -700,18 +725,21 @@ public class MiniComputer extends Observable
 		// Move the contents of the specified register to the IRR
 		if(registerSelect1 != null)
 		{
-			IRR.setBitValue(registerSelect1.getBitValue());
+			IRR[0].setBitValue(registerSelect1.getBitValue());
 		}
 		else
 		{
 			// Should never reach here, but just in case
-			IRR.setBitValue(BitWord.VALUE_DEFAULT);
+			IRR[0].setBitValue(BitWord.VALUE_DEFAULT);
 		}
 		
-		// Store difference of IRR contents and MBR contents into the specified register
+		// Move the data from the MBR to an Internal Result Register (IRR)
+		IRR[1].setBitValue(MBR.getBitValue());
+				
+		// Store difference of register and memory contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR.getBitValue().getValue(), MBR.getBitValue().getValue()));
+			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue()));
 		}
 	}
 	
@@ -728,21 +756,24 @@ public class MiniComputer extends Observable
 		// Move the contents of the specified register to the IRR
 		if(registerSelect1 != null)
 		{
-			IRR.setBitValue(registerSelect1.getBitValue());
+			IRR[0].setBitValue(registerSelect1.getBitValue());
 		}
 		else
 		{
 			// Should never reach here, but just in case
-			IRR.setBitValue(BitWord.VALUE_DEFAULT);
+			IRR[0].setBitValue(BitWord.VALUE_DEFAULT);
 		}
 		
 		// Move immediate to MBR
 		MBR.setBitValue(immediate);
 		
+		// Move the data from the MBR to an Internal Result Register (IRR)
+		IRR[1].setBitValue(MBR.getBitValue());
+		
 		// Store sum of IRR contents and MBR contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(ArithmeticLogicUnit.add(IRR.getBitValue().getValue(), MBR.getBitValue().getValue()));
+			registerSelect1.setBitValue(ArithmeticLogicUnit.add(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue()));
 		}
 	}
 	
@@ -759,21 +790,24 @@ public class MiniComputer extends Observable
 		// Move the contents of the specified register to the IRR
 		if(registerSelect1 != null)
 		{
-			IRR.setBitValue(registerSelect1.getBitValue());
+			IRR[0].setBitValue(registerSelect1.getBitValue());
 		}
 		else
 		{
 			// Should never reach here, but just in case
-			IRR.setBitValue(BitWord.VALUE_DEFAULT);
+			IRR[0].setBitValue(BitWord.VALUE_DEFAULT);
 		}
 		
 		// Move immediate to MBR
 		MBR.setBitValue(immediate);
 		
+		// Move the data from the MBR to an Internal Result Register (IRR)
+		IRR[1].setBitValue(MBR.getBitValue());
+		
 		// Store difference of IRR contents and MBR contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR.getBitValue().getValue(), MBR.getBitValue().getValue()));
+			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue()));
 		}
 	}
 	
@@ -852,11 +886,11 @@ public class MiniComputer extends Observable
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
 		// Move the register contents into the Internal Result Register (IRR)?
-		IRR.setBitValue(registerSelect1.getBitValue());
+		IRR[0].setBitValue(registerSelect1.getBitValue());
 
 		// If IRR contents is zero, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
-		int irr = Integer.parseInt(IRR.getBitValue().getValue());
+		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
 		if(irr == 0) {
 			IAR.setBitValue(ea);
 		} else {
@@ -888,11 +922,11 @@ public class MiniComputer extends Observable
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
 		// Move the register contents into the Internal Result Register (IRR)?
-		IRR.setBitValue(registerSelect1.getBitValue());
+		IRR[0].setBitValue(registerSelect1.getBitValue());
 
 		// If IRR contents is NOT zero, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
-		int irr = Integer.parseInt(IRR.getBitValue().getValue());
+		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
 		if(irr != 0) {
 			IAR.setBitValue(ea);
 		} else {
@@ -915,16 +949,16 @@ public class MiniComputer extends Observable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void jcc(int conditionCode, int index, boolean isIndirectAddress, BitWord address)
+	public void jcc(ConditionCode conditionCode, int index, boolean isIndirectAddress, BitWord address)
 	{		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
 		// Copy the specified bit from the CC register into the Internal Result Register (IRR)
-		IRR.setBitValue(ArithmeticLogicUnit.padZeros(CC.getBitValue().getValue().substring(conditionCode, conditionCode+1)));
+		IRR[0].setBitValue(ArithmeticLogicUnit.padZeros(CC.getBitValue().getValue().substring(conditionCode.ordinal(), conditionCode.ordinal()+1)));
 
 		// If the specified CC bit is 1, move the EA to the Internal Address Register (IAR)
-		int irr = Integer.parseInt(IRR.getBitValue().getValue());
+		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
 		if(irr == 1) {
 			IAR.setBitValue(ea);
 		} else {
@@ -1001,11 +1035,11 @@ public class MiniComputer extends Observable
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
 		// Move the register contents into the Internal Result Register (IRR)?
-		IRR.setBitValue(registerSelect1.getBitValue());
+		IRR[0].setBitValue(registerSelect1.getBitValue());
 
 		// If IRR contents is > 0, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
-		int irr = Integer.parseInt(IRR.getBitValue().getValue());
+		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
 		if(irr > 0) {
 			IAR.setBitValue(ea);
 		} else {
@@ -1037,11 +1071,11 @@ public class MiniComputer extends Observable
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
 		// Move the register contents into the Internal Result Register (IRR)?
-		IRR.setBitValue(registerSelect1.getBitValue());
+		IRR[0].setBitValue(registerSelect1.getBitValue());
 
 		// If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
-		int irr = Integer.parseInt(IRR.getBitValue().getValue());
+		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
 		if(irr >= 0) {
 			IAR.setBitValue(ea);
 		} else {
