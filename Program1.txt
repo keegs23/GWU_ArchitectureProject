@@ -1,13 +1,15 @@
-LDA 3,0,0,a		Array starts at address a=_; PROGRAM 1 START (this instruction will be stored at address _)
-STR 3,0,0,i		Memory address i=_ (decimal) stores the current array address being working on AKA Array Element Address
+LDA 3,0,0,x		Set X1 initially to address x=_ to aid with large addresses (passes through R3 and Transfer Address t)
+STR 3,0,0,t		Memory address t=_ (decimal) stores the value to be transferred between registers
+LDX 1,0,t
+LDA 3,0/1,0,a		Array starts at address a=_; PROGRAM 1 START (this instruction will be stored at address _)
+STR 3,0/1,0,i		Memory address i=_ (decimal) stores the current array address being working on AKA Array Element Address
 LDA 1,0,0,20	R1 stores the for loop counter (starts at 20 in decimal and decreases)
-STR 1,0,0,k		Memory address k=_ is the backup for R1 (starts at 20 in decimal)
+STR 1,0/1,0,k		Memory address k=_ is the backup for R1 (starts at 20 in decimal)
 LDA 2,0,0,10	R2 stores the number 10 (decimal) while getting the array input/the closest array value to the number to try to match so far
 LDA 0,0,0,0		R0 stores the number to be added to the array so far (starts at 0)
 LDA 3,0,0,0
-STR 3,0,0,m		Memory address m=_ (decimal) stores the number to try to match AKA Num To Match Address (defaults to 0)
-STR 3,0,0,t		Memory address t=_ (decimal) stores the value to be transferred between registers (defaults to 0)
-STR 3,0,0,c		Memory address c=_ (decimal) stores the minimum difference between the number to try to match and the closest array value AKA Min Diff Address (defaults to 0)
+STR 3,0/1,0,m		Memory address m=_ (decimal) stores the number to try to match AKA Num To Match Address (defaults to 0)
+STR 3,0/1,0,c		Memory address c=_ (decimal) stores the minimum difference between the number to try to match and the closest array value AKA Min Diff Address (defaults to 0)
 LDA 3,0,0,73	Output I
 OUT 3,1
 LDA 3,0,0,78	Output N
@@ -45,20 +47,20 @@ IN 3,0			Read in the character into R3; READ NEXT CHAR OF NUM
 SIR 3,13		Subtract the Enter key/carriage return ASCII code (Immed=13) from R3
 JZ 3,0/1,0,adone		If R3 contents = 0 character is Enter, jump to ALL DIGITS OF NUM ENTERED
 AIR 3,13		Add Enter key ASCII code (Immed=13) back to R3
-STR 1,0,0,k		Backup R1 loop counter since it will be affected by MLT
+STR 1,0/1,0,k		Backup R1 loop counter since it will be affected by MLT
 MLT 0,2			Multiply R0 contents by 10 (decimal, stored in R2) to move it to the tens place
-STR 1,0,0,t		MLT will have set R0 to 0 for the higher bits while R1 has the actual product, so move R1 contents to R0 (passes through transfer address t=_)
-LDR 0,0,0,t
-LDR 1,0,0,k		Restore R1 with contents from backup address
-STR 3,0,0,t		Add the R3 contents into R0 (passes through transfer address)
-AMR 0,0,0,t
+STR 1,0/1,0,t		MLT will have set R0 to 0 for the higher bits while R1 has the actual product, so move R1 contents to R0 (passes through transfer address t=_)
+LDR 0,0/1,0,t
+LDR 1,0/1,0,k		Restore R1 with contents from backup address
+STR 3,0/1,0,t		Add the R3 contents into R0 (passes through transfer address)
+AMR 0,0/1,0,t
 OUT 3,1			Output the R3 contents--GUI filters out non-digit inputs so don't have to worry if char is invalid
 JMA 0/1,0,rncon		Unconditional jump to READ NEXT CHAR OF NUM
-JMA 0/1,0,aifle		Else, unconditional jump to ARRAY INPUT FOR LOOP END
-		Store number from R0 into memory by indirect addressing the Array Element Address; ALL DIGITS OF NUM ENTERED
-		Output newline
-		Set R0 contents back to 0
-		Subtract 1 from R1 and if > 0, branch back to ARRAY INPUT FOR LOOP START
+STR 0,0,1,i		Store number from R0 into memory by indirect addressing the Array Element Address; ALL DIGITS OF NUM ENTERED
+LDA 3,0,0,10	Output newline
+OUT 3,1
+LDA 0,0,0,0		Set R0 contents back to 0
+SOB 1,0/1,0,aifls		Subtract 1 from R1 and if > 0, branch back to ARRAY INPUT FOR LOOP START
 LDA 3,0,0,77	Output M; ARRAY INPUT FOR LOOP END
 OUT 3,1
 LDA 3,0,0,65	Output A
@@ -84,8 +86,8 @@ OUT 3,1
 		If R3 contents = 0 character is Enter, jump to MATCH INPUT END
 		Add Enter key ASCII code (Immed=13 in ASCII) back to R3
 MLT 0,2			Multiply R0 contents by 10 (decimal, stored in R2) to move it to the tens place
-STR 1,0,0,t		MLT will have set R0 to 0 for the higher bits while R1 has the actual product, so move R1 contents to R0 (passes through transfer address t=_)
-LDR 0,0,0,t
+STR 1,0/1,0,t		MLT will have set R0 to 0 for the higher bits while R1 has the actual product, so move R1 contents to R0 (passes through transfer address t=_)
+LDR 0,0/1,0,t
 		Add the R3 contents into R0
 		Output the R3 contents--GUI filters out non-digit inputs so don't have to worry if char is invalid
 		Unconditional jump back to MATCH INPUT START
@@ -131,24 +133,32 @@ LDA 3,0,0,32	Output space
 OUT 3,1
 		Load R3 with 1, to indicate that the current digit to print is a leading zero; PRINT CLOSEST MATCH START
 		Load R0 with 10000 (decimal) since largest possible number is 5 digits
+		
 		Divide the closest match (in R2) by 10000 (decimal, in R0) to get the ten thousands place
+		
 		If the quotient (in R2) = 0, jump to GET THOUSANDS PLACE
 		Output the ten thousands place of the closest match (stored in R2)
 		Load R3 with 0, to indicate there are no more leading zeros
 		Load R2 with 1000 (decimal); GET THOUSANDS PLACE
+		
 		Divide the remainder (in R0) by 1000 (in R2)
+		
 		If R3 = 0 (no more leading zeros), jump to PRINT THOUSANDS PLACE
 		If the quotient (in R0) = 0, jump to GET HUNDREDS PLACE
 		Output R0 contents; PRINT THOUSANDS PLACE
 		Load R3 with 0, to indicate there are no more leading zeros
 		Load R0 with 100 (decimal); GET HUNDREDS PLACE
+		
 		Divide the remainder (in R2) by 100 (in R0)
+		
 		If R3 = 0 (no more leading zeros), jump to PRINT HUNDREDS PLACE
 		If the quotient (in R2) = 0, jump to GET TENS PLACE
 		Output R2 contents; PRINT HUNDREDS PLACE
 		Load R3 with 0, to indicate there are no more leading zeros
 		Load R2 with 10 (decimal); GET TENS PLACE
+		
 		Divide the remainder (in R0) by 10 (in R2)
+		
 		If R3 = 0 (no more leading zeros), jump to PRINT TENS PLACE
 		If the quotient (in R0) = 0, jump to PRINT ONES PLACE
 OUT 0,1			Output R0 contents; PRINT TENS PLACE
