@@ -7,7 +7,7 @@ STR 3,0/1,0,i		Memory address i=_ (decimal) stores the current array address bei
 LDA 1,0,0,20	R1 stores the for loop counter (starts at 20 in decimal and decreases)
 STR 1,0/1,0,k		Memory address k=_ is the backup for R1 (starts at 20 in decimal)
 LDA 2,0,0,10	R2 stores the number 10 (decimal) while getting the array input/the closest array value to the number to try to match so far
-LDA 0,0,0,0		R0 stores the number to be added to the array so far (starts at 0)
+LDA 0,0,0,0		R0 stores the number to be added to the array so far (starts at 0)/the divisor to parsing the separate digits to print
 LDA 3,0,0,0
 STR 3,0/1,0,m		Memory address m=_ (decimal) stores the number to try to match AKA Num To Match Address (defaults to 0)
 STR 3,0/1,0,c		Memory address d=_ (decimal) stores the minimum difference between the number to try to match and the closest array value AKA Min Diff Address (defaults to 0)
@@ -135,38 +135,39 @@ LDA 3,0,0,58	Output ':'
 OUT 3,1
 LDA 3,0,0,32	Output space
 OUT 3,1
-		Load R3 with 1, to indicate that the current digit to print is a leading zero; PRINT CLOSEST MATCH START
-		Load R0 with 10000 (decimal) since largest possible number is 5 digits
+LDA 1,0,0,1		Load R1 with 1, to indicate that the current digit to print is a leading zero; PRINT CLOSEST MATCH START
+LDA 0,			Load R0 with 10000 (decimal) since largest possible number is 5 digits
 		
-		Divide the closest match (in R2) by 10000 (decimal, in R0) to get the ten thousands place
+DVD 2,0			Divide the closest match (in R2) by 10000 (decimal, in R0) to get the ten thousands place
+JZ 2,0/1,0,g1kp		If the quotient (in R2) = 0, jump to GET THOUSANDS PLACE
+OUT 2,1			Output the ten thousands place of the closest match (stored in R2)
+LDA 1,0,0,0		Load R1 with 0, to indicate there are no more leading zeros
+LDA 0,			Load R0 with 1000 (decimal); GET THOUSANDS PLACE
 		
-		If the quotient (in R2) = 0, jump to GET THOUSANDS PLACE
-		Output the ten thousands place of the closest match (stored in R2)
-		Load R3 with 0, to indicate there are no more leading zeros
-		Load R2 with 1000 (decimal); GET THOUSANDS PLACE
+STR 3,0/1,0,t		Move the remainder (in R3) to R2 (via Transfer Address)
+LDR 2,0/1,0,t
+DVD 2,0			Divide the remainder (in R2) by 1000 (in R0)	
+JZ 1,0/1,0,p1kp		If R1 = 0 (no more leading zeros), jump to PRINT THOUSANDS PLACE
+JZ 2,0/1,0,g100p		If the quotient (in R2) = 0, jump to GET HUNDREDS PLACE
+OUT 2,1			Output R2 contents; PRINT THOUSANDS PLACE
+LDA 1,0,0,0		Load R1 with 0, to indicate there are no more leading zeros
+LDA 0,		Load R0 with 100 (decimal); GET HUNDREDS PLACE
 		
-		Divide the remainder (in R0) by 1000 (in R2)
-		
-		If R3 = 0 (no more leading zeros), jump to PRINT THOUSANDS PLACE
-		If the quotient (in R0) = 0, jump to GET HUNDREDS PLACE
-		Output R0 contents; PRINT THOUSANDS PLACE
-		Load R3 with 0, to indicate there are no more leading zeros
-		Load R0 with 100 (decimal); GET HUNDREDS PLACE
-		
-		Divide the remainder (in R2) by 100 (in R0)
-		
-		If R3 = 0 (no more leading zeros), jump to PRINT HUNDREDS PLACE
-		If the quotient (in R2) = 0, jump to GET TENS PLACE
-		Output R2 contents; PRINT HUNDREDS PLACE
-		Load R3 with 0, to indicate there are no more leading zeros
-		Load R2 with 10 (decimal); GET TENS PLACE
-		
-		Divide the remainder (in R0) by 10 (in R2)
-		
-		If R3 = 0 (no more leading zeros), jump to PRINT TENS PLACE
-		If the quotient (in R0) = 0, jump to PRINT ONES PLACE
-OUT 0,1			Output R0 contents; PRINT TENS PLACE
-OUT 2,1			Output R2 contents; PRINT ONES PLACE
+STR 3,0/1,0,t		Move the remainder (in R3) to R2 (via Transfer Address)
+LDR 2,0/1,0,t		
+DVD 2,0/1		Divide the remainder (in R2) by 100 (in R0)
+JZ 1,0/1,0,p100p		If R1 = 0 (no more leading zeros), jump to PRINT HUNDREDS PLACE
+JZ 2,0/1,0,g10p		If the quotient (in R2) = 0, jump to GET TENS PLACE
+OUT 2,10		Output R2 contents; PRINT HUNDREDS PLACE
+LDA 1,0,0,0		Load R1 with 0, to indicate there are no more leading zeros
+LDA 2,0,0,10	Load R2 with 10 (decimal); GET TENS PLACE	
+STR 3,0/1,0,t		Move the remainder (in R3) to R2 (via Transfer Address)
+LDR 2,0/1,0,t
+DVD 2,0			Divide the remainder (in R2) by 10 (in R0)		
+JZ 1,0/1,0,p10p		If R1 = 0 (no more leading zeros), jump to PRINT TENS PLACE
+JZ 2,0/1,g1p		If the quotient (in R2) = 0, jump to PRINT ONES PLACE
+OUT 2,1			Output R2 contents; PRINT TENS PLACE
+OUT 3,1			Output R3 contents; PRINT ONES PLACE
 LDA 3,0,0,10	Output newline
 OUT 3,1
 HLT				Halt; PROGRAM 1 END
