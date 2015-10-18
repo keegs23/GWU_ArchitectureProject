@@ -1166,7 +1166,17 @@ public class MiniComputer extends Observable implements Runnable
             else if (!register2.equals(R0) && !register2.equals(R2))
                 System.out.println("Register must be R0 or R2.");
             else {
+                String product = ArithmeticLogicUnit.multiply(register1.getBitValue().getValue(), register2.getBitValue().getValue());
                 
+                //Get high and low order bits from product
+                BitWord highBits = new BitWord(product.substring(0, 15));
+                BitWord lowBits = new BitWord(product.substring(16, 31));
+                
+                //rx contains high order bits
+                register1.setBitValue(highBits);
+                //rx + 1 contains low order bits
+                Register registerPlusOne = getR(rx + 1);
+                registerPlusOne.setBitValue(lowBits);
             }                
         } 
         
@@ -1180,7 +1190,18 @@ public class MiniComputer extends Observable implements Runnable
             else if (!register2.equals(R0) && !register2.equals(R2))
                 System.out.println("Register must be R0 or R2.");
             else {
-                
+                Map<String, String> divisionMap = ArithmeticLogicUnit.divide(register1.getBitValue().getValue(), register2.getBitValue().getValue());
+                if (Integer.parseInt(divisionMap.get(ArithmeticLogicUnit.KEY_ISDIVZERO)) == 1) {
+                    setConditionCode(ConditionCode.DIVZERO, true);
+                }
+                else {
+                    setConditionCode(ConditionCode.DIVZERO, false);
+                    //rx = quotient
+                    register1.setBitValue(divisionMap.get(ArithmeticLogicUnit.KEY_QUOTIENT));
+                    //rx + 1 = remainder
+                    Register registerPlusOne = getR(rx + 1);
+                    registerPlusOne.setBitValue(divisionMap.get(ArithmeticLogicUnit.KEY_REMAINDER));
+                }
             }              
         }
         
@@ -1188,7 +1209,10 @@ public class MiniComputer extends Observable implements Runnable
             Register register1 = getR(rx);
             Register register2 = getR(ry);
             
-            //if (register1.getBitValue().equals(register2.getBitValue()))                
+            if (register1.getBitValue().equals(register2.getBitValue()))
+                setConditionCode(ConditionCode.EQUALORNOT, true);
+            else
+                setConditionCode(ConditionCode.EQUALORNOT, false);
         }        
 	
 	// TODO in later parts: other instructions
