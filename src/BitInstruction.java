@@ -10,6 +10,10 @@ public class BitInstruction extends BitWord
     public static final String KEY_INDIRECT_ADDR = "indirectAddr";
     public static final String KEY_IMMEDIATE = "immediate";
     public static final String KEY_CONDITION_CODE = "conditionCode";
+    public static final String KEY_ARITHMETIC_OR_LOGIC = "ArithmeticOrLogic";
+    public static final String KEY_LEFT_OR_RIGHT = "LeftOrRight";
+    public static final String KEY_SHIFT_COUNT = "SHiftCount";
+    public static final String KEY_REGISTER2 = "register2";
     
     
     public BitInstruction()
@@ -91,6 +95,26 @@ public class BitInstruction extends BitWord
             case OpCode.JGE:
             	//Instruction schema is similar to that of the load/store instructions
             	instructionParts = parseLoadStore(opCode);
+            	break;
+            case OpCode.AND:
+            	//AND
+            	instructionParts = parseLogic(opCode);  // use whatever Kegan calls his opCode parser
+            	break;
+            case OpCode.ORR:
+            	//AND
+            	instructionParts = parseLogic(opCode); // use whatever Kegan calls his opCode parser
+            	break;
+            case OpCode.NOT:
+            	//AND
+            	instructionParts = parseLogic(opCode); // use whatever Kegan calls his opCode parser
+            	break;
+            case OpCode.SRC:
+            	//Shift
+            	instructionParts = parseShiftRotate(opCode);
+            	break;
+            case OpCode.RRC:
+            	//Rotate
+            	instructionParts = parseShiftRotate(opCode);
             	break;
             default:
                 break;                        
@@ -180,6 +204,23 @@ public class BitInstruction extends BitWord
         parse.put(KEY_REGISTER, new BitWord(register));
         parse.put(KEY_IMMEDIATE, new BitWord(immediate));
         
+        return parse;
+    }
+    private Map<String, BitWord> parseShiftRotate(String opCode)
+    {
+        Map<String, BitWord> parse = new HashMap<String, BitWord>();
+        
+        String register = value.substring(6, 8);  
+        String ArithmeticOrLogic = value.substring(8, 9);  //this is a flag to adjust for a sign bit; 0 = arithmetic and 1 = logic;
+    	String LeftOrRight = value.substring(9, 10);  // left = 1; right = 0;
+    	String ShiftCount = value.substring(12, 16);  //number of times to shift the bits
+        
+        parse.put(KEY_OPCODE, new BitWord(opCode));
+        parse.put(KEY_REGISTER, new BitWord(register));
+        parse.put(KEY_ARITHMETIC_OR_LOGIC, new BitWord(ArithmeticOrLogic));
+        parse.put(KEY_LEFT_OR_RIGHT, new BitWord(LeftOrRight));
+        parse.put(KEY_SHIFT_COUNT, new BitWord(ShiftCount));
+
         return parse;
     }
 }

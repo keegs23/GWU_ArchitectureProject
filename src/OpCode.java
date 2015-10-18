@@ -108,4 +108,24 @@ public class OpCode
 	 * Jump If Greater Than or Equal To
 	 */
 	public static final String JGE = "001111";	//17
+	/**
+	 * AND
+	 */
+	public static final String AND = "010111";	//23
+	/**
+	 * OR
+	 */
+	public static final String ORR = "011000";	//24
+	/**
+	 * NOT
+	 */
+	public static final String NOT = "011001";	//25
+	/**
+	 * Shift Register by Count
+	 */
+	public static final String SRC = "011111";	//31
+	/**
+	 * Rotate Register by Count
+	 */
+	public static final String RRC = "100000";	//32
 }
