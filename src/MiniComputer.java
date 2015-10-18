@@ -228,6 +228,11 @@ public class MiniComputer extends Observable implements Runnable
 		thread.start();
 	}
 	
+	/*
+	 * Overriden method from interface Runnable
+	 * Called when thread.start() is called
+	 * Used for creating a new thread in the program so the GUI doesn't freeze when waiting for user input
+	 */
 	@Override
 	public void run() {
 		
@@ -776,7 +781,10 @@ public class MiniComputer extends Observable implements Runnable
 		if(registerSelect1 != null)
 		{
 			Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
-			registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+			if (!(Boolean) differenceMap.get("isUnderflow"))
+			{
+				registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+			}
 			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get("isUnderflow"));
 		}
 	}
@@ -846,7 +854,10 @@ public class MiniComputer extends Observable implements Runnable
 		if(registerSelect1 != null)
 		{
 			Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
-			registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+			if (!(Boolean) differenceMap.get("isUnderflow"))
+			{
+				registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+			}
 			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get("isUnderflow"));
 			
 		}
@@ -866,16 +877,16 @@ public class MiniComputer extends Observable implements Runnable
 		setChanged();
 		notifyObservers(inputObject);
 		
-		while (MiniComputerGui.enterKeyClicked == false) {
+		while (MiniComputerGui.validKeyClicked == false) {
     		try {
-    			Thread.sleep(500);
+    			Thread.sleep(200);
     		}
     		catch (InterruptedException ie) {
     			System.out.println("Exception: " + ie.getMessage());
     		}
     	}
 		
-		MiniComputerGui.enterKeyClicked = false;
+		MiniComputerGui.validKeyClicked = false;
 	}
 	
 	/**

@@ -145,7 +145,7 @@ public final class ArithmeticLogicUnit {
 	 */
 	public static String padZeros(String value)
 	{
-		return String.format("%016d", Integer.parseInt(value));
+		return String.format("%016d", Long.parseLong(value));
 	}
 	/**
 	 * Logical AND of RegisterP and RegisterQ

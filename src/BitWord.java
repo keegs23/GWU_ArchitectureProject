@@ -1,6 +1,8 @@
 public class BitWord {
 	public static final String VALUE_ZERO = "0000000000000000";	//16 zero bits
 	public static final String VALUE_ONE = "0000000000000001";	//15 zeros then a one
+	public static final String VALUE_ENTER = "1111111111111111"; //Represents value for Enter character
+	public static final String VALUE_NEWLINE = "1010101010101010"; //Represents value for New line character
 	public static final String VALUE_DEFAULT = VALUE_ZERO;
 	
 	protected final String value;

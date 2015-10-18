@@ -31,7 +31,7 @@ import javax.swing.table.DefaultTableModel;
 
 public class MiniComputerGui extends JFrame implements ActionListener, Observer, KeyListener {
 
-	protected static volatile boolean enterKeyClicked = false;
+	protected static volatile boolean validKeyClicked = false;
 	private static final long serialVersionUID = -8217933506339143771L;
 	private static final int INSTRUCTION_SIZE = 16;	
 	private MiniComputer cpu;
@@ -518,20 +518,19 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	int keyCode = ke.getKeyCode();
     	
     	switch (keyCode) {
+    	
 	    	case KeyEvent.VK_ENTER:
 	    		System.out.println("Enter button pressed");
 	    		
 	    		if (!consoleKeyboardInput.equals("")) {
-	    			enterKeyClicked = true;
-		    		consoleKeyboardInput.setEnabled(false);
+	    			int inputInt = Integer.parseInt(BitWord.VALUE_ENTER, 2);
+	    			processKeyClick(inputInt);
 		    		clearConsoleKeyboard();
 		    		consoleKeyboardInputHolder = "";
-		    		populateRegisterTable();
-		    		populateMemoryTable();
+		    		
 	    		} else {
 	    			System.out.println("Keyboard Input is blank!");
 	    		}
-	    		
 	    		break;
 	    		
 	    	case KeyEvent.VK_BACK_SPACE:
@@ -553,7 +552,8 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	    		
 	    		try {
 	    			int inputInt = Integer.parseInt(consoleKeyboardInputHolder);
-	    			cpu.inProcessing(inputInt);
+	    			processKeyClick(inputInt);
+	    			
 	    		} catch (NumberFormatException nfe) {
 	    			System.err.println("NumberFormatException: " + nfe.getMessage());
 	    		}
@@ -571,6 +571,15 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     
     @Override
     public void keyPressed(KeyEvent ke) {}
+    
+    private void processKeyClick(int inputInt) {
+    	
+    	cpu.inProcessing(inputInt);
+    	validKeyClicked = true;
+    	consoleKeyboardInput.setEnabled(false);
+    	populateRegisterTable();
+    	populateMemoryTable();
+    }
     
     /* End KeyListener Methods */
 
