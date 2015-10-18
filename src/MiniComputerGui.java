@@ -226,6 +226,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     private void addToConsoleKeyboardPanel() {
     	
     	consoleKeyboardInput.setEnabled(false);
+    	consoleKeyboardInput.addKeyListener(this);
     	consoleKeyboardPanel.add(consoleKeyboardInput);
     }
     
@@ -413,8 +414,15 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	System.out.println("Outputting to console printer.");
     	
     	String registerValue = cpu.getR(registerId).getBitValue().getValue();
+    	boolean regIsInt = cpu.getRegisterIsInt()[registerId];
     	
-		consolePrinterOutput.append(DataConversion.binaryToText(registerValue));
+    	if (regIsInt) {
+    		// Currently, once a register is set to hold an int, it should always hold an int.
+    		// TODO: Will need to change this later
+    		consolePrinterOutput.append(Integer.parseInt(registerValue, 2) + "");
+    	} else {
+    		consolePrinterOutput.append(DataConversion.binaryToText(registerValue));
+    	}
     }
     
     /* End Observer Methods */
