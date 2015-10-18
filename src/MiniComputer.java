@@ -13,6 +13,8 @@ public class MiniComputer extends Observable implements Runnable
 {
 	public static final String MAX_MEMORY_ADDRESS = "0000011111111111";	//11 one bits = 2048 (decimal)
 	public static final String LOG_FILE_NAME = "trace-file.txt";
+	public static final String BOOT_PROGRAM_NAME = "BootProgram.txt";
+	public static final String PROGRAM_ONE_NAME = "Program1.txt";
 	public final PrintWriter logger;
 	
 	/**
@@ -230,9 +232,74 @@ public class MiniComputer extends Observable implements Runnable
 		
 	}
 	
+	/**
+	 * Loads the contents of the program.
+	 * Called when Load File button is pressed.
+	 */
 	public void loadFromFile()
 	{
-		// WIP
+		
+	}
+	
+	private void load()
+	{
+		// Read in and parse rom.txt 
+		// rom.txt is formatted so that each instruction is on a separate line, first 16 characters of each line are the instruction, rest are comments
+		// Make sure to only read the first 16 characters of each row (i.e. ignore the comments)
+		File file = new File("BootProgram.txt");
+		try 
+		{
+			FileInputStream fileIn = new FileInputStream(file);
+			
+			//Construct BufferedReader from InputStreamReader
+			BufferedReader br = new BufferedReader(new InputStreamReader(fileIn));
+		 
+			int bootPrgmLength = 0;
+			String line = null;
+			String bootPrgmStart16Bits = MemoryLocation.ADDRESS_BOOT_PRGM_START;
+			String address = bootPrgmStart16Bits;
+			while ((line = br.readLine()) != null) {
+				// Read the 16-bit instruction
+				String instruction = line.substring(0, 16);
+				bootPrgmLength++;
+				
+				// Store the instruction in memory
+				// Since technically the ROM is already supposed to be in the computer,
+				// we will input it directly into memory
+				// instead of constructing instructions to input the boot program instructions into memory
+				MemoryLocation memLoc = new MemoryLocation(address, instruction);
+				memory.put(address, memLoc);
+				
+				// Increment address
+				address = ArithmeticLogicUnit.add(address, BitWord.VALUE_ONE);
+			}
+			
+			br.close();
+			
+			// Execute boot program (mostly load/store)
+			// PC can only hold 12 bits, so chop off the leading zeros
+			String bootPrgmStart12Bits = bootPrgmStart16Bits.substring(4, 16);
+			PC.setBitValue(bootPrgmStart12Bits);
+			for(int k = 1; k <= bootPrgmLength; k++)
+			{
+				if (MiniComputerGui.haltButtonClicked)
+				{
+					break;
+				}
+				singleStep();
+			}
+			
+			MiniComputerGui.haltButtonClicked = false;
+			
+			// Set PC back to the start of the boot program
+			// PC can only hold 12 bits, so chop off the leading zeros
+			PC.setBitValue(bootPrgmStart12Bits);
+		}
+		catch(Exception ex)
+		{
+			// TODO: Handle exceptions
+			System.out.println(ex);
+		}
 	}
 	
 	/*

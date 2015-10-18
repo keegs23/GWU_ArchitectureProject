@@ -84,7 +84,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		instructionLoadButton = new JButton("Load Instruction");
 		pcInput = new JTextField(10);
 		iplButton = new JButton("IPL");
-		loadFileButton = new JButton("Load File");
+		loadFileButton = new JButton("Load Prgm 1");
 		runButton = new JButton("Run");
 		haltButton = new JButton("Halt");
 		singleStepButton = new JButton("Single Step");
