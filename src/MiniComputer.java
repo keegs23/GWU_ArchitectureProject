@@ -226,6 +226,13 @@ public class MiniComputer extends Observable implements Runnable
 	{
 		Thread thread = new Thread(this);
 		thread.start();
+		
+		
+	}
+	
+	public void loadFromFile()
+	{
+		// WIP
 	}
 	
 	/*
@@ -476,7 +483,7 @@ public class MiniComputer extends Observable implements Runnable
         }
 		
 		// Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
-        if(!isTransferInstruction)
+        if(!isTransferInstruction && !opcode.getValue().equals(OpCode.HLT))
         {
         	// Increment PC
         	String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE);
