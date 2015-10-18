@@ -496,7 +496,7 @@ public class MiniComputer extends Observable implements Runnable
                 break;                        
         }
 		
-		// Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
+	// Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
         if(!isTransferInstruction)
         {
         	// Increment PC
@@ -1324,10 +1324,6 @@ public class MiniComputer extends Observable implements Runnable
 		String last = CC.getBitValue().getValue().substring(conditionCode.ordinal()+1, CC.getBitSize());
 			
 		CC.setBitValue(first + flag + last);
-	}
-        
-        //private MemoryLocation fetchMemoryValue(String address) {
-            //if (cache.con)              
-        //} 
+	}        
 	/* End Helpers */
 }
