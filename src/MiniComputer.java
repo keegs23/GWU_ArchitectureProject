@@ -277,6 +277,7 @@ public class MiniComputer extends Observable
     	boolean isIndirectAddress; 
     	BitWord address; 
     	BitWord immediate;
+    	BitWord devId;
     	ConditionCode conditionCode;	//in decimal
 		
 		// Transfer PC value to MAR
@@ -424,6 +425,16 @@ public class MiniComputer extends Observable
             	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
             	jge(register, index, isIndirectAddress, address);
             	break;
+            case OpCode.IN:
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	devId = instructionParse.get(BitInstruction.KEY_DEVID); 
+            	in(register, devId);
+                break;
+            case OpCode.OUT:
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	devId = instructionParse.get(BitInstruction.KEY_DEVID); 
+            	out(register, devId);
+                break;
             default:
                 break;                        
         }
@@ -765,7 +776,7 @@ public class MiniComputer extends Observable
 		}
 		
 		// Move immediate to MBR
-		MBR.setBitValue(immediate);
+		MBR.setBitValue(ArithmeticLogicUnit.padZeros(immediate.getValue()));
 		
 		// Move the data from the MBR to an Internal Result Register (IRR)
 		IRR[1].setBitValue(MBR.getBitValue());
@@ -799,7 +810,7 @@ public class MiniComputer extends Observable
 		}
 		
 		// Move immediate to MBR
-		MBR.setBitValue(immediate);
+		MBR.setBitValue(ArithmeticLogicUnit.padZeros(immediate.getValue()));
 		
 		// Move the data from the MBR to an Internal Result Register (IRR)
 		IRR[1].setBitValue(MBR.getBitValue());
@@ -816,33 +827,33 @@ public class MiniComputer extends Observable
 	 * @param register
 	 * @param devId
 	 */
-	public void in(int register, String devId)
+	public void in(int register, BitWord devId)
 	{
 		inputObject.setOpCode(OpCode.IN);
 		inputObject.setRegisterId(register);
-		inputObject.setDevId(devId);
+		inputObject.setDevId(devId.getValue());
 		
 		setChanged();
 		notifyObservers(inputObject);
 		
-		while (MiniComputerGui.inputButtonClicked == false) {
-    		try {
-    			Thread.sleep(500);
-    		}
-    		catch (InterruptedException ie) {
-    			System.out.println("Exception: " + ie.getMessage());
-    		}
-    	}
-		
-		MiniComputerGui.inputButtonClicked = false;
+//		while (MiniComputerGui.enterKeyClicked == false) {
+//    		try {
+//    			Thread.sleep(500);
+//    		}
+//    		catch (InterruptedException ie) {
+//    			System.out.println("Exception: " + ie.getMessage());
+//    		}
+//    	}
+//		
+//		MiniComputerGui.enterKeyClicked = false;
 	}
 	
 	/**
 	 * Input character to register from device
-	 * @param inputString
+	 * @param inputInt
 	 *
 	 */
-	public void inProcessing(String inputString)
+	public void inProcessing(int inputInt)
 	{
 		// Retrieve the specified Index Register (IR a.k.a X)
 		Register registerSelect1 = getR(inputObject.getRegisterId());
@@ -850,7 +861,7 @@ public class MiniComputer extends Observable
 		// Store IRR contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(DataConversion.textToBinary(inputString));
+			registerSelect1.setBitValue(Integer.toBinaryString(inputInt));
 		}
 		
 	}
@@ -860,11 +871,11 @@ public class MiniComputer extends Observable
 	 * @param register
 	 * @param devId
 	 */
-	public void out(int register, String devId)
+	public void out(int register, BitWord devId)
 	{
 		outputObject.setOpCode(OpCode.OUT);
 		outputObject.setRegisterId(register);
-		outputObject.setDevId(devId);
+		outputObject.setDevId(devId.getValue());
 		
 		setChanged();
 		notifyObservers(outputObject);

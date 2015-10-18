@@ -10,6 +10,7 @@ public class BitInstruction extends BitWord
     public static final String KEY_INDIRECT_ADDR = "indirectAddr";
     public static final String KEY_IMMEDIATE = "immediate";
     public static final String KEY_CONDITION_CODE = "conditionCode";
+    public static final String KEY_DEVID = "devId";
     
     
     public BitInstruction()
@@ -91,6 +92,12 @@ public class BitInstruction extends BitWord
             case OpCode.JGE:
             	//Instruction schema is similar to that of the load/store instructions
             	instructionParts = parseLoadStore(opCode);
+            	break;
+            case OpCode.IN:
+            	instructionParts = parseIO(opCode);
+            	break;
+            case OpCode.OUT:
+            	instructionParts = parseIO(opCode);
             	break;
             default:
                 break;                        
@@ -179,6 +186,25 @@ public class BitInstruction extends BitWord
         parse.put(KEY_OPCODE, new BitWord(opCode));
         parse.put(KEY_REGISTER, new BitWord(register));
         parse.put(KEY_IMMEDIATE, new BitWord(immediate));
+        
+        return parse;
+    }
+    
+    /**
+     * Parses the register and device id
+     * @param opCode
+     * @return 
+     */
+    private Map<String, BitWord> parseIO(String opCode)
+    {
+        Map<String, BitWord> parse = new HashMap<String, BitWord>();
+        
+        String register = value.substring(6, 8);  
+        String devId = value.substring(11, 16);
+        
+        parse.put(KEY_OPCODE, new BitWord(opCode));
+        parse.put(KEY_REGISTER, new BitWord(register));
+        parse.put(KEY_DEVID, new BitWord(devId));
         
         return parse;
     }
