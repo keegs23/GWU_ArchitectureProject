@@ -1091,10 +1091,14 @@ public class MiniComputer extends Observable implements Runnable
 		
 		// Subtract one from the register contents
 		Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE);
-		registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+		boolean isUnderflow = (Boolean) differenceMap.get("isUnderflow");
+		// If underflow, leave the register contents alone instead of setting it to gibberish
+		if(!isUnderflow) {
+			registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+		}
 		
-		// Set Underflow code
-		setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get("isUnderflow"));
+		// Set Underflow bit
+		setConditionCode(ConditionCode.UNDERFLOW, isUnderflow);
 		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
@@ -1105,7 +1109,7 @@ public class MiniComputer extends Observable implements Runnable
 		// If IRR contents is > 0, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
 		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-		if(irr > 0) {
+		if(!isUnderflow && irr > 0) {
 			IAR.setBitValue(ea);
 		} else {
 			// Else set IAR value to PC contents + 1
