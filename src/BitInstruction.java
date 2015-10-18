@@ -109,6 +109,27 @@ public class BitInstruction extends BitWord
             case OpCode.TRR:
                 instructionParts = parseArithmetic(opCode, true);
                 break;
+            case OpCode.AND:
+            	//AND
+            	instructionParts = parseArithmetic(opCode, true);
+            	break;
+            case OpCode.ORR:
+            	//AND
+            	instructionParts = parseArithmetic(opCode, true);
+            	break;
+            case OpCode.NOT:
+            	//AND
+            	instructionParts = parseArithmetic(opCode, false);
+            	break;
+            case OpCode.SRC:
+            	//Shift
+            	instructionParts = parseShiftRotate(opCode);
+            	break;
+            case OpCode.RRC:
+            	//Rotate
+            	instructionParts = parseShiftRotate(opCode);
+            	break;
+
             default:
                 break;                        
         }
