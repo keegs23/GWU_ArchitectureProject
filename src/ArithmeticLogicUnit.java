@@ -1,3 +1,6 @@
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Arithmetic utility class
  */
@@ -66,12 +69,14 @@ public final class ArithmeticLogicUnit {
 	 * @param bitStr2
 	 * @return the binary difference of bitStr1 and bitStr2 as a 16-bit String
 	 */
-	public static String subtract(String bitStr1, String bitStr2, boolean isUnderflow)
+	public static Map<String, Object> subtract(String bitStr1, String bitStr2)
 	{
 		// Currently only works when both are non-negative numbers
 		
 		String difference = "";
 		boolean borrow = false;
+		boolean isUnderflow = checkUnderflow(bitStr1, bitStr2);
+		Map<String, Object> returnMap = new HashMap<String, Object>();
 		
 		// Make sure both are 16 bits
 		String bits1;
@@ -90,42 +95,47 @@ public final class ArithmeticLogicUnit {
 		
 		if (Integer.parseInt(bits1) == Integer.parseInt(bits2))
 		{
-			return BitWord.VALUE_ZERO;
+			difference = BitWord.VALUE_ZERO;
 		}
-		if (Integer.parseInt(bits2) == 0)
+		else if (Integer.parseInt(bits2) == 0)
 		{
-			return bits1;
+			difference = bits1;
+		}
+		else
+		{
+			for (int k = 15; k >= 0; k--)
+			{
+				// Retrieve the next lowest bit
+				int a = Integer.parseInt(bits1.substring(k, k+1));
+				int b = Integer.parseInt(bits2.substring(k, k+1));
+				
+				if (borrow == true)
+				{
+					if (a == 1)
+					{
+						a = 0;
+						borrow = false;
+					}
+					else
+					{
+						a = 1;
+					}
+				}
+				
+				if (b > a)
+				{
+					a = a + 1;
+					borrow = true;
+				}
+				
+				difference = (a - b) + difference;
+			}
 		}
 		
-		for (int k = 15; k >= 0; k--)
-		{
-			// Retrieve the next lowest bit
-			int a = Integer.parseInt(bits1.substring(k, k+1));
-			int b = Integer.parseInt(bits2.substring(k, k+1));
-			
-			if (borrow == true)
-			{
-				if (a == 1)
-				{
-					a = 0;
-					borrow = false;
-				}
-				else
-				{
-					a = 1;
-				}
-			}
-			
-			if (b > a)
-			{
-				a = a + 1;
-				borrow = true;
-			}
-			
-			difference = (a - b) + difference;
-		}
+		returnMap.put("difference", difference);
+		returnMap.put("isUnderflow", isUnderflow);
 		
-		return difference;
+		return returnMap;
 	}
         
        	/**

@@ -2,14 +2,15 @@ LDA 3,0,0,x		Set X1 initially to address x=_ to aid with large addresses (passes
 STR 3,0,0,t		Memory address t=_ (decimal) stores the value to be transferred between registers
 LDX 1,0,t
 LDA 3,0/1,0,a		Array starts at address a=_; PROGRAM 1 START (this instruction will be stored at address _)
-STR 3,0/1,0,i		Memory address i=_ (decimal) stores the current array address being working on AKA Array Element Address
+SIR 3,0,0,1
+STR 3,0/1,0,i		Memory address i=_ (decimal) stores the current array address being working on AKA Array Element Address (starts at 1 behind the first element of the array since increment is done first in the loop)
 LDA 1,0,0,20	R1 stores the for loop counter (starts at 20 in decimal and decreases)
 STR 1,0/1,0,k		Memory address k=_ is the backup for R1 (starts at 20 in decimal)
 LDA 2,0,0,10	R2 stores the number 10 (decimal) while getting the array input/the closest array value to the number to try to match so far
 LDA 0,0,0,0		R0 stores the number to be added to the array so far (starts at 0)
 LDA 3,0,0,0
 STR 3,0/1,0,m		Memory address m=_ (decimal) stores the number to try to match AKA Num To Match Address (defaults to 0)
-STR 3,0/1,0,c		Memory address c=_ (decimal) stores the minimum difference between the number to try to match and the closest array value AKA Min Diff Address (defaults to 0)
+STR 3,0/1,0,c		Memory address d=_ (decimal) stores the minimum difference between the number to try to match and the closest array value AKA Min Diff Address (defaults to 0)
 LDA 3,0,0,73	Output I
 OUT 3,1
 LDA 3,0,0,78	Output N
@@ -81,38 +82,41 @@ LDA 3,0,0,58	Output ':'
 OUT 3,1
 LDA 3,0,0,32	Output space
 OUT 3,1
-		Read in the character of the number to try to match into R3; MATCH INPUT START
-		Subtract the Enter key/carriage return ASCII code (Immed=13 in ASCII) from R3
-		If R3 contents = 0 character is Enter, jump to MATCH INPUT END
-		Add Enter key ASCII code (Immed=13 in ASCII) back to R3
+IN 3,0/1		Read in the character of the number to try to match into R3; MATCH INPUT START
+SIR 3,13		Subtract the Enter key/carriage return ASCII code (Immed=13 in ASCII) from R3
+JZ 3,0/1,0,mie		If R3 contents = 0 character is Enter, jump to MATCH INPUT END
+AIR 3,13		Add Enter key ASCII code (Immed=13 in ASCII) back to R3
 MLT 0,2			Multiply R0 contents by 10 (decimal, stored in R2) to move it to the tens place
-STR 1,0/1,0,t		MLT will have set R0 to 0 for the higher bits while R1 has the actual product, so move R1 contents to R0 (passes through transfer address t=_)
+STR 1,0/1,0,t	MLT will have set R0 to 0 for the higher bits while R1 has the actual product, so move R1 contents to R0 (passes through transfer address t=_)
 LDR 0,0/1,0,t
-		Add the R3 contents into R0
-		Output the R3 contents--GUI filters out non-digit inputs so don't have to worry if char is invalid
-		Unconditional jump back to MATCH INPUT START
-		Store R0 contents into the Num to Match Address; MATCH INPUT END
+STR 3,0/1,0,t	Add the R3 contents into R0 (passes through the Transfer Address)
+AMR 0,0/1,0,t
+OUT 3,10		Output the R3 contents--GUI filters out non-digit inputs so don't have to worry if char is invalid
+JMA 0/1,0,mis		Unconditional jump back to MATCH INPUT START
+STR 0,0/1,0,m		Store R0 contents into the Num to Match Address; MATCH INPUT END
 LDA 3,0,0,10	Output newline
 OUT 3,1
-		Set R1 back to 20 (decimal) to prep for next loop through array
-		Set Array Element Address back to 1 behind the first element of the array (address _ in decimal)
-		Set R2 to the value of the first element of the array (indirect addressed at _ in decimal)
-		Load the value of the Num To Match Address into R0
-		Add 1 to Array Element Address by loading the Array Element Address contents into R3; CLOSEST MATCH FOR LOOP START
-		Then adding 1 (Immed) to R3
-		Then storing the R3 contents back into the Array Element Address
-		Load R3 with the value from the Num To Match Address
-		Subtract the value indirect addressed by the Array Element Address from R3
-		If Condition Code Underflow bit = 1, jump to HANDLE NEG DIFF 
-		Unconditional jump to COMPARE DIFFS
-		Load R3 with the value indirect addressed by the Array Element Address; HANDLE NEG DIFF
-		Subtract the value from the Num To Match Address from R3
-		Subtract the value of the Min Diff Address from R3; COMPARE DIFFS
-		If R3 >= 0, jump to NEXT ELEMENT
-		Else, found the new closest match so add the value of the Min Diff Address back to R3
-		Store R3 contents to the Min Diff Address
-		Load the value indirect addressed by the Array Element Address into R2
-		Subtract 1 from R1 and if > 0, branch to CLOSEST MATCH FOR LOOP START; NEXT ELEMENT
+LDA 1,0,0,20	Set R1 back to 20 (decimal) to prep for next loop through array
+LDA 3,0/1,0,a	Set Array Element Address back to 1 behind the first element of the array (a-1)
+SIR 3,0,0,1
+STR 3,0/1,0,i
+LDR 2,0/1,0,a	Set R2 to the value of the first element of the array (at address a)
+LDR 0,0/1,0,m	Load the value of the Num To Match Address into R0
+LDR 3,0/1,0,i	Add 1 to Array Element Address by loading the Array Element Address contents into R3; CLOSEST MATCH FOR LOOP START
+AIR 3,0,0,1		Then adding 1 (Immed) to R3
+STR 3,0/1,0,i	Then storing the R3 contents back into the Array Element Address
+LDR 3,0/1,0,m	Load R3 with the value from the Num To Match Address
+SMR 3,0/1,1,i	Subtract the value indirect addressed by the Array Element Address from R3
+JCC 1,0/1,0,hnd		If Condition Code Underflow bit = 1, jump to HANDLE NEG DIFF 
+JMA 0/1,0,cd	Unconditional jump to COMPARE DIFFS
+LDR 3,0/1,1,i		Load R3 with the value indirect addressed by the Array Element Address; HANDLE NEG DIFF
+SMR 3,0/1,0,m		Subtract the value from the Num To Match Address from R3
+SMR 3,0/1,0,d		Subtract the value of the Min Diff Address from R3; COMPARE DIFFS
+JCC 1,0/1,0,ncmf		If UNDERFLOW is true, found the next closest match (when UNDERFLOW, register contents is left unchanged), so jump to NEW CLOSEST MATCH FOUND
+JMA 0/1,0,ne		Else, jump to NEXT ELEMENT
+STR 3,0/1,0,d		Store R3 contents to the Min Diff Address; NEW CLOSEST MATCH FOUND
+LDR 2,0/1,1,i		Load the value indirect addressed by the Array Element Address into R2
+SOB 1,0/1,0,cmfls		Subtract 1 from R1 and if > 0, branch to CLOSEST MATCH FOR LOOP START; NEXT ELEMENT
 LDA 3,0,0,67	Output C
 OUT 3,1
 LDA 3,0,0,76	Output L

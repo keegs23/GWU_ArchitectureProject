@@ -775,15 +775,9 @@ public class MiniComputer extends Observable implements Runnable
 		// Store difference of register and memory contents into the specified register
 		if(registerSelect1 != null)
 		{
-			boolean isUnderflow = ArithmeticLogicUnit.checkUnderflow(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
-			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue(), isUnderflow));
-			if (isUnderflow)
-			{
-				String first = CC.getBitValue().getValue().substring(0, 1);
-				String last = CC.getBitValue().getValue().substring(2, 4);
-				
-				CC.setBitValue(first + "1" + last);
-			}
+			Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
+			registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get("isUnderflow"));
 		}
 	}
 	
@@ -851,15 +845,10 @@ public class MiniComputer extends Observable implements Runnable
 		// Store difference of IRR contents and MBR contents into the specified register
 		if(registerSelect1 != null)
 		{
-			boolean isUnderflow = ArithmeticLogicUnit.checkUnderflow(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
-			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue(), isUnderflow));
-			if (isUnderflow)
-			{
-				String first = CC.getBitValue().getValue().substring(0, 1);
-				String last = CC.getBitValue().getValue().substring(2, 4);
-				
-				CC.setBitValue(first + "1" + last);
-			}
+			Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
+			registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get("isUnderflow"));
+			
 		}
 	}
 	
@@ -1083,7 +1072,11 @@ public class MiniComputer extends Observable implements Runnable
 		Register registerSelect1 = getR(register);
 		
 		// Subtract one from the register contents
-		registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE, false));
+		Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE);
+		registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+		
+		// Set Underflow code
+		setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get("isUnderflow"));
 		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
@@ -1205,5 +1198,13 @@ public class MiniComputer extends Observable implements Runnable
 		}
 	}
 	
+	private void setConditionCode(ConditionCode conditionCode, boolean isTrue)
+	{
+		String flag = isTrue ? "1" : "0";
+		String first = CC.getBitValue().getValue().substring(0, conditionCode.ordinal());
+		String last = CC.getBitValue().getValue().substring(conditionCode.ordinal()+1, CC.getBitSize());
+			
+		CC.setBitValue(first + flag + last);
+	}
 	/* End Helpers */
 }
