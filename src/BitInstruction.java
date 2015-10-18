@@ -11,8 +11,9 @@ public class BitInstruction extends BitWord
     public static final String KEY_IMMEDIATE = "immediate";
     public static final String KEY_CONDITION_CODE = "conditionCode";
     public static final String KEY_DEVID = "devId";
-    
-    
+    public static final String KEY_RX = "rx";
+    public static final String KEY_RY = "ry";
+        
     public BitInstruction()
     {
         super();
@@ -80,10 +81,10 @@ public class BitInstruction extends BitWord
             	instructionParts = parseLoadStoreIndex(opCode);
             	break;
             case OpCode.JSR:
-            	//KEEGAN TODO
+            	instructionParts = parseLoadStoreIndex(opCode);
             	break;
             case OpCode.RFS:
-            	//KEEGAN TODO
+            	instructionParts = parseImmediate(opCode);
             	break;
             case OpCode.SOB:
             	//Instruction schema is similar to that of the load/store instructions
@@ -99,6 +100,36 @@ public class BitInstruction extends BitWord
             case OpCode.OUT:
             	instructionParts = parseIO(opCode);
             	break;
+            case OpCode.MLT:
+                instructionParts = parseArithmetic(opCode, true);
+                break;
+            case OpCode.DVD:
+                instructionParts = parseArithmetic(opCode, true);
+                break;
+            case OpCode.TRR:
+                instructionParts = parseArithmetic(opCode, true);
+                break;
+            case OpCode.AND:
+            	//AND
+            	instructionParts = parseArithmetic(opCode, true);
+            	break;
+            case OpCode.ORR:
+            	//AND
+            	instructionParts = parseArithmetic(opCode, true);
+            	break;
+            case OpCode.NOT:
+            	//AND
+            	instructionParts = parseArithmetic(opCode, false);
+            	break;
+            case OpCode.SRC:
+            	//Shift
+            	instructionParts = parseShiftRotate(opCode);
+            	break;
+            case OpCode.RRC:
+            	//Rotate
+            	instructionParts = parseShiftRotate(opCode);
+            	break;
+
             default:
                 break;                        
         }
@@ -205,6 +236,23 @@ public class BitInstruction extends BitWord
         parse.put(KEY_OPCODE, new BitWord(opCode));
         parse.put(KEY_REGISTER, new BitWord(register));
         parse.put(KEY_DEVID, new BitWord(devId));
+        
+        return parse;
+    }
+    
+    private Map<String, BitWord> parseArithmetic(String opCode, boolean includeRY)
+    {
+        Map<String, BitWord> parse = new HashMap<String, BitWord>();
+        
+        String rx = value.substring(6, 8);
+        
+        parse.put(KEY_OPCODE, new BitWord(opCode));
+        parse.put(KEY_RX, new BitWord(rx));        
+        
+        if (includeRY){
+            String ry = value.substring(8, 10);
+            parse.put(KEY_RY, new BitWord(ry));
+        }
         
         return parse;
     }
