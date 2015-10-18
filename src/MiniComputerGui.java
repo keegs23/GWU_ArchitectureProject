@@ -32,6 +32,7 @@ import javax.swing.table.DefaultTableModel;
 public class MiniComputerGui extends JFrame implements ActionListener, Observer, KeyListener {
 
 	protected static volatile boolean validKeyClicked = false;
+	protected static volatile boolean haltButtonClicked = false;
 	private static final long serialVersionUID = -8217933506339143771L;
 	private static final int INSTRUCTION_SIZE = 16;	
 	private MiniComputer cpu;
@@ -406,6 +407,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	System.out.println("Inputting from console keyboard.");
     	
     	consoleKeyboardInput.setEnabled(true);
+    	consoleKeyboardInput.requestFocusInWindow();
     	
     }
     
@@ -419,7 +421,13 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	if (regIsInt) {
     		// Currently, once a register is set to hold an int, it should always hold an int.
     		// TODO: Will need to change this later
-    		consolePrinterOutput.append(Integer.parseInt(registerValue, 2) + "");
+    		if (registerValue.equals(BitWord.VALUE_ENTER)) {
+    			// Print nothing for Enter key
+    		} else if (registerValue.equals(BitWord.VALUE_NEWLINE)) {
+    			consolePrinterOutput.append("\n");
+    		} else {
+    			consolePrinterOutput.append(Integer.parseInt(registerValue, 2) + "");
+    		}
     	} else {
     		consolePrinterOutput.append(DataConversion.binaryToText(registerValue));
     	}
@@ -482,7 +490,8 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	
     	System.out.println("HALT BUTTON CLICKED!");
     	
-    	//TODO
+    	haltButtonClicked = true;
+    	consoleKeyboardInput.setEnabled(false);
     }
     
     private void runInstructionLoad() {
@@ -513,6 +522,31 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     /* KeyListener Methods */
     
     @Override
+    public void keyPressed(KeyEvent ke) {
+    	
+    	int keyCode = ke.getKeyCode();
+    	
+    	switch (keyCode) {
+    	
+	    	case KeyEvent.VK_ENTER:
+	    	case KeyEvent.VK_0:
+	    	case KeyEvent.VK_1:
+	    	case KeyEvent.VK_2:
+	    	case KeyEvent.VK_3:
+	    	case KeyEvent.VK_4:
+	    	case KeyEvent.VK_5:
+	    	case KeyEvent.VK_6:
+	    	case KeyEvent.VK_7:
+	    	case KeyEvent.VK_8:
+	    	case KeyEvent.VK_9:
+	    		break;
+	    	default:
+	    		ke.consume();
+	    		break;
+    	}
+    }
+    
+    @Override
     public void keyReleased(KeyEvent ke) {
     	
     	int keyCode = ke.getKeyCode();
@@ -522,7 +556,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	    	case KeyEvent.VK_ENTER:
 	    		System.out.println("Enter button pressed");
 	    		
-	    		if (!consoleKeyboardInput.equals("")) {
+	    		if (!consoleKeyboardInput.getText().equals("")) {
 	    			int inputInt = Integer.parseInt(BitWord.VALUE_ENTER, 2);
 	    			processKeyClick(inputInt);
 		    		clearConsoleKeyboard();
@@ -531,10 +565,6 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	    		} else {
 	    			System.out.println("Keyboard Input is blank!");
 	    		}
-	    		break;
-	    		
-	    	case KeyEvent.VK_BACK_SPACE:
-	    		consoleKeyboardInputHolder = consoleKeyboardInput.getText();
 	    		break;
 	    		
 	    	case KeyEvent.VK_0:
@@ -563,14 +593,10 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	    		consoleKeyboardInput.setText(consoleKeyboardInputHolder);
 	    		break;
     	}
-    	
     }
     
     @Override
     public void keyTyped(KeyEvent ke) {}
-    
-    @Override
-    public void keyPressed(KeyEvent ke) {}
     
     private void processKeyClick(int inputInt) {
     	

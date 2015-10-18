@@ -275,8 +275,14 @@ public class MiniComputer extends Observable implements Runnable
 			PC.setBitValue(bootPrgmStart12Bits);
 			for(int k = 1; k <= bootPrgmLength; k++)
 			{
+				if (MiniComputerGui.haltButtonClicked)
+				{
+					break;
+				}
 				singleStep();
 			}
+			
+			MiniComputerGui.haltButtonClicked = false;
 			
 			// Set PC back to the start of the boot program
 			// PC can only hold 12 bits, so chop off the leading zeros
@@ -781,11 +787,11 @@ public class MiniComputer extends Observable implements Runnable
 		if(registerSelect1 != null)
 		{
 			Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
-			if (!(Boolean) differenceMap.get("isUnderflow"))
+			if (!(Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW))
 			{
-				registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+				registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
 			}
-			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get("isUnderflow"));
+			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW));
 		}
 	}
 	
@@ -854,11 +860,11 @@ public class MiniComputer extends Observable implements Runnable
 		if(registerSelect1 != null)
 		{
 			Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
-			if (!(Boolean) differenceMap.get("isUnderflow"))
+			if (!(Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW))
 			{
-				registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+				registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
 			}
-			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get("isUnderflow"));
+			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW));
 			
 		}
 	}
@@ -1102,10 +1108,10 @@ public class MiniComputer extends Observable implements Runnable
 		
 		// Subtract one from the register contents
 		Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE);
-		boolean isUnderflow = (Boolean) differenceMap.get("isUnderflow");
+		boolean isUnderflow = (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW);
 		// If underflow, leave the register contents alone instead of setting it to gibberish
 		if(!isUnderflow) {
-			registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+			registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
 		}
 		
 		// Set Underflow bit

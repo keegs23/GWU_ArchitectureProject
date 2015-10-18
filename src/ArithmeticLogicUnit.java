@@ -5,9 +5,12 @@ import java.util.Map;
  * Arithmetic utility class
  */
 public final class ArithmeticLogicUnit {
+		
+        public static final String KEY_DIFFERENCE = "difference";
         public static final String KEY_QUOTIENT = "quotient";
         public static final String KEY_REMAINDER = "remainder";
-        public static final String KEY_ISDIVZERO = "isDivZero";      
+        public static final String KEY_ISDIVZERO = "isDivZero"; 
+        public static final String KEY_ISUNDERFLOW = "isUnderflow";
 
 	/**
 	 * Adds the 2 binary bit Strings
@@ -135,8 +138,8 @@ public final class ArithmeticLogicUnit {
 			}
 		}
 		
-		returnMap.put("difference", difference);
-		returnMap.put("isUnderflow", isUnderflow);
+		returnMap.put(KEY_DIFFERENCE, difference);
+		returnMap.put(KEY_ISUNDERFLOW, isUnderflow);
 		
 		return returnMap;
 	}
