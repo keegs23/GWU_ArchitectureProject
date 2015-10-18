@@ -1047,7 +1047,19 @@ public class MiniComputer extends Observable implements Runnable
 	 */
 	public void jsr(int index, boolean isIndirectAddress, BitWord address)
 	{
-		//KEEGAN TODO
+            // Calculate the effective address (EA)
+            BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+            
+            // Set General Purpose Register R3 to the PC + 1
+            R3.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+
+            // Move the EA to the Internal Address Register (IAR)
+            IAR.setBitValue(ea);
+            
+            // Store IAR contents into the PC
+	    // PC can only hold 12 bits so chop off the leading zeros
+            String pc = IAR.getBitValue().getValue().substring(4, 16);
+            PC.setBitValue(pc);   
 	}
 	
 	/**
@@ -1056,7 +1068,13 @@ public class MiniComputer extends Observable implements Runnable
 	 */
 	public void rfs(BitWord immed)
 	{
-		//KEEGAN TODO
+            // Set General Purpose Register 0 to Immed
+            R0.setBitValue(immed);
+            
+            // Store IAR contents into the PC
+	    // PC can only hold 12 bits so chop off the leading zeros
+            String pc = R3.getBitValue().getValue().substring(4, 16);
+            PC.setBitValue(pc);
 	}
 	
 	/**
@@ -1137,6 +1155,41 @@ public class MiniComputer extends Observable implements Runnable
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
 		PC.setBitValue(pc);
 	}
+        
+        public void mlt(int rx, int ry) {
+            Register register1 = getR(rx);
+            Register register2 = getR(ry);
+            
+            //Registers must be either R0 or R2
+            if (!register1.equals(R0) && !register1.equals(R2))
+                System.out.println("Register must be R0 or R2.");
+            else if (!register2.equals(R0) && !register2.equals(R2))
+                System.out.println("Register must be R0 or R2.");
+            else {
+                
+            }                
+        } 
+        
+        public void dvd(int rx, int ry) {
+            Register register1 = getR(rx);
+            Register register2 = getR(ry);
+            
+            //Registers must be either R0 or R2
+            if (!register1.equals(R0) && !register1.equals(R2))
+                System.out.println("Register must be R0 or R2.");
+            else if (!register2.equals(R0) && !register2.equals(R2))
+                System.out.println("Register must be R0 or R2.");
+            else {
+                
+            }              
+        }
+        
+        public void trr(int rx, int ry) {
+            Register register1 = getR(rx);
+            Register register2 = getR(ry);
+            
+            //if (register1.getBitValue().equals(register2.getBitValue()))                
+        }        
 	
 	// TODO in later parts: other instructions
 	

@@ -5,6 +5,9 @@ import java.util.Map;
  * Arithmetic utility class
  */
 public final class ArithmeticLogicUnit {
+        public static final String KEY_QUOTIENT = "quotient";
+        public static final String KEY_REMAINDER = "remainder";
+        public static final String KEY_ISDIVZERO = "isDivZero";      
 
 	/**
 	 * Adds the 2 binary bit Strings
@@ -138,24 +141,24 @@ public final class ArithmeticLogicUnit {
 		return returnMap;
 	}
         
-       	/**
+	  /**
 	 * Multiplies Register by Register
-	 * @param register1 bit String with length <= 16
-         * @param register2 bit String with length <= 16
+	 * @param multiplier bit String with length <= 16
+         * @param multiplicand bit String with length <= 16
 	 * @return Up to 32 bit string
 	 */
-        public static String multiply(String register1, String register2) {
+        public static String multiply(String multiplier, String multiplicand) {
             String product = "0";
             String zeroSuffix = "";
             char currentBit;
             //Make sure both strings are 16 bits
-            register1 = padZeros(register1);
-            register2 = padZeros(register2);
+            multiplier = padZeros(multiplier);
+            multiplicand = padZeros(multiplicand);
             //Loop on the length of the second string
-            for (int i = register2.length() - 1; i >= 0; i--) {   
-                currentBit = register2.charAt(i);
+            for (int i = multiplicand.length() - 1; i >= 0; i--) {   
+                currentBit = multiplicand.charAt(i);
                 if (currentBit == '1') {
-                    product = add(product, register1 + zeroSuffix);
+                    product = add(product, multiplier + zeroSuffix);
                 }                     
                 zeroSuffix += "0";
             }
@@ -163,25 +166,38 @@ public final class ArithmeticLogicUnit {
             return product;
         }
         
-        public static int trr(String register1, String register2) {
-            int isEqual = 1; //default to equal true
-            char[] first  = register1.toLowerCase().toCharArray();
-            char[] second = register2.toLowerCase().toCharArray();
+         /**
+	 * Divides Register by Register
+	 * @param dividend bit String with length <= 16
+         * @param divisor bit String with length <= 16
+	 * @return Map with Quotient, Remainder, and IsDivideByZero bit
+	 */
+        public static Map<String, String> divide(String dividend, String divisor) {              
+            Map<String, String> divisionMap = new HashMap<String, String>();
+            int dividendDecimal = Integer.parseInt(dividend, 2);
+            int divisorDecimal = Integer.parseInt(divisor, 2);
+            int isDivByZero = 0; //default to false
+            
+            //Check if dividing by zero
+            if (padZeros(divisor).equals(BitWord.VALUE_ZERO))
+                isDivByZero = 1;     
+            
+            //Default quotient and remainder to zero
+            String quotient = BitWord.VALUE_ZERO;
+            String remainder = BitWord.VALUE_ZERO;
+            //Don't divide if divisor is zero
+            if (isDivByZero == 0) {
+                quotient = Integer.toBinaryString(dividendDecimal/divisorDecimal);
+                remainder = Integer.toBinaryString(dividendDecimal%divisorDecimal);
+            }
 
-            int minLength = Math.min(first.length, second.length);
+            divisionMap.put(KEY_QUOTIENT, quotient);
+            divisionMap.put(KEY_REMAINDER, remainder);
+            divisionMap.put(KEY_ISDIVZERO, Integer.toString(isDivByZero));
 
-            for(int i = 0; i < minLength; i++)
-            {
-                if (first[i] != second[i])
-                {
-                    isEqual = 0; 
-                    //break out of the loop if any characters are not equal
-                    break;
-                }
-            } 
-            return isEqual;
-        }
-	
+            return divisionMap;
+        }         
+        	
 	/**
 	 * Pads with leading zeros until length is 16
 	 * @param value bit String with length <= 16
