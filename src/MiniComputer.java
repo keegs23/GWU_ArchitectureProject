@@ -9,7 +9,7 @@ import java.util.Observable;
 import java.util.TreeMap;
 import java.util.Vector;
 
-public class MiniComputer extends Observable
+public class MiniComputer extends Observable implements Runnable
 {
 	public static final String MAX_MEMORY_ADDRESS = "0000011111111111";	//11 one bits = 2048 (decimal)
 	public static final String LOG_FILE_NAME = "trace-file.txt";
@@ -74,6 +74,7 @@ public class MiniComputer extends Observable
 	
 	private IOObject inputObject;
 	private IOObject outputObject;
+	private boolean[] registerIsInt;
 	
 	public MiniComputer() throws FileNotFoundException
 	{
@@ -110,6 +111,14 @@ public class MiniComputer extends Observable
 		for (int i = 0; i < IRR.length; i++)
 		{
 			IRR[i] = new Register(16);
+		}
+		
+		// Initialize register flags
+		// true for int and false for ascii
+		registerIsInt = new boolean[4];
+		for (int i = 0; i < registerIsInt.length; i++)
+		{
+			registerIsInt[i] = false;
 		}
 	}
 	
@@ -199,6 +208,15 @@ public class MiniComputer extends Observable
 		return memory;
 	}
 	
+	public boolean[] getRegisterIsInt()
+	{
+		return registerIsInt;
+	}
+	
+	public void setRegisterIsInt(int regId, boolean isInt)
+	{
+		registerIsInt[regId] = isInt;
+	}
 	
 	/**
 	 * Loads the ROM contents.
@@ -206,6 +224,13 @@ public class MiniComputer extends Observable
 	 */
 	public void loadROM()
 	{
+		Thread thread = new Thread(this);
+		thread.start();
+	}
+	
+	@Override
+	public void run() {
+		
 		// Read in and parse rom.txt 
 		// rom.txt is formatted so that each instruction is on a separate line, first 16 characters of each line are the instruction, rest are comments
 		// Make sure to only read the first 16 characters of each row (i.e. ignore the comments)
@@ -277,6 +302,7 @@ public class MiniComputer extends Observable
     	boolean isIndirectAddress; 
     	BitWord address; 
     	BitWord immediate;
+    	BitWord devId;
     	ConditionCode conditionCode;	//in decimal
 		
 		// Transfer PC value to MAR
@@ -424,6 +450,16 @@ public class MiniComputer extends Observable
             	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
             	jge(register, index, isIndirectAddress, address);
             	break;
+            case OpCode.IN:
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	devId = instructionParse.get(BitInstruction.KEY_DEVID); 
+            	in(register, devId);
+                break;
+            case OpCode.OUT:
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	devId = instructionParse.get(BitInstruction.KEY_DEVID); 
+            	out(register, devId);
+                break;
             default:
                 break;                        
         }
@@ -739,7 +775,15 @@ public class MiniComputer extends Observable
 		// Store difference of register and memory contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue()));
+			boolean isUnderflow = ArithmeticLogicUnit.checkUnderflow(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
+			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue(), isUnderflow));
+			if (isUnderflow)
+			{
+				String first = CC.getBitValue().getValue().substring(0, 1);
+				String last = CC.getBitValue().getValue().substring(2, 4);
+				
+				CC.setBitValue(first + "1" + last);
+			}
 		}
 	}
 	
@@ -765,7 +809,7 @@ public class MiniComputer extends Observable
 		}
 		
 		// Move immediate to MBR
-		MBR.setBitValue(immediate);
+		MBR.setBitValue(ArithmeticLogicUnit.padZeros(immediate.getValue()));
 		
 		// Move the data from the MBR to an Internal Result Register (IRR)
 		IRR[1].setBitValue(MBR.getBitValue());
@@ -799,7 +843,7 @@ public class MiniComputer extends Observable
 		}
 		
 		// Move immediate to MBR
-		MBR.setBitValue(immediate);
+		MBR.setBitValue(ArithmeticLogicUnit.padZeros(immediate.getValue()));
 		
 		// Move the data from the MBR to an Internal Result Register (IRR)
 		IRR[1].setBitValue(MBR.getBitValue());
@@ -807,7 +851,15 @@ public class MiniComputer extends Observable
 		// Store difference of IRR contents and MBR contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue()));
+			boolean isUnderflow = ArithmeticLogicUnit.checkUnderflow(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
+			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue(), isUnderflow));
+			if (isUnderflow)
+			{
+				String first = CC.getBitValue().getValue().substring(0, 1);
+				String last = CC.getBitValue().getValue().substring(2, 4);
+				
+				CC.setBitValue(first + "1" + last);
+			}
 		}
 	}
 	
@@ -816,16 +868,16 @@ public class MiniComputer extends Observable
 	 * @param register
 	 * @param devId
 	 */
-	public void in(int register, String devId)
+	public void in(int register, BitWord devId)
 	{
 		inputObject.setOpCode(OpCode.IN);
 		inputObject.setRegisterId(register);
-		inputObject.setDevId(devId);
+		inputObject.setDevId(devId.getValue());
 		
 		setChanged();
 		notifyObservers(inputObject);
 		
-		while (MiniComputerGui.inputButtonClicked == false) {
+		while (MiniComputerGui.enterKeyClicked == false) {
     		try {
     			Thread.sleep(500);
     		}
@@ -834,15 +886,15 @@ public class MiniComputer extends Observable
     		}
     	}
 		
-		MiniComputerGui.inputButtonClicked = false;
+		MiniComputerGui.enterKeyClicked = false;
 	}
 	
 	/**
 	 * Input character to register from device
-	 * @param inputString
+	 * @param inputInt
 	 *
 	 */
-	public void inProcessing(String inputString)
+	public void inProcessing(int inputInt)
 	{
 		// Retrieve the specified Index Register (IR a.k.a X)
 		Register registerSelect1 = getR(inputObject.getRegisterId());
@@ -850,9 +902,11 @@ public class MiniComputer extends Observable
 		// Store IRR contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(DataConversion.textToBinary(inputString));
+			registerSelect1.setBitValue(ArithmeticLogicUnit.padZeros(Integer.toBinaryString(inputInt)));
+			
+			// Value stored in this register is an integer
+			registerIsInt[inputObject.getRegisterId()] = true;
 		}
-		
 	}
 	
 	/**
@@ -860,11 +914,11 @@ public class MiniComputer extends Observable
 	 * @param register
 	 * @param devId
 	 */
-	public void out(int register, String devId)
+	public void out(int register, BitWord devId)
 	{
 		outputObject.setOpCode(OpCode.OUT);
 		outputObject.setRegisterId(register);
-		outputObject.setDevId(devId);
+		outputObject.setDevId(devId.getValue());
 		
 		setChanged();
 		notifyObservers(outputObject);
@@ -1029,7 +1083,7 @@ public class MiniComputer extends Observable
 		Register registerSelect1 = getR(register);
 		
 		// Subtract one from the register contents
-		registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE));
+		registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE, false));
 		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);

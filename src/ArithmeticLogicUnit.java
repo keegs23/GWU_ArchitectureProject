@@ -47,21 +47,46 @@ public final class ArithmeticLogicUnit {
 	}
 	
 	/**
+	 * Checks if underflow flag must be raised
+	 * @param bitStr1
+	 * @param bitStr2
+	 * @return true if bitStr2 > bitStr1
+	 */
+	public static boolean checkUnderflow(String bitStr1, String bitStr2)
+	{
+		int firstString = Integer.parseInt(bitStr1);
+		int secondString = Integer.parseInt(bitStr2);
+		
+		return secondString > firstString;
+	}
+	
+	/**
 	 * Subtracts the 2 binary bit Strings
 	 * @param bitStr1
 	 * @param bitStr2
 	 * @return the binary difference of bitStr1 and bitStr2 as a 16-bit String
 	 */
-	public static String subtract(String bitStr1, String bitStr2)
+	public static String subtract(String bitStr1, String bitStr2, boolean isUnderflow)
 	{
-		// Currently only works when bitStr1 >= bitStr2 and both are non-negative numbers
+		// Currently only works when both are non-negative numbers
 		
 		String difference = "";
 		boolean borrow = false;
 		
 		// Make sure both are 16 bits
-		String bits1 = padZeros(bitStr1);
-		String bits2 = padZeros(bitStr2);
+		String bits1;
+		String bits2;
+		
+		if (isUnderflow)
+		{
+			bits1 = padZeros(bitStr2);
+			bits2 = padZeros(bitStr1);
+		}
+		else
+		{
+			bits1 = padZeros(bitStr1);
+			bits2 = padZeros(bitStr2);
+		}
 		
 		if (Integer.parseInt(bits1) == Integer.parseInt(bits2))
 		{
@@ -91,15 +116,13 @@ public final class ArithmeticLogicUnit {
 				}
 			}
 			
-			if (a >= b)
+			if (b > a)
 			{
-				difference = (a - b) + difference;
-			}
-			else
-			{
-				difference = "1" + difference;
+				a = a + 1;
 				borrow = true;
 			}
+			
+			difference = (a - b) + difference;
 		}
 		
 		return difference;
