@@ -228,6 +228,11 @@ public class MiniComputer extends Observable implements Runnable
 		thread.start();
 	}
 	
+	/*
+	 * Overriden method from interface Runnable
+	 * Called when thread.start() is called
+	 * Used for creating a new thread in the program so the GUI doesn't freeze when waiting for user input
+	 */
 	@Override
 	public void run() {
 		
@@ -270,8 +275,14 @@ public class MiniComputer extends Observable implements Runnable
 			PC.setBitValue(bootPrgmStart12Bits);
 			for(int k = 1; k <= bootPrgmLength; k++)
 			{
+				if (MiniComputerGui.haltButtonClicked)
+				{
+					break;
+				}
 				singleStep();
 			}
+			
+			MiniComputerGui.haltButtonClicked = false;
 			
 			// Set PC back to the start of the boot program
 			// PC can only hold 12 bits, so chop off the leading zeros
@@ -797,8 +808,11 @@ public class MiniComputer extends Observable implements Runnable
 		if(registerSelect1 != null)
 		{
 			Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
-			registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
-			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get("isUnderflow"));
+			if (!(Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW))
+			{
+				registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
+			}
+			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW));
 		}
 	}
 	
@@ -867,8 +881,11 @@ public class MiniComputer extends Observable implements Runnable
 		if(registerSelect1 != null)
 		{
 			Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
-			registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
-			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get("isUnderflow"));
+			if (!(Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW))
+			{
+				registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
+			}
+			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW));
 			
 		}
 	}
@@ -887,16 +904,16 @@ public class MiniComputer extends Observable implements Runnable
 		setChanged();
 		notifyObservers(inputObject);
 		
-		while (MiniComputerGui.enterKeyClicked == false) {
+		while (MiniComputerGui.validKeyClicked == false) {
     		try {
-    			Thread.sleep(500);
+    			Thread.sleep(200);
     		}
     		catch (InterruptedException ie) {
     			System.out.println("Exception: " + ie.getMessage());
     		}
     	}
 		
-		MiniComputerGui.enterKeyClicked = false;
+		MiniComputerGui.validKeyClicked = false;
 	}
 	
 	/**
@@ -1112,10 +1129,14 @@ public class MiniComputer extends Observable implements Runnable
 		
 		// Subtract one from the register contents
 		Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE);
-		registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+		boolean isUnderflow = (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW);
+		// If underflow, leave the register contents alone instead of setting it to gibberish
+		if(!isUnderflow) {
+			registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
+		}
 		
-		// Set Underflow code
-		setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get("isUnderflow"));
+		// Set Underflow bit
+		setConditionCode(ConditionCode.UNDERFLOW, isUnderflow);
 		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
@@ -1126,7 +1147,7 @@ public class MiniComputer extends Observable implements Runnable
 		// If IRR contents is > 0, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
 		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-		if(irr > 0) {
+		if(!isUnderflow && irr > 0) {
 			IAR.setBitValue(ea);
 		} else {
 			// Else set IAR value to PC contents + 1
