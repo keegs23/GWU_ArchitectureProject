@@ -1,112 +1,150 @@
-Memory address 31? (decimal) stores the current array address being working on AKA Array Element Address (start at address 31? in decimal, 1 behind the first element of the array--depends on how long this program is); PROGRAM 1 START (instruction stored at address _?)
-R1 stores the for loop counter (starts at 20 in decimal and decreases)
-R2 stores the number 10 (decimal)/the closest array value to the number to try to match so far
-R0 stores the number to be added to the array so far (starts at 0)
-Memory address 30? (decimal) stores the number to try to match AKA Num To Match Address (defaults at 0)
-Memory address 29? (decimal) stores the minimum difference between the number to try to match and the closest array value AKA Min Diff Address
-Output I
-Output N
-Output P
-Output U
-Output T
-Output space
-Output '2'
-Output '0'
-Output space
-Output N
-Output U
-Output M
-Output S
-Output ':'
-Output newline
-Add 1 to Array Element Address by loading the Array Element Address contents into R3; ARRAY INPUT FOR LOOP START
-Then adding 1 (Immed) to R3
-Then storing the R3 contents back into the Array Element Address
-Read in the character into R3; READ NEXT CHAR OF NUM
-Subtract the Enter key ASCII code (Immed=?) from R3
-If R3 contents = 0 character is Enter, jump to ALL DIGITS OF NUM ENTERED
-Add Enter key ASCII code (Immed=?) back to R3
-Multiply R0 contents by 10 (decimal, stored in R2) to move it to the tens place
-Add the R3 contents into R0
-Output the R3 contents--GUI filters out non-digit inputs so don't have to worry if char is invalid
-Unconditional jump to READ NEXT CHAR OF NUM
-Else, unconditional jump to ARRAY INPUT FOR LOOP END
-Store number from R0 into memory by indirect addressing the Array Element Address (31?); ALL DIGITS OF NUM ENTERED
-Output newline
-Set R0 contents back to 0
-Subtract 1 from R1 and if > 0, branch back to ARRAY INPUT FOR LOOP START
-Set R1 back to 20 (decimal) to prep for next loop; ARRAY INPUT FOR LOOP END
-Set R0 back to 0
-Set Array Element Address back to 1 behind the first element of the array (31? in decimal)
-Set R2 to the value of the first element of the array (indirect addressed by location 32? in decimal)
-Output M
-Output A
-Output T
-Output C
-Output H
-Output space
-Output T
-Output O
-Output ':'
-Output space
-Read in the character of the number to try to match into R3; MATCH INPUT START
-Subtract the Enter key ASCII code (Immed=? in ASCII, ? in binary) from R3
-If R3 contents = 0 character is Enter, jump to MATCH INPUT END
-Add Enter key ASCII code (Immed=? in ASCII, ? in binary) back to R3
-Multiply R0 contents by 10 (decimal, stored in R2) to move it to the tens place
-Add the R3 contents into R0
-Output the R3 contents--GUI filters out non-digit inputs so don't have to worry if char is invalid
-Unconditional jump back to MATCH INPUT START
-Store R0 contents into the Num to Match Address; MATCH INPUT END
-Output newline
-Load the value of the Num To Match Address into R0
-Add 1 to Array Element Address by loading the Array Element Address contents into R3; CLOSEST MATCH FOR LOOP START
-Then adding 1 (Immed) to R3
-Then storing the R3 contents back into the Array Element Address
-Load R3 with the value from the Num To Match Address
-Subtract the value indirect addressed by the Array Element Address from R3
-If Condition Code Underflow bit = 1, jump to HANDLE NEG DIFF 
-Unconditional jump to COMPARE DIFFS
-Load R3 with the value indirect addressed by the Array Element Address; HANDLE NEG DIFF
-Subtract the value from the Num To Match Address from R3
-Subtract the value of the Min Diff Address from R3; COMPARE DIFFS
-If R3 >= 0, jump to NEXT ELEMENT
-Else, found the new closest match so add the value of the Min Diff Address back to R3
-Store R3 contents to the Min Diff Address
-Load the value indirect addressed by the Array Element Address into R2
-Subtract 1 from R1 and if > 0, branch to CLOSEST MATCH FOR LOOP START; NEXT ELEMENT
-Output C
-Output L
-Output O
-Output S
-Output E
-Output S
-Output T
-Output ':'
-Output space
-Load R3 with 1, to indicate that the current digit to print is a leading zero; PRINT CLOSEST MATCH START
-Load R0 with 10000 (decimal) since largest possible number is 5 digits
-Divide the closest match (in R2) by 10000 (decimal, in R0) to get the ten thousands place
-If the quotient (in R2) = 0, jump to GET THOUSANDS PLACE
-Output the ten thousands place of the closest match (stored in R2)
-Load R3 with 0, to indicate there are no more leading zeros
-Load R2 with 1000 (decimal); GET THOUSANDS PLACE
-Divide the remainder (in R0) by 1000 (in R2)
-If R3 = 0 (no more leading zeros), jump to PRINT THOUSANDS PLACE
-If the quotient (in R0) = 0, jump to GET HUNDREDS PLACE
-Output R0 contents; PRINT THOUSANDS PLACE
-Load R3 with 0, to indicate there are no more leading zeros
-Load R0 with 100 (decimal); GET HUNDREDS PLACE
-Divide the remainder (in R2) by 100 (in R0)
-If R3 = 0 (no more leading zeros), jump to PRINT HUNDREDS PLACE
-If the quotient (in R2) = 0, jump to GET TENS PLACE
-Output R2 contents; PRINT HUNDREDS PLACE
-Load R3 with 0, to indicate there are no more leading zeros
-Load R2 with 10 (decimal); GET TENS PLACE
-Divide the remainder (in R0) by 10 (in R2)
-If R3 = 0 (no more leading zeros), jump to PRINT TENS PLACE
-If the quotient (in R0) = 0, jump to PRINT ONES PLACE
-Output R0 contents; PRINT TENS PLACE
-Output R2 contents; PRINT ONES PLACE
-Output newline
-Halt; PROGRAM 1 END
+LDA 3,0,0,?		Array starts at address _; PROGRAM 1 START (this instruction will be stored at address _)
+STR 3,0,0,?		Memory address _ (decimal) stores the current array address being working on AKA Array Element Address
+LDA 1,0,0,20	R1 stores the for loop counter (starts at 20 in decimal and decreases)
+LDA 2,0,0,10	R2 stores the number 10 (decimal) while getting the array input/the closest array value to the number to try to match so far
+LDA 0,0,0,0		R0 stores the number to be added to the array so far (starts at 0)
+LDA 3,0,0,0
+STR 3,0,0,?		Memory address _ (decimal) stores the number to try to match AKA Num To Match Address (defaults at 0)
+STR 3,0,0,?		Memory address _ (decimal) stores the minimum difference between the number to try to match and the closest array value AKA Min Diff Address (defaults to 0)
+LDA 3,0,0,73	Output I
+OUT 3,1
+LDA 3,0,0,78	Output N
+OUT 3,1
+LDA 3,0,0,80	Output P
+OUT 3,1
+LDA 3,0,0,85	Output U
+OUT 3,1
+LDA 3,0,0,84	Output T
+OUT 3,1
+LDA 3,0,0,32	Output space
+OUT 3,1
+LDA 3,0,0,50	Output '2'
+OUT 3,1
+LDA 3,0,0,48	Output '0'
+OUT 3,1
+LDA 3,0,0,32	Output space
+OUT 3,1
+LDA 3,0,0,78	Output N
+OUT 3,1
+LDA 3,0,0,85	Output U
+OUT 3,1
+LDA 3,0,0,77	Output M
+OUT 3,1
+LDA 3,0,0,83	Output S
+OUT 3,1
+LDA 3,0,0,58	Output ':'
+OUT 3,1
+LDA 3,0,0,10	Output newline
+OUT 3,1
+		Add 1 to Array Element Address by loading the Array Element Address contents into R3; ARRAY INPUT FOR LOOP START
+		Then adding 1 (Immed) to R3
+		Then storing the R3 contents back into the Array Element Address
+		Read in the character into R3; READ NEXT CHAR OF NUM
+		Subtract the Enter key ASCII code (Immed=?) from R3
+		If R3 contents = 0 character is Enter, jump to ALL DIGITS OF NUM ENTERED
+		Add Enter key ASCII code (Immed=?) back to R3
+		Multiply R0 contents by 10 (decimal, stored in R2) to move it to the tens place
+		Add the R3 contents into R0
+		Output the R3 contents--GUI filters out non-digit inputs so don't have to worry if char is invalid
+		Unconditional jump to READ NEXT CHAR OF NUM
+		Else, unconditional jump to ARRAY INPUT FOR LOOP END
+		Store number from R0 into memory by indirect addressing the Array Element Address; ALL DIGITS OF NUM ENTERED
+		Output newline
+		Set R0 contents back to 0
+		Subtract 1 from R1 and if > 0, branch back to ARRAY INPUT FOR LOOP START
+		Set R1 back to 20 (decimal) to prep for next loop; ARRAY INPUT FOR LOOP END
+		Set R0 back to 0
+		Set Array Element Address back to 1 behind the first element of the array (address _ in decimal)
+		Set R2 to the value of the first element of the array (indirect addressed at _ in decimal)
+LDA 3,0,0,77	Output M
+OUT 3,1
+LDA 3,0,0,65	Output A
+OUT 3,1
+LDA 3,0,0,84	Output T
+OUT 3,1
+LDA 3,0,0,67	Output C
+OUT 3,1
+LDA 3,0,0,72	Output H
+OUT 3,1
+LDA 3,0,0,32	Output space
+OUT 3,1
+LDA 3,0,0,84	Output T
+OUT 3,1
+LDA 3,0,0,79	Output O
+OUT 3,1
+LDA 3,0,0,58	Output ':'
+OUT 3,1
+LDA 3,0,0,32	Output space
+OUT 3,1
+		Read in the character of the number to try to match into R3; MATCH INPUT START
+		Subtract the Enter key ASCII code (Immed=? in ASCII, ? in binary) from R3
+		If R3 contents = 0 character is Enter, jump to MATCH INPUT END
+		Add Enter key ASCII code (Immed=? in ASCII, ? in binary) back to R3
+		Multiply R0 contents by 10 (decimal, stored in R2) to move it to the tens place
+		Add the R3 contents into R0
+		Output the R3 contents--GUI filters out non-digit inputs so don't have to worry if char is invalid
+		Unconditional jump back to MATCH INPUT START
+		Store R0 contents into the Num to Match Address; MATCH INPUT END
+LDA 3,0,0,10	Output newline
+OUT 3,1
+		Load the value of the Num To Match Address into R0
+		Add 1 to Array Element Address by loading the Array Element Address contents into R3; CLOSEST MATCH FOR LOOP START
+		Then adding 1 (Immed) to R3
+		Then storing the R3 contents back into the Array Element Address
+		Load R3 with the value from the Num To Match Address
+		Subtract the value indirect addressed by the Array Element Address from R3
+		If Condition Code Underflow bit = 1, jump to HANDLE NEG DIFF 
+		Unconditional jump to COMPARE DIFFS
+		Load R3 with the value indirect addressed by the Array Element Address; HANDLE NEG DIFF
+		Subtract the value from the Num To Match Address from R3
+		Subtract the value of the Min Diff Address from R3; COMPARE DIFFS
+		If R3 >= 0, jump to NEXT ELEMENT
+		Else, found the new closest match so add the value of the Min Diff Address back to R3
+		Store R3 contents to the Min Diff Address
+		Load the value indirect addressed by the Array Element Address into R2
+		Subtract 1 from R1 and if > 0, branch to CLOSEST MATCH FOR LOOP START; NEXT ELEMENT
+LDA 3,0,0,67	Output C
+OUT 3,1
+LDA 3,0,0,76	Output L
+OUT 3,1
+LDA 3,0,0,79	Output O
+OUT 3,1
+LDA 3,0,0,83	Output S
+OUT 3,1
+LDA 3,0,0,69	Output E
+OUT 3,1
+LDA 3,0,0,83	Output S
+OUT 3,1
+LDA 3,0,0,84	Output T
+OUT 3,1
+LDA 3,0,0,58	Output ':'
+OUT 3,1
+LDA 3,0,0,32	Output space
+OUT 3,1
+		Load R3 with 1, to indicate that the current digit to print is a leading zero; PRINT CLOSEST MATCH START
+		Load R0 with 10000 (decimal) since largest possible number is 5 digits
+		Divide the closest match (in R2) by 10000 (decimal, in R0) to get the ten thousands place
+		If the quotient (in R2) = 0, jump to GET THOUSANDS PLACE
+		Output the ten thousands place of the closest match (stored in R2)
+		Load R3 with 0, to indicate there are no more leading zeros
+		Load R2 with 1000 (decimal); GET THOUSANDS PLACE
+		Divide the remainder (in R0) by 1000 (in R2)
+		If R3 = 0 (no more leading zeros), jump to PRINT THOUSANDS PLACE
+		If the quotient (in R0) = 0, jump to GET HUNDREDS PLACE
+		Output R0 contents; PRINT THOUSANDS PLACE
+		Load R3 with 0, to indicate there are no more leading zeros
+		Load R0 with 100 (decimal); GET HUNDREDS PLACE
+		Divide the remainder (in R2) by 100 (in R0)
+		If R3 = 0 (no more leading zeros), jump to PRINT HUNDREDS PLACE
+		If the quotient (in R2) = 0, jump to GET TENS PLACE
+		Output R2 contents; PRINT HUNDREDS PLACE
+		Load R3 with 0, to indicate there are no more leading zeros
+		Load R2 with 10 (decimal); GET TENS PLACE
+		Divide the remainder (in R0) by 10 (in R2)
+		If R3 = 0 (no more leading zeros), jump to PRINT TENS PLACE
+		If the quotient (in R0) = 0, jump to PRINT ONES PLACE
+OUT 0,1			Output R0 contents; PRINT TENS PLACE
+OUT 2,1			Output R2 contents; PRINT ONES PLACE
+LDA 3,0,0,10	Output newline
+OUT 3,1
+HLT				Halt; PROGRAM 1 END
