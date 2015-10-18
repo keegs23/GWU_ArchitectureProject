@@ -304,32 +304,34 @@ public class MiniComputer extends Observable implements Runnable
     	BitWord immediate;
     	BitWord devId;
     	ConditionCode conditionCode;	//in decimal
+        int rx; // in decimal
+        int ry; // in decimal
 		
-		// Transfer PC value to MAR
-		MAR.setBitValue(ArithmeticLogicUnit.padZeros(PC.getBitValue().getValue()));
-		
-		// TODO: Check if address is valid
-		
-		// Fetch word from memory located at address specified by MAR into MBR
-		if(memory.containsKey(MAR.getBitValue().getValue()))
-		{
-			MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
-		}
-		else
-		{			
-			MBR.setBitValue(BitWord.VALUE_DEFAULT);
-		}
-		
-		// Load instruction from MBR into IR
-		IR.setBitValue(MBR.getBitValue());
-		
-		// Parse instruction
-		BitInstruction instruction = new BitInstruction(IR.getBitValue());
-		Map<String, BitWord> instructionParse = instruction.ParseInstruction();
-		
-		// Switch-case on opcode to call the appropriate instruction method
-		boolean isTransferInstruction = false;
-		BitWord opcode = instructionParse.get(BitInstruction.KEY_OPCODE);
+        // Transfer PC value to MAR
+        MAR.setBitValue(ArithmeticLogicUnit.padZeros(PC.getBitValue().getValue()));
+
+        // TODO: Check if address is valid
+
+        // Fetch word from memory located at address specified by MAR into MBR
+        if(memory.containsKey(MAR.getBitValue().getValue()))
+        {
+                MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
+        }
+        else
+        {			
+                MBR.setBitValue(BitWord.VALUE_DEFAULT);
+        }
+
+        // Load instruction from MBR into IR
+        IR.setBitValue(MBR.getBitValue());
+
+        // Parse instruction
+        BitInstruction instruction = new BitInstruction(IR.getBitValue());
+        Map<String, BitWord> instructionParse = instruction.ParseInstruction();
+
+        // Switch-case on opcode to call the appropriate instruction method
+        boolean isTransferInstruction = false;
+        BitWord opcode = instructionParse.get(BitInstruction.KEY_OPCODE);
         switch (opcode.getValue())
         {
             case OpCode.HLT:
@@ -428,11 +430,15 @@ public class MiniComputer extends Observable implements Runnable
             	break;
             case OpCode.JSR:
             	isTransferInstruction = true;
-            	//KEEGAN TODO
+                index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2);
+                isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                address = instructionParse.get(BitInstruction.KEY_ADDRESS);
+                jsr(index, isIndirectAddress, address);            	
             	break;
             case OpCode.RFS:
             	isTransferInstruction = true;
-            	//KEEGAN TODO
+                immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE);
+                rfs(immediate);            	
             	break;
             case OpCode.SOB:
             	isTransferInstruction = true;
@@ -460,6 +466,21 @@ public class MiniComputer extends Observable implements Runnable
             	devId = instructionParse.get(BitInstruction.KEY_DEVID); 
             	out(register, devId);
                 break;
+            case OpCode.MLT:
+                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
+                mlt(rx, ry);
+                break;
+            case OpCode.DVD:
+                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
+                dvd(rx, ry);
+                break;
+            case OpCode.TRR:
+                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
+                trr(rx, ry);
+                break;                
             default:
                 break;                        
         }
@@ -1283,5 +1304,9 @@ public class MiniComputer extends Observable implements Runnable
 			
 		CC.setBitValue(first + flag + last);
 	}
+        
+        //private MemoryLocation fetchMemoryValue(String address) {
+            //if (cache.con)              
+        //} 
 	/* End Helpers */
 }

@@ -108,4 +108,19 @@ public class OpCode
 	 * Jump If Greater Than or Equal To
 	 */
 	public static final String JGE = "001111";	//17
+        
+	/**
+	 * Multiply Register by Register
+	 */
+	public static final String MLT = "010000";	//20    
+        
+	/**
+	 * Divide Register by Register
+	 */
+	public static final String DVD = "010001";	//21   
+        
+	/**
+	 * Test the Equality of Register and Register
+	 */
+	public static final String TRR = "010010";	//22         
 }
