@@ -5,6 +5,9 @@ import java.util.Map;
  * Arithmetic utility class
  */
 public final class ArithmeticLogicUnit {
+        public static final String KEY_QUOTIENT = "quotient";
+        public static final String KEY_REMAINDER = "remainder";
+        public static final String KEY_ISDIVZERO = "isDivZero";      
 
 	/**
 	 * Adds the 2 binary bit Strings
@@ -137,7 +140,64 @@ public final class ArithmeticLogicUnit {
 		
 		return returnMap;
 	}
-	
+        
+	  /**
+	 * Multiplies Register by Register
+	 * @param multiplier bit String with length <= 16
+         * @param multiplicand bit String with length <= 16
+	 * @return Up to 32 bit string
+	 */
+        public static String multiply(String multiplier, String multiplicand) {
+            String product = "0";
+            String zeroSuffix = "";
+            char currentBit;
+            //Make sure both strings are 16 bits
+            multiplier = padZeros(multiplier);
+            multiplicand = padZeros(multiplicand);
+            //Loop on the length of the second string
+            for (int i = multiplicand.length() - 1; i >= 0; i--) {   
+                currentBit = multiplicand.charAt(i);
+                if (currentBit == '1') {
+                    product = add(product, multiplier + zeroSuffix);
+                }                     
+                zeroSuffix += "0";
+            }
+            
+            return product;
+        }
+        
+         /**
+	 * Divides Register by Register
+	 * @param dividend bit String with length <= 16
+         * @param divisor bit String with length <= 16
+	 * @return Map with Quotient, Remainder, and IsDivideByZero bit
+	 */
+        public static Map<String, String> divide(String dividend, String divisor) {              
+            Map<String, String> divisionMap = new HashMap<String, String>();
+            int dividendDecimal = Integer.parseInt(dividend, 2);
+            int divisorDecimal = Integer.parseInt(divisor, 2);
+            int isDivByZero = 0; //default to false
+            
+            //Check if dividing by zero
+            if (padZeros(divisor).equals(BitWord.VALUE_ZERO))
+                isDivByZero = 1;     
+            
+            //Default quotient and remainder to zero
+            String quotient = BitWord.VALUE_ZERO;
+            String remainder = BitWord.VALUE_ZERO;
+            //Don't divide if divisor is zero
+            if (isDivByZero == 0) {
+                quotient = Integer.toBinaryString(dividendDecimal/divisorDecimal);
+                remainder = Integer.toBinaryString(dividendDecimal%divisorDecimal);
+            }
+
+            divisionMap.put(KEY_QUOTIENT, quotient);
+            divisionMap.put(KEY_REMAINDER, remainder);
+            divisionMap.put(KEY_ISDIVZERO, Integer.toString(isDivByZero));
+
+            return divisionMap;
+        }         
+        	
 	/**
 	 * Pads with leading zeros until length is 16
 	 * @param value bit String with length <= 16
@@ -264,48 +324,48 @@ public final class ArithmeticLogicUnit {
 	 */		
 	public static void not(String p)
 	{
-	//register will be of length 16 bits
-		int n = 16;
-		for(int i = 0;i<n;i++)
-		{
-			String r = p.substring(i, i+1);
-			if (i==0)
-			{
-				//edge case: first bit
-				if (r == "1")
-				{
-					p= "0" + p.substring(i+1, n); //switch the first bit, save the rest
-				}
-				else if (r == "0")
-				{
-					p= "1" + p.substring(i+1, n);
-				}
+            //register will be of length 16 bits
+            int n = 16;
+            for(int i = 0;i<n;i++)
+            {
+                String r = p.substring(i, i+1);
+                if (i==0)
+                {
+                        //edge case: first bit
+                        if (r == "1")
+                        {
+                                p= "0" + p.substring(i+1, n); //switch the first bit, save the rest
+                        }
+                        else if (r == "0")
+                        {
+                                p= "1" + p.substring(i+1, n);
+                        }
 
-			}
-			else if (i==n)
-			{// edge case:  last bit
-				if (r == "0")
-				{
-					p= p.substring(0, i)+"1"; //save everything, but switch the last bit
-				}
-				else if (r == "1")
-				{
-					p= p.substring(0, i)+"0";
-				}
+                }
+                else if (i==n)
+                {// edge case:  last bit
+                        if (r == "0")
+                        {
+                                p= p.substring(0, i)+"1"; //save everything, but switch the last bit
+                        }
+                        else if (r == "1")
+                        {
+                                p= p.substring(0, i)+"0";
+                        }
 
-			}
-			else
-			{//general case
-				if (r == "0" )
-				{
-					p= p.substring(0, i)+"1"+ p.substring(i+1, n); //change the ith bit
-				}
-				else if (r == "1")
-				{
-					p= p.substring(0, i)+"0"+ p.substring(i+1, n);
-				}
-			}
-		}
+                }
+                else
+                {//general case
+                        if (r == "0" )
+                        {
+                                p= p.substring(0, i)+"1"+ p.substring(i+1, n); //change the ith bit
+                        }
+                        else if (r == "1")
+                        {
+                                p= p.substring(0, i)+"0"+ p.substring(i+1, n);
+                        }
+                }
+            }
 	}
 	/**
 	 * SHIFT Register Command

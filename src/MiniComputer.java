@@ -1058,7 +1058,19 @@ public class MiniComputer extends Observable implements Runnable
 	 */
 	public void jsr(int index, boolean isIndirectAddress, BitWord address)
 	{
-		//KEEGAN TODO
+            // Calculate the effective address (EA)
+            BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+            
+            // Set General Purpose Register R3 to the PC + 1
+            R3.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+
+            // Move the EA to the Internal Address Register (IAR)
+            IAR.setBitValue(ea);
+            
+            // Store IAR contents into the PC
+	    // PC can only hold 12 bits so chop off the leading zeros
+            String pc = IAR.getBitValue().getValue().substring(4, 16);
+            PC.setBitValue(pc);   
 	}
 	
 	/**
@@ -1067,7 +1079,13 @@ public class MiniComputer extends Observable implements Runnable
 	 */
 	public void rfs(BitWord immed)
 	{
-		//KEEGAN TODO
+            // Set General Purpose Register 0 to Immed
+            R0.setBitValue(immed);
+            
+            // Store IAR contents into the PC
+	    // PC can only hold 12 bits so chop off the leading zeros
+            String pc = R3.getBitValue().getValue().substring(4, 16);
+            PC.setBitValue(pc);
 	}
 	
 	/**
@@ -1084,10 +1102,14 @@ public class MiniComputer extends Observable implements Runnable
 		
 		// Subtract one from the register contents
 		Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE);
-		registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+		boolean isUnderflow = (Boolean) differenceMap.get("isUnderflow");
+		// If underflow, leave the register contents alone instead of setting it to gibberish
+		if(!isUnderflow) {
+			registerSelect1.setBitValue(String.valueOf(differenceMap.get("difference")));
+		}
 		
-		// Set Underflow code
-		setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get("isUnderflow"));
+		// Set Underflow bit
+		setConditionCode(ConditionCode.UNDERFLOW, isUnderflow);
 		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
@@ -1098,7 +1120,7 @@ public class MiniComputer extends Observable implements Runnable
 		// If IRR contents is > 0, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
 		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-		if(irr > 0) {
+		if(!isUnderflow && irr > 0) {
 			IAR.setBitValue(ea);
 		} else {
 			// Else set IAR value to PC contents + 1
@@ -1148,6 +1170,65 @@ public class MiniComputer extends Observable implements Runnable
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
 		PC.setBitValue(pc);
 	}
+        
+        public void mlt(int rx, int ry) {
+            Register register1 = getR(rx);
+            Register register2 = getR(ry);
+            
+            //Registers must be either R0 or R2
+            if (!register1.equals(R0) && !register1.equals(R2))
+                System.out.println("Register must be R0 or R2.");
+            else if (!register2.equals(R0) && !register2.equals(R2))
+                System.out.println("Register must be R0 or R2.");
+            else {
+                String product = ArithmeticLogicUnit.multiply(register1.getBitValue().getValue(), register2.getBitValue().getValue());
+                
+                //Get high and low order bits from product
+                BitWord highBits = new BitWord(product.substring(0, 15));
+                BitWord lowBits = new BitWord(product.substring(16, 31));
+                
+                //rx contains high order bits
+                register1.setBitValue(highBits);
+                //rx + 1 contains low order bits
+                Register registerPlusOne = getR(rx + 1);
+                registerPlusOne.setBitValue(lowBits);
+            }                
+        } 
+        
+        public void dvd(int rx, int ry) {
+            Register register1 = getR(rx);
+            Register register2 = getR(ry);
+            
+            //Registers must be either R0 or R2
+            if (!register1.equals(R0) && !register1.equals(R2))
+                System.out.println("Register must be R0 or R2.");
+            else if (!register2.equals(R0) && !register2.equals(R2))
+                System.out.println("Register must be R0 or R2.");
+            else {
+                Map<String, String> divisionMap = ArithmeticLogicUnit.divide(register1.getBitValue().getValue(), register2.getBitValue().getValue());
+                if (Integer.parseInt(divisionMap.get(ArithmeticLogicUnit.KEY_ISDIVZERO)) == 1) {
+                    setConditionCode(ConditionCode.DIVZERO, true);
+                }
+                else {
+                    setConditionCode(ConditionCode.DIVZERO, false);
+                    //rx = quotient
+                    register1.setBitValue(divisionMap.get(ArithmeticLogicUnit.KEY_QUOTIENT));
+                    //rx + 1 = remainder
+                    Register registerPlusOne = getR(rx + 1);
+                    registerPlusOne.setBitValue(divisionMap.get(ArithmeticLogicUnit.KEY_REMAINDER));
+                }
+            }              
+        }
+        
+        public void trr(int rx, int ry) {
+            Register register1 = getR(rx);
+            Register register2 = getR(ry);
+            
+            if (register1.getBitValue().equals(register2.getBitValue()))
+                setConditionCode(ConditionCode.EQUALORNOT, true);
+            else
+                setConditionCode(ConditionCode.EQUALORNOT, false);
+        }        
 	
 	// TODO in later parts: other instructions
 	
