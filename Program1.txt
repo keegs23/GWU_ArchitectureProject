@@ -1,7 +1,7 @@
 LDA 3,0,0,x		Set X1 initially to address x=_ to aid with large addresses (passes through R3 and Transfer Address t); PROGRAM 1 START (this instruction will be stored at address _)
 STR 3,0,0,t		Memory address t=_ (decimal) stores the value to be transferred between registers
 LDX 1,0,t
-LDA 3,0/1,0,binary 11111	Memory address e=_ stores the bit string that represents the Enter key, 1111111111111111(16 ones) (don't use ASCII code since that could be mistaken for a number)
+LDA 3,0,0,binary 11111	Memory address e=_ stores the bit string that represents the Enter key, 1111111111111111(16 ones) (don't use ASCII code since that could be mistaken for a number)
 SRC 3,1,1,5		Get 16 ones by logically shifting left 5 bits and adding binary 11111
 AIR 3,0,0,binary 11111	Result should be 1111111111 (10 ones) at this point
 SRC 3,1,1,5
@@ -9,10 +9,13 @@ AIR 3,0,0,binary 11111	Result should be 15 ones at this point
 SRC 3,1,1,1
 AIR 3,0,0,1 	R3 now has 16 ones
 STR 3,0/1,0,e	Store the 16 ones in the Enter address e
-LDA 3,0/1,0,?		Memory address n=_ stores the bit string that represents a newline character, 1010101010101010? (don't use ASCII code since that could be mistaken for a number)
-		Get newline bitstring by logically shifting left 5 bits and adding _
-		
-STR 3,0/1,0,n
+LDA 3,0/1,0,10101		Memory address n=_ stores the bit string that represents a newline character, 1010101010101010? (don't use ASCII code since that could be mistaken for a number)
+SRC 3,1,1,5		Get newline bitstring by logically shifting left 5 bits and adding the ones and zeros
+AIR 3,0,0,binary 01010	
+SRC 3,1,1,5
+AIR 3,0,0,binary 10101
+SRC 3,1,1,1		Result should be 1010101010101010
+STR 3,0/1,0,n	Store bitstring in Newline address n
 LDA 3,0/1,0,a		Array starts at address a=_
 SIR 3,0,0,1
 STR 3,0/1,0,i		Memory address i=_ (decimal) stores the current array address being working on AKA Array Element Address (starts at 1 behind the first element of the array since increment is done first in the loop)
