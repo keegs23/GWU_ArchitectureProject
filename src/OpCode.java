@@ -122,5 +122,27 @@ public class OpCode
 	/**
 	 * Test the Equality of Register and Register
 	 */
-	public static final String TRR = "010010";	//22         
+	public static final String TRR = "010010";	//22   
+	
+	/**
+	 * Bitwise AND
+	 */
+	public static final String AND = "010011";	//23
+	/**
+	 * Bitwise OR
+	 */
+	public static final String ORR = "010100";	//24
+	/**
+	 * Bitwise NOT
+	 */
+	public static final String NOT = "010101";	//25
+	/**
+	 * Shift Register by Count
+	 */
+	public static final String SRC = "011111";	//31
+	/**
+	 * Rotate Register by Count
+	 */
+	public static final String RRC = "100000";	//32
+
 }
