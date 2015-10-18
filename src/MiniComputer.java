@@ -77,6 +77,9 @@ public class MiniComputer extends Observable implements Runnable
 	private IOObject inputObject;
 	private IOObject outputObject;
 	private boolean[] registerIsInt;
+	private int bootPrgmLength;
+	private int prgmOneLength;
+	
 	
 	public MiniComputer() throws FileNotFoundException
 	{
@@ -108,6 +111,10 @@ public class MiniComputer extends Observable implements Runnable
 		// Initialize I/O transfer objects
 		inputObject = new IOObject();
 		outputObject = new IOObject();
+		
+		// Initialize program lengths
+		bootPrgmLength = 0;
+		prgmOneLength = 0;
 		
 		// Initialize IRR
 		for (int i = 0; i < IRR.length; i++)
@@ -241,12 +248,12 @@ public class MiniComputer extends Observable implements Runnable
 		
 	}
 	
-	private void load()
+	private int loadToMemory(String fileName, String startAddress)
 	{
 		// Read in and parse rom.txt 
 		// rom.txt is formatted so that each instruction is on a separate line, first 16 characters of each line are the instruction, rest are comments
 		// Make sure to only read the first 16 characters of each row (i.e. ignore the comments)
-		File file = new File("BootProgram.txt");
+		File file = new File(fileName);
 		try 
 		{
 			FileInputStream fileIn = new FileInputStream(file);
@@ -254,9 +261,9 @@ public class MiniComputer extends Observable implements Runnable
 			//Construct BufferedReader from InputStreamReader
 			BufferedReader br = new BufferedReader(new InputStreamReader(fileIn));
 		 
-			int bootPrgmLength = 0;
+			int prgmLength = 0;
 			String line = null;
-			String bootPrgmStart16Bits = MemoryLocation.ADDRESS_BOOT_PRGM_START;
+			String bootPrgmStart16Bits = startAddress;
 			String address = bootPrgmStart16Bits;
 			while ((line = br.readLine()) != null) {
 				// Read the 16-bit instruction
@@ -310,63 +317,7 @@ public class MiniComputer extends Observable implements Runnable
 	@Override
 	public void run() {
 		
-		// Read in and parse rom.txt 
-		// rom.txt is formatted so that each instruction is on a separate line, first 16 characters of each line are the instruction, rest are comments
-		// Make sure to only read the first 16 characters of each row (i.e. ignore the comments)
-		File file = new File("BootProgram.txt");
-		try 
-		{
-			FileInputStream fileIn = new FileInputStream(file);
-			
-			//Construct BufferedReader from InputStreamReader
-			BufferedReader br = new BufferedReader(new InputStreamReader(fileIn));
-		 
-			int bootPrgmLength = 0;
-			String line = null;
-			String bootPrgmStart16Bits = MemoryLocation.ADDRESS_BOOT_PRGM_START;
-			String address = bootPrgmStart16Bits;
-			while ((line = br.readLine()) != null) {
-				// Read the 16-bit instruction
-				String instruction = line.substring(0, 16);
-				bootPrgmLength++;
-				
-				// Store the instruction in memory
-				// Since technically the ROM is already supposed to be in the computer,
-				// we will input it directly into memory
-				// instead of constructing instructions to input the boot program instructions into memory
-				MemoryLocation memLoc = new MemoryLocation(address, instruction);
-				memory.put(address, memLoc);
-				
-				// Increment address
-				address = ArithmeticLogicUnit.add(address, BitWord.VALUE_ONE);
-			}
-			
-			br.close();
-			
-			// Execute boot program (mostly load/store)
-			// PC can only hold 12 bits, so chop off the leading zeros
-			String bootPrgmStart12Bits = bootPrgmStart16Bits.substring(4, 16);
-			PC.setBitValue(bootPrgmStart12Bits);
-			for(int k = 1; k <= bootPrgmLength; k++)
-			{
-				if (MiniComputerGui.haltButtonClicked)
-				{
-					break;
-				}
-				singleStep();
-			}
-			
-			MiniComputerGui.haltButtonClicked = false;
-			
-			// Set PC back to the start of the boot program
-			// PC can only hold 12 bits, so chop off the leading zeros
-			PC.setBitValue(bootPrgmStart12Bits);
-		}
-		catch(Exception ex)
-		{
-			// TODO: Handle exceptions
-			System.out.println(ex);
-		}
+		
 	}
 	
 	public void loadToggleInstruction(String instruction)

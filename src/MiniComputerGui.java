@@ -161,7 +161,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     
     private void addToIplPanel() {
     	
-    	final int BUTTON_WIDTH = 130;
+    	final int BUTTON_WIDTH = 150;
     	final int BUTTON_HEIGHT = 35;
     	final int FONT_SIZE = 20;
     	
