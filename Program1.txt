@@ -1,6 +1,6 @@
-LDA 3,0,0,binary 10010		Set X1 to address x=160 (10010110 in binary) to aid with large addresses (passes through R3 and Transfer Address t); PROGRAM 1 START (this instruction will be stored at address 30)
+LDA 3,0,0,binary 101		Set X1 to address x=160 (10100000 in binary) to aid with large addresses (passes through R3 and Transfer Address t); PROGRAM 1 START (this instruction will be stored at address 30)
 SRC 3,1,1,5					Get 160 (decimal) by shifting and adding bits
-AIR 3,binary 110
+AIR 3,0 					Yes, this does nothing now since the value of x changed from what I initially thought, but if I don't leave it here all the jump addresses will be off
 STR 3,0,0,29				Move x from R3 to X1 (passes through address 29)
 LDX 1,0,29
 LDA 3,0,0,30				Set X2 to y=69? to aid with jumping to addresses
