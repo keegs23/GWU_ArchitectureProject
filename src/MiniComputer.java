@@ -82,6 +82,7 @@ public class MiniComputer extends Observable implements Runnable
 	private int prgmOneLength;
 	private String bootPrgmStart12Bits;
 	private String prgmOneStart12Bits;
+	private WriteBuffer writeBuffer;
 	
 	
 	public MiniComputer() throws FileNotFoundException
@@ -121,6 +122,7 @@ public class MiniComputer extends Observable implements Runnable
 		
 		bootPrgmStart12Bits = "";
 		prgmOneStart12Bits = "";
+		writeBuffer = new WriteBuffer(4);
 		
 		// Initialize IRR
 		for (int i = 0; i < IRR.length; i++)
@@ -686,7 +688,7 @@ public class MiniComputer extends Observable implements Runnable
 		// Move contents of IRR to memory at address specified by IAR		
 		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR[0].getBitValue());
 		// TreeMap.put() automatically replaces the value and adds a new key if necessary 
-		memory.put(IAR.getBitValue().getValue(), memLoc);
+		writeToCacheAndBuffer(IAR.getBitValue().getValue(), memLoc);
 	}
 	
 	/**
@@ -796,7 +798,7 @@ public class MiniComputer extends Observable implements Runnable
 		// Move contents of IRR to memory at address specified by IAR		
 		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR[0].getBitValue());
 		// TreeMap.put() automatically replaces the value and adds a new key if necessary 
-		memory.put(IAR.getBitValue().getValue(), memLoc);
+		writeToCacheAndBuffer(IAR.getBitValue().getValue(), memLoc);
 	}
 	
 	/**
@@ -1568,5 +1570,13 @@ public class MiniComputer extends Observable implements Runnable
 			
 		CC.setBitValue(first + flag + last);
 	}        
+	
+	private void writeToCacheAndBuffer(String address, MemoryLocation memLoc) {
+		
+		// TODO: write to cache
+		writeBuffer.addToBuffer(memLoc);
+		memory.put(address, memLoc);
+	}
+	
 	/* End Helpers */
 }
