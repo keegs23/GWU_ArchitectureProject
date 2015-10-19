@@ -3,12 +3,12 @@ SRC 3,1,1,5					Get 160 (decimal) by shifting and adding bits
 AIR 3,0 					Yes, this does nothing now since the value of x changed from what I initially thought, but if I don't leave it here all the jump addresses will be off
 STR 3,0,0,29				Move x from R3 to X1 (passes through address 29)
 LDX 1,0,29
-LDA 3,0,0,30				Set X2 to y=69? to aid with jumping to addresses
+LDA 3,0,0,30				Set X2 to y=69 to aid with jumping to addresses
 AIR 3,0,0,30
 AIR 3,0,0,9
 STR 3,0,0,29				Move y from R3 to X2 (passes through address 29)
 LDX 2,0,29
-AIR 3,0,0,30				Set X3 to z=108? to aid with jumping to later addresses
+AIR 3,0,0,30				Set X3 to z=108 to aid with jumping to later addresses
 AIR 3,0,0,9
 STR 3,0,0,29				Move z from R3 to X3 (passes through address 29)
 LDX 3,0,0,29
@@ -20,7 +20,7 @@ AIR 3,0,0,binary 11111		Result should be 15 ones at this point
 SRC 3,1,1,1
 AIR 3,0,0,1 				R3 now has 16 ones
 STR 3,1,0,24(e)				Store the 16 ones in the Enter address e
-LDA 3,0/1,0,10101			Memory address n=185 stores the bit string that represents a newline character, 1010101010101010? (don't use ASCII code since that could be mistaken for a number)
+LDA 3,0,0,10101				Memory address n=185 stores the bit string that represents a newline character, 1010101010101010? (don't use ASCII code since that could be mistaken for a number)
 SRC 3,1,1,5					Get newline bit string by logically shifting left 5 bits and adding the ones and zeros
 AIR 3,0,0,binary 01010	
 SRC 3,1,1,5
@@ -41,7 +41,7 @@ LDR 3,1,1,26(i)				Add 1 to Array Element Address by loading the Array Element A
 AIR 3,1						Then adding 1 (Immed) to R3
 STR 3,1,1,26(i)				Then storing the R3 contents back into the Array Element Address
 IN 3,0						Read in the character into R3; READ NEXT CHAR OF NUM
-SMR 3,1,0,24(e)				Subtract the Enter key/carriage return bitstring (stored in e) from R3 (if UNDERFLOW, R3 contents will be left alone)
+SMR 3,1,0,24(e)				Subtract the Enter key/carriage return bit string (stored in e) from R3 (if UNDERFLOW, R3 contents will be left alone)
 JZ 3,2,0,15(adone)			If R3 contents = 0 character is Enter, jump to ALL DIGITS OF NUM ENTERED
 STR 1,1,0,7(b)				Backup R1 loop counter to address b since it will be affected by MLT
 MLT 0,2						Multiply R0 contents by 10 (decimal, stored in R2) to move it to the tens place
@@ -57,7 +57,7 @@ LDR 3,1,0,25(n)				Output newline (represented by _--don't use ASCII code since 
 OUT 3,1
 LDA 0,0,0,0					Set R0 contents back to 0
 SOB 1,2,0,0(aifls)			Subtract 1 from R1 and if > 0, branch back to ARRAY INPUT FOR LOOP START
-IN 3,0/1					Read in the character of the number to try to match into R3; MATCH INPUT START
+IN 3,0						Read in the character of the number to try to match into R3; MATCH INPUT START
 SMR 3,1,0,24(e)				Subtract the Enter key/carriage return bit string from R3 (if UNDERFLOW, R3 contents will be left alone)
 JZ 3,2,0,30(mie)			If R3 contents = 0 character is Enter, jump to MATCH INPUT END
 MLT 0,2						Multiply R0 contents by 10 (decimal, stored in R2) to move it to the tens place
