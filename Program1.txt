@@ -5,11 +5,11 @@ STR 3,0,0,29				Move x from R3 to X1 (passes through address 29)
 LDX 1,0,29
 LDA 3,0,0,30				Set X2 to y=69? to aid with jumping to addresses
 AIR 3,0,0,30
-AIR 3,0,0,10
+AIR 3,0,0,9
 STR 3,0,0,29				Move y from R3 to X2 (passes through address 29)
 LDX 2,0,29
 AIR 3,0,0,30				Set X3 to z=108? to aid with jumping to later addresses
-AIR 3,0,0,10
+AIR 3,0,0,9
 STR 3,0,0,29				Move z from R3 to X3 (passes through address 29)
 LDX 3,0,0,29
 LDA 3,0,0,binary 11111		Memory address e=184 stores the bit string that represents the Enter key, 1111111111111111(16 ones) (don't use ASCII code since that could be mistaken for a number)
