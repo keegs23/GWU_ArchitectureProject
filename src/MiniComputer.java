@@ -15,6 +15,7 @@ public class MiniComputer extends Observable implements Runnable
 	public static final String LOG_FILE_NAME = "trace-file.txt";
 	public static final String BOOT_PROGRAM_NAME = "BootProgram.txt";
 	public static final String PROGRAM_ONE_NAME = "Program1.txt";
+	public static volatile ProgramCode currentProgram = ProgramCode.BOOTPROGRAM;
 	public final PrintWriter logger;
 	
 	/**
@@ -79,6 +80,8 @@ public class MiniComputer extends Observable implements Runnable
 	private boolean[] registerIsInt;
 	private int bootPrgmLength;
 	private int prgmOneLength;
+	private String bootPrgmStart12Bits;
+	private String prgmOneStart12Bits;
 	
 	
 	public MiniComputer() throws FileNotFoundException
@@ -115,6 +118,9 @@ public class MiniComputer extends Observable implements Runnable
 		// Initialize program lengths
 		bootPrgmLength = 0;
 		prgmOneLength = 0;
+		
+		bootPrgmStart12Bits = "";
+		prgmOneStart12Bits = "";
 		
 		// Initialize IRR
 		for (int i = 0; i < IRR.length; i++)
@@ -233,9 +239,9 @@ public class MiniComputer extends Observable implements Runnable
 	 */
 	public void loadROM()
 	{
-		Thread thread = new Thread(this);
-		thread.start();
-		
+		currentProgram = ProgramCode.BOOTPROGRAM;
+		loadToMemory(BOOT_PROGRAM_NAME, MemoryLocation.ADDRESS_BOOT_PRGM_START);
+		runThroughMemory();
 		
 	}
 	
@@ -245,10 +251,11 @@ public class MiniComputer extends Observable implements Runnable
 	 */
 	public void loadFromFile()
 	{
-		
+		currentProgram = ProgramCode.PROGRAMONE;
+		loadToMemory(PROGRAM_ONE_NAME, MemoryLocation.ADDRESS_PRGM_ONE_START);
 	}
 	
-	private int loadToMemory(String fileName, String startAddress)
+	private void loadToMemory(String fileName, String startAddress)
 	{
 		// Read in and parse rom.txt 
 		// rom.txt is formatted so that each instruction is on a separate line, first 16 characters of each line are the instruction, rest are comments
@@ -263,12 +270,12 @@ public class MiniComputer extends Observable implements Runnable
 		 
 			int prgmLength = 0;
 			String line = null;
-			String bootPrgmStart16Bits = startAddress;
-			String address = bootPrgmStart16Bits;
+			String prgmStart16Bits = startAddress;
+			String address = prgmStart16Bits;
 			while ((line = br.readLine()) != null) {
 				// Read the 16-bit instruction
 				String instruction = line.substring(0, 16);
-				bootPrgmLength++;
+				prgmLength++;
 				
 				// Store the instruction in memory
 				// Since technically the ROM is already supposed to be in the computer,
@@ -283,30 +290,28 @@ public class MiniComputer extends Observable implements Runnable
 			
 			br.close();
 			
-			// Execute boot program (mostly load/store)
-			// PC can only hold 12 bits, so chop off the leading zeros
-			String bootPrgmStart12Bits = bootPrgmStart16Bits.substring(4, 16);
-			PC.setBitValue(bootPrgmStart12Bits);
-			for(int k = 1; k <= bootPrgmLength; k++)
+			if (currentProgram.equals(ProgramCode.BOOTPROGRAM))
 			{
-				if (MiniComputerGui.haltButtonClicked)
-				{
-					break;
-				}
-				singleStep();
+				bootPrgmLength = prgmLength;
+				bootPrgmStart12Bits = prgmStart16Bits.substring(4, 16);
+			} 
+			else if (currentProgram.equals(ProgramCode.PROGRAMONE))
+			{
+				prgmOneLength = prgmLength;
+				prgmOneStart12Bits = prgmStart16Bits.substring(4, 16);
 			}
-			
-			MiniComputerGui.haltButtonClicked = false;
-			
-			// Set PC back to the start of the boot program
-			// PC can only hold 12 bits, so chop off the leading zeros
-			PC.setBitValue(bootPrgmStart12Bits);
 		}
 		catch(Exception ex)
 		{
 			// TODO: Handle exceptions
 			System.out.println(ex);
 		}
+	}
+	
+	public void runThroughMemory() {
+		
+		Thread thread = new Thread(this);
+		thread.start();
 	}
 	
 	/*
@@ -317,7 +322,37 @@ public class MiniComputer extends Observable implements Runnable
 	@Override
 	public void run() {
 		
+		String prgmStart12Bits = "";
+		int prgmLength = 0;
 		
+		if (currentProgram == ProgramCode.BOOTPROGRAM)
+		{
+			prgmStart12Bits = bootPrgmStart12Bits;
+			prgmLength = bootPrgmLength;
+		}
+		else if (currentProgram == ProgramCode.PROGRAMONE)
+		{
+			prgmStart12Bits = prgmOneStart12Bits;
+			prgmLength = prgmOneLength;
+		}
+		
+		// Execute boot program (mostly load/store)
+		// PC can only hold 12 bits, so chop off the leading zeros
+		PC.setBitValue(prgmStart12Bits);
+		for(int k = 1; k <= prgmLength; k++)
+		{
+			if (MiniComputerGui.haltButtonClicked)
+			{
+				break;
+			}
+			singleStep();
+		}
+		
+		MiniComputerGui.haltButtonClicked = false;
+		
+		// Set PC back to the start of the boot program
+		// PC can only hold 12 bits, so chop off the leading zeros
+		PC.setBitValue(prgmStart12Bits);
 	}
 	
 	public void loadToggleInstruction(String instruction)

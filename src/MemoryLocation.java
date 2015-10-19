@@ -10,7 +10,7 @@ public class MemoryLocation
 	//public static final List<String> RESERVED_ADDRESSES = new ArrayList<String>() [ ADDRESS_TRAP, ADDRESS_FAULT, ADDRESS_TRAP_PC, ADDRESS_3, ADDRESS_FAULT_PC, ADDRESS_5];
 	
 	public static final String ADDRESS_BOOT_PRGM_START = "0000000000001000";	//Memory Address 8 (octal 10)
-	public static final String ADDRESS_PGRM_ONE_START = "0000000000011110";		//Memory Address 30 (octal 36)
+	public static final String ADDRESS_PRGM_ONE_START = "0000000000011110";		//Memory Address 30 (octal 36)
 	
 	private BitWord value;
 	private BitWord address;
