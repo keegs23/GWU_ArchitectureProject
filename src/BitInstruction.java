@@ -13,6 +13,9 @@ public class BitInstruction extends BitWord
     public static final String KEY_DEVID = "devId";
     public static final String KEY_RX = "rx";
     public static final String KEY_RY = "ry";
+    public static final String KEY_ARITHMETIC_OR_LOGIC = "arithmeticOrLogic";
+    public static final String KEY_LEFT_OR_RIGHT = "leftOrRight";
+    public static final String KEY_SHIFT_COUNT = "shiftCount";    
         
     public BitInstruction()
     {
@@ -114,11 +117,11 @@ public class BitInstruction extends BitWord
             	instructionParts = parseArithmetic(opCode, true);
             	break;
             case OpCode.ORR:
-            	//AND
+            	//ORR
             	instructionParts = parseArithmetic(opCode, true);
             	break;
             case OpCode.NOT:
-            	//AND
+            	//NOT
             	instructionParts = parseArithmetic(opCode, false);
             	break;
             case OpCode.SRC:
@@ -129,7 +132,6 @@ public class BitInstruction extends BitWord
             	//Rotate
             	instructionParts = parseShiftRotate(opCode);
             	break;
-
             default:
                 break;                        
         }
@@ -256,4 +258,21 @@ public class BitInstruction extends BitWord
         
         return parse;
     }
+    
+    private Map<String, BitWord> parseShiftRotate(String opCode) {
+        Map<String, BitWord> parse = new HashMap<String, BitWord>();
+        
+        String register = value.substring(6,8);
+        String arithmeticOrLogic = value.substring(8,9);
+        String leftOrRight = value.substring(9,10);
+        String shiftCount = value.substring(11,16);
+        
+        parse.put(KEY_OPCODE, new BitWord(opCode));
+        parse.put(KEY_REGISTER, new BitWord(register));
+        parse.put(KEY_ARITHMETIC_OR_LOGIC, new BitWord(arithmeticOrLogic));
+        parse.put(KEY_LEFT_OR_RIGHT, new BitWord(leftOrRight));
+        parse.put(KEY_SHIFT_COUNT, new BitWord(shiftCount));
+        
+        return parse;
+    }    
 }
