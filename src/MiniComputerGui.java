@@ -52,6 +52,8 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	private JButton instructionLoadButton;
 	private JTextField pcInput;
 	private JButton iplButton;
+	private JButton loadFileButton;
+	private JButton runButton;
 	private JButton haltButton;
 	private JButton singleStepButton;
 	private DefaultTableModel registerModel;
@@ -82,6 +84,8 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		instructionLoadButton = new JButton("Load Instruction");
 		pcInput = new JTextField(10);
 		iplButton = new JButton("IPL");
+		loadFileButton = new JButton("Load Prgm 1");
+		runButton = new JButton("Run");
 		haltButton = new JButton("Halt");
 		singleStepButton = new JButton("Single Step");
 		registerModel = new DefaultTableModel();
@@ -158,13 +162,23 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     private void addToIplPanel() {
     	
     	final int BUTTON_WIDTH = 150;
-    	final int BUTTON_HEIGHT = 75;
-    	final int FONT_SIZE = 30;
+    	final int BUTTON_HEIGHT = 35;
+    	final int FONT_SIZE = 20;
     	
     	iplButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
     	iplButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
     	iplButton.addActionListener(this);
         iplPanel.add(iplButton);
+        
+        loadFileButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+    	loadFileButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
+    	loadFileButton.addActionListener(this);
+        iplPanel.add(loadFileButton);
+        
+        runButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+    	runButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
+    	runButton.addActionListener(this);
+        iplPanel.add(runButton);
         
         haltButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
     	haltButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
@@ -463,6 +477,10 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	else { // else check the other buttons
     		if (src == iplButton) {
         		runIpl();
+    		} else if (src == loadFileButton) {
+    			runLoadFile();
+    		} else if (src == runButton) {
+    			runRun();
     		} else if (src == haltButton) {
     			runHalt();
         	} else if (src == instructionLoadButton) {
@@ -484,6 +502,18 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	cpu.loadROM();
     	populateRegisterTable();
     	populateMemoryTable();
+    }
+    
+    private void runLoadFile() {
+    	
+    	System.out.println("LOAD FILE BUTTON CLICKED");
+    	// TODO
+    }
+    
+    private void runRun() {
+    	
+    	System.out.println("RUN BUTTON CLICKED");
+    	// TODO
     }
     
     private void runHalt() {

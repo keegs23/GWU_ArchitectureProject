@@ -13,6 +13,8 @@ public class MiniComputer extends Observable implements Runnable
 {
 	public static final String MAX_MEMORY_ADDRESS = "0000011111111111";	//11 one bits = 2048 (decimal)
 	public static final String LOG_FILE_NAME = "trace-file.txt";
+	public static final String BOOT_PROGRAM_NAME = "BootProgram.txt";
+	public static final String PROGRAM_ONE_NAME = "Program1.txt";
 	public final PrintWriter logger;
 	
 	/**
@@ -75,6 +77,9 @@ public class MiniComputer extends Observable implements Runnable
 	private IOObject inputObject;
 	private IOObject outputObject;
 	private boolean[] registerIsInt;
+	private int bootPrgmLength;
+	private int prgmOneLength;
+	
 	
 	public MiniComputer() throws FileNotFoundException
 	{
@@ -106,6 +111,10 @@ public class MiniComputer extends Observable implements Runnable
 		// Initialize I/O transfer objects
 		inputObject = new IOObject();
 		outputObject = new IOObject();
+		
+		// Initialize program lengths
+		bootPrgmLength = 0;
+		prgmOneLength = 0;
 		
 		// Initialize IRR
 		for (int i = 0; i < IRR.length; i++)
@@ -226,20 +235,25 @@ public class MiniComputer extends Observable implements Runnable
 	{
 		Thread thread = new Thread(this);
 		thread.start();
+		
+		
 	}
 	
-	/*
-	 * Overriden method from interface Runnable
-	 * Called when thread.start() is called
-	 * Used for creating a new thread in the program so the GUI doesn't freeze when waiting for user input
+	/**
+	 * Loads the contents of the program.
+	 * Called when Load File button is pressed.
 	 */
-	@Override
-	public void run() {
+	public void loadFromFile()
+	{
 		
+	}
+	
+	private int loadToMemory(String fileName, String startAddress)
+	{
 		// Read in and parse rom.txt 
 		// rom.txt is formatted so that each instruction is on a separate line, first 16 characters of each line are the instruction, rest are comments
 		// Make sure to only read the first 16 characters of each row (i.e. ignore the comments)
-		File file = new File("BootProgram.txt");
+		File file = new File(fileName);
 		try 
 		{
 			FileInputStream fileIn = new FileInputStream(file);
@@ -247,9 +261,9 @@ public class MiniComputer extends Observable implements Runnable
 			//Construct BufferedReader from InputStreamReader
 			BufferedReader br = new BufferedReader(new InputStreamReader(fileIn));
 		 
-			int bootPrgmLength = 0;
+			int prgmLength = 0;
 			String line = null;
-			String bootPrgmStart16Bits = MemoryLocation.ADDRESS_BOOT_PRGM_START;
+			String bootPrgmStart16Bits = startAddress;
 			String address = bootPrgmStart16Bits;
 			while ((line = br.readLine()) != null) {
 				// Read the 16-bit instruction
@@ -293,6 +307,17 @@ public class MiniComputer extends Observable implements Runnable
 			// TODO: Handle exceptions
 			System.out.println(ex);
 		}
+	}
+	
+	/*
+	 * Overriden method from interface Runnable
+	 * Called when thread.start() is called
+	 * Used for creating a new thread in the program so the GUI doesn't freeze when waiting for user input
+	 */
+	@Override
+	public void run() {
+		
+		
 	}
 	
 	public void loadToggleInstruction(String instruction)
@@ -532,8 +557,8 @@ public class MiniComputer extends Observable implements Runnable
                 break;                        
         }
 		
-	// Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
-        if(!isTransferInstruction)
+		// Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
+        if(!isTransferInstruction && !opcode.getValue().equals(OpCode.HLT))
         {
         	// Increment PC
         	String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE);
