@@ -1,78 +1,91 @@
-LDA 3,0,0,x					Set X1 initially to address x=_ to aid with large addresses (passes through R3 and Transfer Address t); PROGRAM 1 START (this instruction will be stored at address 30)
+LDA 3,0,0,binary 10101		Set X1 to address x=170 (10101010 in binary) to aid with large addresses (passes through R3 and Transfer Address t); PROGRAM 1 START (this instruction will be stored at address 30)
+SRC 3,1,1,5					Get 170 (decimal) by shifting and adding bits
+AIR 3,binary 10
+STR 3,0,0,29				Move x from R3 to X1 (passes through address 29)
+LDX 1,0,0,29
+LDA 3,0,0,30				Set X2 to y=70 to aid with jumping to addresses
+AIR 3,0,0,30
+AIR 3,0,0,10
+STR 3,0,0,29				Move y from R3 to X2 (passes through address 29)
+LDX 2,0,0,29
+AIR 3,0,0,30				Set X3 to z=120 to aid with jumping to later addresses
+AIR 3,0,0,20
+STR 3,0,0,29				Move z from R3 to X3 (passes through address 29)
+LDX 3,0,0,29
 STR 3,0,0,t					Memory address t=173 (decimal) stores the value to be transferred between registers
 LDX 1,0,t
-LDA 3,0,0,binary 11111		Memory address e=_ stores the bit string that represents the Enter key, 1111111111111111(16 ones) (don't use ASCII code since that could be mistaken for a number)
+LDA 3,0,0,binary 11111		Memory address e=174 stores the bit string that represents the Enter key, 1111111111111111(16 ones) (don't use ASCII code since that could be mistaken for a number)
 SRC 3,1,1,5					Get 16 ones by logically shifting left 5 bits and adding binary 11111
 AIR 3,0,0,binary 11111		Result should be 1111111111 (10 ones) at this point
 SRC 3,1,1,5
 AIR 3,0,0,binary 11111		Result should be 15 ones at this point
 SRC 3,1,1,1
 AIR 3,0,0,1 				R3 now has 16 ones
-STR 3,0/1,0,e				Store the 16 ones in the Enter address e
-LDA 3,0/1,0,10101			Memory address n=_ stores the bit string that represents a newline character, 1010101010101010? (don't use ASCII code since that could be mistaken for a number)
-SRC 3,1,1,5					Get newline bitstring by logically shifting left 5 bits and adding the ones and zeros
+STR 3,1,0,4(e)				Store the 16 ones in the Enter address e
+LDA 3,0/1,0,10101			Memory address n=175 stores the bit string that represents a newline character, 1010101010101010? (don't use ASCII code since that could be mistaken for a number)
+SRC 3,1,1,5					Get newline bit string by logically shifting left 5 bits and adding the ones and zeros
 AIR 3,0,0,binary 01010	
 SRC 3,1,1,5
 AIR 3,0,0,binary 10101
 SRC 3,1,1,1					Result should be 1010101010101010
-STR 3,0/1,0,n				Store bitstring in Newline address n
-LDA 3,0/1,0,a				Array starts at address a=_
+STR 3,1,0,5(n)				Store bit string in Newline address n
+LDA 3,1,0,10(a)				Array starts at address a=180
 SIR 3,0,0,1
-STR 3,0/1,0,i				Memory address i=_ (decimal) stores the current array address being working on AKA Array Element Address (starts at 1 behind the first element of the array since increment is done first in the loop)
+STR 3,1,0,6(i)				Memory address i=176 (decimal) stores the current array address being working on AKA Array Element Address (starts at 1 behind the first element of the array since increment is done first in the loop)
 LDA 1,0,0,20				R1 stores the for loop counter (starts at 20 in decimal and decreases)/whether there are leading zeros while printing
-STR 1,0/1,0,b				Memory address b=_ is the backup for a register (starts at 20 in decimal to match R1)
+STR 1,1,0,7(b)				Memory address b=177 is the backup for a register (starts at 20 in decimal to match R1)
 LDA 2,0,0,10				R2 stores the number 10 (decimal) while getting the array input/the closest array value to the number to try to match so far
 LDA 0,0,0,0					R0 stores the number to be added to the array so far (starts at 0)/the divisor to parsing the separate digits to print
 LDA 3,0,0,0
-STR 3,0/1,0,m				Memory address m=_ (decimal) stores the number to try to match AKA Num To Match Address (defaults to 0)
-STR 3,0/1,0,c				Memory address d=_ (decimal) stores the minimum difference between the number to try to match and the closest array value AKA Min Diff Address (defaults to 0)
-LDR 3,0,1,i					Add 1 to Array Element Address by loading the Array Element Address contents into R3; ARRAY INPUT FOR LOOP START
+STR 3,1,0,8(m)				Memory address m=178 (decimal) stores the number to try to match AKA Num To Match Address (defaults to 0)
+STR 3,1,0,9(d)				Memory address d=179 (decimal) stores the minimum difference between the number to try to match and the closest array value AKA Min Diff Address (defaults to 0)
+LDR 3,1,1,6(i)				Add 1 to Array Element Address by loading the Array Element Address contents into R3; ARRAY INPUT FOR LOOP START
 AIR 3,1						Then adding 1 (Immed) to R3
-STR 3,0,1,i					Then storing the R3 contents back into the Array Element Address
+STR 3,1,1,6(i)				Then storing the R3 contents back into the Array Element Address
 IN 3,0						Read in the character into R3; READ NEXT CHAR OF NUM
-SMR 3,0/1,0,e				Subtract the Enter key/carriage return bitstring from R3 (if UNDERFLOW, R3 contents will be left alone)
-JZ 3,0/1,0,adone			If R3 contents = 0 character is Enter, jump to ALL DIGITS OF NUM ENTERED
-STR 1,0/1,0,b				Backup R1 loop counter since it will be affected by MLT
+SMR 3,1,0,4(e)				Subtract the Enter key/carriage return bitstring (stored in e) from R3 (if UNDERFLOW, R3 contents will be left alone)
+JZ 3,0/1,0,(adone)			If R3 contents = 0 character is Enter, jump to ALL DIGITS OF NUM ENTERED
+STR 1,1,0,7(b)				Backup R1 loop counter to address b since it will be affected by MLT
 MLT 0,2						Multiply R0 contents by 10 (decimal, stored in R2) to move it to the tens place
-STR 1,0/1,0,t				MLT will have set R0 to 0 for the higher bits while R1 has the actual product, so move R1 contents to R0 (passes through transfer address t=_)
-LDR 0,0/1,0,t
-LDR 1,0/1,0,b				Restore R1 with contents from backup address
-STR 3,0/1,0,t				Add the R3 contents into R0 (passes through transfer address)
-AMR 0,0/1,0,t	
+STR 1,1,0,3(t)				MLT will have set R0 to 0 for the higher bits while R1 has the actual product, so move R1 contents to R0 (passes through transfer address t=_)
+LDR 0,1,0,3(t)
+LDR 1,1,0,7(b)				Restore R1 with contents from backup address
+STR 3,1,0,3(t)				Add the R3 contents into R0 (passes through transfer address)
+AMR 0,1,0,3(t)	
 OUT 3,1						Output the R3 contents--GUI filters out non-digit inputs so don't have to worry if char is invalid
 JMA 0/1,0,rncon				Unconditional jump to READ NEXT CHAR OF NUM
-STR 0,0,1,i					Store number from R0 into memory by indirect addressing the Array Element Address; ALL DIGITS OF NUM ENTERED
-LDR 3,0/1,0,n				Output newline (represented by _--don't use ASCII code since that could be mistaken for a number)
+STR 0,1,1,6(i)				Store number from R0 into memory by indirect addressing the Array Element Address; ALL DIGITS OF NUM ENTERED
+LDR 3,1,0,5(n)				Output newline (represented by _--don't use ASCII code since that could be mistaken for a number)
 OUT 3,1
 LDA 0,0,0,0					Set R0 contents back to 0
 SOB 1,0/1,0,aifls			Subtract 1 from R1 and if > 0, branch back to ARRAY INPUT FOR LOOP START
 IN 3,0/1					Read in the character of the number to try to match into R3; MATCH INPUT START
-SMR 3,0/1,0,e				Subtract the Enter key/carriage return bitstring from R3 (if UNDERFLOW, R3 contents will be left alone)
+SMR 3,1,0,4(e)				Subtract the Enter key/carriage return bit string from R3 (if UNDERFLOW, R3 contents will be left alone)
 JZ 3,0/1,0,mie				If R3 contents = 0 character is Enter, jump to MATCH INPUT END
 MLT 0,2						Multiply R0 contents by 10 (decimal, stored in R2) to move it to the tens place
-STR 1,0/1,0,t				MLT will have set R0 to 0 for the higher bits while R1 has the actual product, so move R1 contents to R0 (passes through transfer address t=_)
-LDR 0,0/1,0,t
-STR 3,0/1,0,t				Add the R3 contents into R0 (passes through the Transfer Address)
-AMR 0,0/1,0,t
+STR 1,1,0,3(t)				MLT will have set R0 to 0 for the higher bits while R1 has the actual product, so move R1 contents to R0 (passes through transfer address t=_)
+LDR 0,1,0,3(t)
+STR 3,1,0,3(t)				Add the R3 contents into R0 (passes through the Transfer Address)
+AMR 0,1,0,3(t)
 OUT 3,10					Output the R3 contents--GUI filters out non-digit inputs so don't have to worry if char is invalid
 JMA 0/1,0,mis				Unconditional jump back to MATCH INPUT START
-STR 0,0/1,0,m				Store R0 contents into the Num to Match Address; MATCH INPUT END
-LDR 3,0/1,0,n				Output newline
+STR 0,1,0,8(m)				Store R0 contents into the Num to Match Address; MATCH INPUT END
+LDR 3,1,0,5(n)				Output newline
 OUT 3,1
 LDA 1,0,0,20				Set R1 back to 20 (decimal) to prep for next loop through array
-LDA 3,0/1,0,a				Set Array Element Address back to 1 behind the first element of the array (a-1)
+LDA 3,1,0,10(a)				Set Array Element Address back to 1 behind the first element of the array (a-1)
 SIR 3,0,0,1
-STR 3,0/1,0,i
-LDR 2,0/1,0,a				Set R2 to the value of the first element of the array (at address a)
-LDR 0,0/1,0,m				Load the value of the Num To Match Address into R0
-LDR 3,0/1,0,i				Add 1 to Array Element Address by loading the Array Element Address contents into R3; CLOSEST MATCH FOR LOOP START
+STR 3,1,0,6(i)
+LDR 2,1,0,10(a)				Set R2 to the value of the first element of the array (at address a)
+LDR 0,1,0,8(m)				Load the value of the Num To Match Address into R0
+LDR 3,1,0,6(i)				Add 1 to Array Element Address by loading the Array Element Address contents into R3; CLOSEST MATCH FOR LOOP START
 AIR 3,0,0,1					Then adding 1 (Immed) to R3
-STR 3,0/1,0,i				Then storing the R3 contents back into the Array Element Address
-LDR 3,0/1,0,m				Load R3 with the value from the Num To Match Address
-SMR 3,0/1,1,i				Subtract the value indirect addressed by the Array Element Address from R3
+STR 3,1,0,6(i)				Then storing the R3 contents back into the Array Element Address
+LDR 3,1,0,8(m)				Load R3 with the value from the Num To Match Address
+SMR 3,1,1,6(i)				Subtract the value indirect addressed by the Array Element Address from R3
 JCC 1,0/1,0,hnd				If Condition Code Underflow bit = 1, jump to HANDLE NEG DIFF 
 JMA 0/1,0,cd				Unconditional jump to COMPARE DIFFS
-LDR 3,0/1,1,i				Load R3 with the value indirect addressed by the Array Element Address; HANDLE NEG DIFF
+LDR 3,1,1,6(i)				Load R3 with the value indirect addressed by the Array Element Address; HANDLE NEG DIFF
 SMR 3,0/1,0,m				Subtract the value from the Num To Match Address from R3
 SMR 3,0/1,0,d				Subtract the value of the Min Diff Address from R3; COMPARE DIFFS
 JCC 1,0/1,0,ncmf			If UNDERFLOW is true, found the next closest match (when UNDERFLOW, register contents is left unchanged), so jump to NEW CLOSEST MATCH FOUND
