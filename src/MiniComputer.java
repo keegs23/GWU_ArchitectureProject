@@ -1577,6 +1577,36 @@ public class MiniComputer extends Observable implements Runnable
 		writeBuffer.addToBuffer(memLoc);
 		memory.put(address, memLoc);
 	}
+        
+        private void fetchFromCache() {
+            MemoryLocation tempMemory = null;
+            for (CacheLine cacheLine : cache) {
+                //if first 12 bits of address tag match
+                String firstTwelveBits = MAR.getBitValue().getValue().substring(0, 13);
+                if (firstTwelveBits.equals(cacheLine.addressTag.getValue())) {
+                   MemoryLocation[] tempBlock = cacheLine.getBlock();
+                   //get address from block                  
+                   break; //found in cache, move on
+                }
+            }
+            if (tempMemory != null) {
+                //memory was in cache
+                
+            }
+            else {
+                //memory was not in cache
+                // Fetch the contents in memory at the address specified by MAR into the MBR
+                if(memory.containsKey(MAR.getBitValue().getValue()))
+                {
+                    MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
+                }
+                else
+                {			
+                    MBR.setBitValue(BitWord.VALUE_DEFAULT);
+                }
+                //put memory in cache
+            }
+        }
 	
 	/* End Helpers */
 }
