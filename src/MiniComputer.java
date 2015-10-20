@@ -1609,9 +1609,11 @@ public class MiniComputer extends Observable implements Runnable
 		CC.setBitValue(first + flag + last);
 	}        
 	
-	private void writeToCacheAndBuffer(String address, MemoryLocation memLoc) {
+	private void writeToCacheAndBuffer(String address, MemoryLocation memLoc) 
+	{
 		
 		// TODO: write to cache
+		logger.println("Writing to write buffer");
 		writeBuffer.addToBuffer(memLoc);
 		memory.put(address, memLoc);
 	}
@@ -1664,6 +1666,19 @@ public class MiniComputer extends Observable implements Runnable
                     cache.remove(0);
             }
         }
+	
+	private String isInCache(String address)
+	{
+		for (CacheLine cl : cache)
+		{
+			String cacheAddress = cl.getAddressTag().getValue();
+			if (cacheAddress.equals(address))
+			{
+				return cacheAddress;
+			}
+		}
+		return "";
+	}
 	
 	/* End Helpers */
 }
