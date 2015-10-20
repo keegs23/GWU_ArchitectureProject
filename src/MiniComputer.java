@@ -14,7 +14,7 @@ public class MiniComputer extends Observable implements Runnable
 	public static final String MAX_MEMORY_ADDRESS = "0000011111111111";	//11 one bits = 2048 (decimal)
 	public static final String LOG_FILE_NAME = "trace-file.txt";
 	public static final String BOOT_PROGRAM_NAME = "BootProgram.txt";
-	public static final String PROGRAM_ONE_NAME = "Program1.txt";
+	public static final String PROGRAM_ONE_NAME = "Project1_bin.txt";
 	public static volatile ProgramCode currentProgram = ProgramCode.BOOTPROGRAM;
 	public final PrintWriter logger;
 	
