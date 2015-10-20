@@ -166,7 +166,7 @@ public final class ArithmeticLogicUnit {
                 zeroSuffix += "0";
             }
             
-            return product;
+            return padZeros32(product);
         }
         
          /**
@@ -194,8 +194,8 @@ public final class ArithmeticLogicUnit {
                 remainder = Integer.toBinaryString(dividendDecimal%divisorDecimal);
             }
 
-            divisionMap.put(KEY_QUOTIENT, quotient);
-            divisionMap.put(KEY_REMAINDER, remainder);
+            divisionMap.put(KEY_QUOTIENT, padZeros(quotient));
+            divisionMap.put(KEY_REMAINDER, padZeros(remainder));
             divisionMap.put(KEY_ISDIVZERO, Integer.toString(isDivByZero));
 
             return divisionMap;
@@ -208,8 +208,14 @@ public final class ArithmeticLogicUnit {
 	 */
 	public static String padZeros(String value)
 	{
-		return String.format("%016d", Long.parseLong(value));
+            return String.format("%016d", Long.parseLong(value));
 	}
+        
+        public static String padZeros32(String value)
+        {              
+            return String.format("%32s", value).replace(' ', '0');
+        }        
+        
 	/**
 	 * Logical AND of RegisterP and RegisterQ
 	 * @param p : which is a bitString

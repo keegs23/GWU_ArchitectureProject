@@ -14,7 +14,7 @@ public class MiniComputer extends Observable implements Runnable
 	public static final String MAX_MEMORY_ADDRESS = "0000011111111111";	//11 one bits = 2048 (decimal)
 	public static final String LOG_FILE_NAME = "trace-file.txt";
 	public static final String BOOT_PROGRAM_NAME = "BootProgram.txt";
-	public static final String PROGRAM_ONE_NAME = "Program1.txt";
+	public static final String PROGRAM_ONE_NAME = "Project1_bin.txt";
 	public static volatile ProgramCode currentProgram = ProgramCode.BOOTPROGRAM;
 	public final PrintWriter logger;
 	
@@ -1190,12 +1190,12 @@ public class MiniComputer extends Observable implements Runnable
             R3.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
 
             // Move the EA to the Internal Address Register (IAR)
-            IAR.setBitValue(ea);
+            IAR.setBitValue(ArithmeticLogicUnit.padZeros(ea.getValue()));
             
             // Store IAR contents into the PC
 	    // PC can only hold 12 bits so chop off the leading zeros
             String pc = IAR.getBitValue().getValue().substring(4, 16);
-            PC.setBitValue(pc);   
+            PC.setBitValue(ArithmeticLogicUnit.padZeros(pc));   
 	}
 	
 	/**
@@ -1205,12 +1205,12 @@ public class MiniComputer extends Observable implements Runnable
 	public void rfs(BitWord immed)
 	{
             // Set General Purpose Register 0 to Immed
-            R0.setBitValue(immed);
+            R0.setBitValue(new BitWord(ArithmeticLogicUnit.padZeros(immed.getValue())));
             
             // Store IAR contents into the PC
 	    // PC can only hold 12 bits so chop off the leading zeros
             String pc = R3.getBitValue().getValue().substring(4, 16);
-            PC.setBitValue(pc);
+            PC.setBitValue(ArithmeticLogicUnit.padZeros(pc));         
 	}
 	
 	/**
@@ -1296,6 +1296,11 @@ public class MiniComputer extends Observable implements Runnable
 		PC.setBitValue(pc);
 	}
         
+         /**
+	 * Multiply Register by Register
+	 * @param rx
+	 * @param ry
+	 */
         public void mlt(int rx, int ry) {
             Register register1 = getR(rx);
             Register register2 = getR(ry);
@@ -1309,8 +1314,8 @@ public class MiniComputer extends Observable implements Runnable
                 String product = ArithmeticLogicUnit.multiply(register1.getBitValue().getValue(), register2.getBitValue().getValue());
                 
                 //Get high and low order bits from product
-                BitWord highBits = new BitWord(product.substring(0, 15));
-                BitWord lowBits = new BitWord(product.substring(16, 31));
+                BitWord highBits = new BitWord(product.substring(0, 16));
+                BitWord lowBits = new BitWord(product.substring(16, 32));
                 
                 //rx contains high order bits
                 register1.setBitValue(highBits);
@@ -1320,6 +1325,11 @@ public class MiniComputer extends Observable implements Runnable
             }                
         } 
         
+         /**
+	 * Divide Register by Register
+	 * @param rx
+	 * @param ry
+	 */
         public void dvd(int rx, int ry) {
             Register register1 = getR(rx);
             Register register2 = getR(ry);
@@ -1345,6 +1355,11 @@ public class MiniComputer extends Observable implements Runnable
             }              
         }
         
+         /**
+	 * Equality of Register and Register
+	 * @param rx
+	 * @param ry
+	 */
         public void trr(int rx, int ry) {
             Register register1 = getR(rx);
             Register register2 = getR(ry);
@@ -1355,6 +1370,13 @@ public class MiniComputer extends Observable implements Runnable
                 setConditionCode(ConditionCode.EQUALORNOT, false);
         }        
         
+         /**
+	 * Shift Register by Count
+	 * @param register
+	 * @param arithmeticOrLogic
+         * @param leftOrRight
+         * @param shiftCount
+	 */
         public void src(int register, BitWord arithmeticOrLogic, BitWord leftOrRight, BitWord shiftCount)
     	{
             // Retrieve the specified register
@@ -1381,6 +1403,7 @@ public class MiniComputer extends Observable implements Runnable
             //String pc = IAR.getBitValue().getValue().substring(4, 16);
             //PC.setBitValue(pc);
     	}
+        
     	/**
     	 * Rotate Register by Count
     	 * @param register
@@ -1413,7 +1436,13 @@ public class MiniComputer extends Observable implements Runnable
             // PC can only hold 12 bits so chop off the leading zeros
             //String pc = IAR.getBitValue().getValue().substring(4, 16);
             //PC.setBitValue(pc);
-    	}	
+    	}
+
+        /**
+        * Logical and of Register and Register
+        * @param register
+        * @param register2
+        */
     	public void and(int register, int register2)
     	{
             // Retrieve the specified register
@@ -1444,6 +1473,11 @@ public class MiniComputer extends Observable implements Runnable
             //PC.setBitValue(pc);
     	}
     	
+        /**
+        * Logical or of Register and Register
+        * @param register
+        * @param register2
+        */        
     	public void orr(int register, int register2)
     	{
             // Retrieve the specified register
@@ -1474,6 +1508,10 @@ public class MiniComputer extends Observable implements Runnable
             //PC.setBitValue(pc);
     	}
     	
+        /**
+        * Logical not of Register and Register
+        * @param register
+        */        
     	public void not(int register)
     	{
             // Retrieve the specified register
@@ -1571,9 +1609,11 @@ public class MiniComputer extends Observable implements Runnable
 		CC.setBitValue(first + flag + last);
 	}        
 	
-	private void writeToCacheAndBuffer(String address, MemoryLocation memLoc) {
+	private void writeToCacheAndBuffer(String address, MemoryLocation memLoc) 
+	{
 		
 		// TODO: write to cache
+		logger.println("Writing to write buffer");
 		writeBuffer.addToBuffer(memLoc);
 		memory.put(address, memLoc);
 	}
@@ -1626,6 +1666,19 @@ public class MiniComputer extends Observable implements Runnable
                     cache.remove(0);
             }
         }
+	
+	private String isInCache(String address)
+	{
+		for (CacheLine cl : cache)
+		{
+			String cacheAddress = cl.getAddressTag().getValue();
+			if (cacheAddress.equals(address))
+			{
+				return cacheAddress;
+			}
+		}
+		return "";
+	}
 	
 	/* End Helpers */
 }
