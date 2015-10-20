@@ -65,7 +65,7 @@ STR 1,1,0,23(t)				MLT will have set R0 to 0 for the higher bits while R1 has th
 LDR 0,1,0,23(t)
 STR 3,1,0,23(t)				Add the R3 contents into R0 (passes through the Transfer Address)
 AMR 0,1,0,23(t)
-OUT 3,10					Output the R3 contents--GUI filters out non-digit inputs so don't have to worry if char is invalid
+OUT 3,1						Output the R3 contents--GUI filters out non-digit inputs so don't have to worry if char is invalid
 JMA 2,0,20(mis)				Unconditional jump back to MATCH INPUT START
 STR 0,1,0,28(m)				Store R0 contents into the Num to Match Address; MATCH INPUT END
 LDR 3,1,0,25(n)				Output newline
@@ -130,7 +130,7 @@ LDR 2,1,0,23(t)
 DVD 2,0						Divide the remainder (in R2) by 100 (in R0)
 JZ 1,3,0,14(p100p)			If R1 = 0 (no more leading zeros), jump to PRINT HUNDREDS PLACE
 JZ 2,3,0,16(g10p)			If the quotient (in R2) = 0, jump to GET TENS PLACE
-OUT 2,10					Output R2 contents; PRINT HUNDREDS PLACE
+OUT 2,1						Output R2 contents; PRINT HUNDREDS PLACE
 LDA 1,0,0,0					Load R1 with 0, to indicate there are no more leading zeros
 LDA 2,0,0,10				Load R2 with 10 (decimal); GET TENS PLACE	
 STR 3,1,0,23(t)				Move the remainder (in R3) to R2 (via Transfer Address)
