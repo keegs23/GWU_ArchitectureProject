@@ -500,6 +500,12 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	System.out.println("IPL BUTTON CLICKED!");
 		
     	cpu.loadROM();
+    	try{
+    		Thread.sleep(1000);
+    	}
+    	catch(InterruptedException ie) {
+    		System.out.println("could not sleep");
+    	}
     	populateRegisterTable();
     	populateMemoryTable();
     }
