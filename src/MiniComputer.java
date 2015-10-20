@@ -1192,10 +1192,15 @@ public class MiniComputer extends Observable implements Runnable
             // Move the EA to the Internal Address Register (IAR)
             IAR.setBitValue(ArithmeticLogicUnit.padZeros(ea.getValue()));
             
+            // Set R0 to the address of the first parameter
+            // Assumes the parameter list starts at the max memory address 2048 and goes backward
+            // until the end of the parameters is indicated by -17777
+            R0.setBitValue(MAX_MEMORY_ADDRESS);
+            
             // Store IAR contents into the PC
 	    // PC can only hold 12 bits so chop off the leading zeros
             String pc = IAR.getBitValue().getValue().substring(4, 16);
-            PC.setBitValue(ArithmeticLogicUnit.padZeros(pc));   
+            PC.setBitValue(pc);   
 	}
 	
 	/**
@@ -1210,7 +1215,7 @@ public class MiniComputer extends Observable implements Runnable
             // Store IAR contents into the PC
 	    // PC can only hold 12 bits so chop off the leading zeros
             String pc = R3.getBitValue().getValue().substring(4, 16);
-            PC.setBitValue(ArithmeticLogicUnit.padZeros(pc));         
+            PC.setBitValue(pc);         
 	}
 	
 	/**
@@ -1451,7 +1456,7 @@ public class MiniComputer extends Observable implements Runnable
 
             // Move the register contents into the Internal Result Register (IRR)?
             IRR[0].setBitValue(registerSelect1.getBitValue());
-            IRR[1].setBitValue(registerSelect1.getBitValue());
+            IRR[1].setBitValue(registerSelect2.getBitValue());
 
             // If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
             // Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
@@ -1486,7 +1491,7 @@ public class MiniComputer extends Observable implements Runnable
 
             // Move the register contents into the Internal Result Register (IRR)?
             IRR[0].setBitValue(registerSelect1.getBitValue());
-            IRR[1].setBitValue(registerSelect1.getBitValue());
+            IRR[1].setBitValue(registerSelect2.getBitValue());
 
             // If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
             // Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
