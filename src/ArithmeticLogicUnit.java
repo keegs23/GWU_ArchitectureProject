@@ -79,6 +79,8 @@ public final class ArithmeticLogicUnit {
 	{
 		// Currently only works when both are non-negative numbers
 		
+		final int base = 2; // 2 for binary
+		
 		String difference = "";
 		boolean borrow = false;
 		boolean isUnderflow = checkUnderflow(bitStr1, bitStr2);
@@ -117,20 +119,20 @@ public final class ArithmeticLogicUnit {
 				
 				if (borrow == true)
 				{
-					if (a == 1)
+					if (a > 0)
 					{
-						a = 0;
+						a--;
 						borrow = false;
 					}
 					else
 					{
-						a = 1;
+						a = base - 1;
 					}
 				}
 				
 				if (b > a)
 				{
-					a = a + 1;
+					a = a + base;
 					borrow = true;
 				}
 				
