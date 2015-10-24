@@ -514,12 +514,15 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	
     	System.out.println("LOAD FILE BUTTON CLICKED");
     	cpu.loadFromFile();
+    	populateMemoryTable();
     }
     
     private void runRun() {
     	
     	System.out.println("RUN BUTTON CLICKED");
     	cpu.runThroughMemory();
+    	populateRegisterTable();
+    	populateMemoryTable();
     }
     
     private void runHalt() {
