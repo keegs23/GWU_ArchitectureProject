@@ -82,7 +82,6 @@ public class MiniComputer extends Observable implements Runnable
 	private int prgmOneLength;
 	private String bootPrgmStart12Bits;
 	private String prgmOneStart12Bits;
-	private WriteBuffer writeBuffer;
 	
 	
 	public MiniComputer() throws FileNotFoundException
@@ -122,7 +121,6 @@ public class MiniComputer extends Observable implements Runnable
 		
 		bootPrgmStart12Bits = "";
 		prgmOneStart12Bits = "";
-		writeBuffer = new WriteBuffer(4);
 		
 		// Initialize IRR
 		for (int i = 0; i < IRR.length; i++)
@@ -1619,7 +1617,6 @@ public class MiniComputer extends Observable implements Runnable
 		
 		// TODO: write to cache
 		logger.println("Writing to write buffer");
-		writeBuffer.addToBuffer(memLoc);
 		memory.put(address, memLoc);
 	}
         
@@ -1671,19 +1668,6 @@ public class MiniComputer extends Observable implements Runnable
                     cache.remove(0);
             }
         }
-	
-	private String isInCache(String address)
-	{
-		for (CacheLine cl : cache)
-		{
-			String cacheAddress = cl.getAddressTag().getValue();
-			if (cacheAddress.equals(address))
-			{
-				return cacheAddress;
-			}
-		}
-		return "";
-	}
 	
 	/* End Helpers */
 }

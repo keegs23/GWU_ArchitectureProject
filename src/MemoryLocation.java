@@ -34,8 +34,14 @@ public class MemoryLocation
 	
 	public void setValue(String val)
 	{
-		value = new BitWord(val);
+		setValue(new BitWord(val));
 	}
+	
+	public void setValue(BitWord val)
+	{
+		value = val;
+	}
+	
 	public BitWord getAddress()
 	{
 		return address;

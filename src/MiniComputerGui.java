@@ -47,6 +47,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	private JPanel memoryPanel;
 	private JPanel consolePrinterPanel;
 	private JPanel consoleKeyboardPanel;
+	private JPanel cachePanel;
 	private JLabel[] indicators;
 	private JToggleButton[] toggles;
 	private JButton instructionLoadButton;
@@ -58,8 +59,10 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	private JButton singleStepButton;
 	private DefaultTableModel registerModel;
 	private DefaultTableModel memoryModel;
+	private DefaultTableModel cacheModel;
 	private JTable registerTable;
 	private JTable memoryTable;
+	private JTable cacheTable;
 	private JTextArea consolePrinterOutput;
 	private JTextField consoleKeyboardInput;
 	private JButton clearConsolePrinterButton;
@@ -79,6 +82,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		memoryPanel = new JPanel();
 		consolePrinterPanel = new JPanel();
 		consoleKeyboardPanel = new JPanel();
+		cachePanel = new JPanel();
 		indicators = new JLabel[INSTRUCTION_SIZE];
 		toggles = new JToggleButton[INSTRUCTION_SIZE];
 		instructionLoadButton = new JButton("Load Instruction");
@@ -90,8 +94,10 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		singleStepButton = new JButton("Single Step");
 		registerModel = new DefaultTableModel();
 		memoryModel = new DefaultTableModel();
+		cacheModel = new DefaultTableModel();
 		registerTable = new JTable(registerModel);
 		memoryTable = new JTable(memoryModel);
+		cacheTable = new JTable(cacheModel);
 		consolePrinterOutput = new JTextArea();
 		consoleKeyboardInput = new JTextField(10);
 		clearConsolePrinterButton = new JButton("Clear Output Screen");
@@ -120,9 +126,11 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
         addToMemoryPanel();
         addToConsolePrinterPanel();
         addToConsoleKeyboardPanel();
+        addToCachePanel();
         
         initRegisterTable();
         initMemoryTable();
+        initCacheTable();
         
         addToLeftPanel();
         addToCenterPanel();
@@ -146,6 +154,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
         memoryPanel.setLayout(new BorderLayout());
         consolePrinterPanel.setLayout(new BorderLayout());
         consoleKeyboardPanel.setLayout(new FlowLayout());
+        cachePanel.setLayout(new BorderLayout());
     }
     
     private void setPanelBorders() {
@@ -157,6 +166,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
         memoryPanel.setBorder(new TitledBorder("Memory in Use"));
         consolePrinterPanel.setBorder(new TitledBorder("Console Printer"));
         consoleKeyboardPanel.setBorder(new TitledBorder("Console Keyboard"));
+        cachePanel.setBorder(new TitledBorder("Cache"));
     }
     
     private void addToIplPanel() {
@@ -245,6 +255,13 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	consoleKeyboardPanel.add(consoleKeyboardInput);
     }
     
+    private void addToCachePanel() {
+    	
+    	cacheTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    	cacheTable.setPreferredScrollableViewportSize(new Dimension(0, 0));
+    	cachePanel.add(new JScrollPane(cacheTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+    }
+    
     private void initRegisterTable() {
     	
     	final String SIXTEEN_ZEROS = "0000000000000000";
@@ -283,6 +300,24 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
         memoryModel.addRow(new Object[]{"", ""});
     }
     
+    private void initCacheTable() {
+    	
+    	cacheModel.setRowCount(0);
+    	cacheModel.addColumn("Address Tag");
+    	
+    	int binaryInt;
+    	String temp;
+    	
+    	for (int i = 0; i < Cache.MAX_CACHE_SIZE; i++) {
+    		
+    		binaryInt = Integer.parseInt(Integer.toBinaryString(i));
+			temp = String.format("%04d", binaryInt);
+			cacheModel.addColumn(temp);
+    	}
+    	
+    	cacheModel.addRow(new Object[]{"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""});
+    }
+    
     private void addToLeftPanel() {
     	
     	leftPanel.add(iplPanel);
@@ -300,6 +335,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	
     	rightPanel.add(consolePrinterPanel);
     	rightPanel.add(consoleKeyboardPanel);
+    	rightPanel.add(cachePanel);
     }
     
     private void addToMainPanel() {
@@ -418,7 +454,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     
     private void runConsoleKeyboardInput() {
     	
-    	System.out.println("Inputting from console keyboard.");
+    	System.out.println("Ready to receive user input.");
     	
     	consoleKeyboardInput.setEnabled(true);
     	consoleKeyboardInput.requestFocusInWindow();
@@ -500,12 +536,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	System.out.println("IPL BUTTON CLICKED!");
 		
     	cpu.loadROM();
-    	try{
-    		Thread.sleep(1000);
-    	}
-    	catch(InterruptedException ie) {
-    		System.out.println("could not sleep");
-    	}
+    	sleep(1000);
     	populateRegisterTable();
     	populateMemoryTable();
     }
@@ -521,6 +552,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	
     	System.out.println("RUN BUTTON CLICKED");
     	cpu.runThroughMemory();
+    	sleep(1000);
     	populateRegisterTable();
     	populateMemoryTable();
     }
@@ -550,10 +582,21 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		
 		cpu.getPC().setBitValue(getPcInput());
 		cpu.singleStep();
+		sleep(200);
 		
 		populateRegisterTable();
 		populateMemoryTable();
 		populatePcInput();
+    }
+    
+    private void sleep(int sleepTime) {
+    	
+    	try{
+    		Thread.sleep(sleepTime);
+    	}
+    	catch(InterruptedException ie) {
+    		System.out.println("could not sleep");
+    	}
     }
     
     /* End ActionListener Methods */

@@ -49,6 +49,7 @@ public class CacheLine {
 		}
 	}
 	
+	// Chihoon TODO: fix this
 	public void addToBlock(MemoryLocation memLoc) {
 		
 		for (int i = 0; i < BLOCK_SIZE; i++) {
