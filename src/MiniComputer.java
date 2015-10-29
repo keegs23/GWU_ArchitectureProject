@@ -74,6 +74,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * Size 16
 	 */
 	private Vector<CacheLine> cache;
+	private Cache theCache; // this will replace cache once all cache methods are moved to Cache class
 	
 	private IOObject inputObject;
 	private IOObject outputObject;
@@ -110,6 +111,7 @@ public class MiniComputer extends Observable implements Runnable
 		// Initialize Memory and Cache
 		memory = new TreeMap<String, MemoryLocation>();
 		cache = new Vector<CacheLine>();
+		theCache = new Cache();
 		
 		// Initialize I/O transfer objects
 		inputObject = new IOObject();
@@ -221,6 +223,11 @@ public class MiniComputer extends Observable implements Runnable
 	public Map<String, MemoryLocation> getMemory()
 	{
 		return memory;
+	}
+	
+	public Cache getCache()
+	{
+		return theCache;
 	}
 	
 	public boolean[] getRegisterIsInt()

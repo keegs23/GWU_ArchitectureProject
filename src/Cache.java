@@ -17,7 +17,7 @@ public class Cache {
 		writeBuffer = new LinkedList<MemoryLocation>();
 	}
 	
-	public Vector<CacheLine> getCacheMemory() {
+	public Vector<CacheLine> getCache() {
 		return cache;
 	}
 	
@@ -25,7 +25,7 @@ public class Cache {
 		return writeBuffer;
 	}
 	
-	public void setCacheMemory(Vector<CacheLine> newCache) {
+	public void setCache(Vector<CacheLine> newCache) {
 		
 		if (newCache.size() == MAX_CACHE_SIZE) {
 			cache = newCache;

@@ -378,17 +378,16 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	return sb.toString();
     }
     
-    public void populateRegisterRow(String registerName, Register register) {
+    /* Populate Table Methods */
+    
+    public void populateAllTables() {
     	
-    	for (int i = 0; i < registerModel.getRowCount(); i++) {
-    		if (registerModel.getValueAt(i, 0).equals(registerName)) {
-    			registerModel.setValueAt(register.getBitValue().getValue(), i, 1);
-    			break;
-    		}
-    	}
+    	populateRegisterTable();
+    	populateMemoryTable();
+    	populateCacheTable();
     }
     
-    public void populateRegisterTable() {
+    private void populateRegisterTable() {
     	
     	registerModel.setRowCount(0);
     	registerModel.addRow(new Object[]{"PC", cpu.getPC().getBitValue().getValue()});
@@ -412,7 +411,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
         registerModel.addRow(new Object[]{"X3", cpu.getX(3).getBitValue().getValue()});
     }
     
-    public void populateMemoryTable() {
+    private void populateMemoryTable() {
     	
     	memoryModel.setRowCount(0);
         
@@ -424,6 +423,34 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     		memoryModel.addRow(new Object[]{address, value});
     	}
     }
+    
+    private void populateCacheTable() {
+    	
+    	cacheModel.setRowCount(0);
+    	
+    	for (CacheLine cl : cpu.getCache().getCache()) {
+    		cacheModel.addRow(new Object[]{
+    				cl.getAddressTag(), 
+    				cl.getBlock()[0],
+    				cl.getBlock()[1],
+    				cl.getBlock()[2],
+    				cl.getBlock()[3],
+    				cl.getBlock()[4],
+    				cl.getBlock()[5],
+    				cl.getBlock()[6],
+    				cl.getBlock()[7],
+    				cl.getBlock()[8],
+    				cl.getBlock()[9],
+    				cl.getBlock()[10],
+    				cl.getBlock()[11],
+    				cl.getBlock()[12],
+    				cl.getBlock()[13],
+    				cl.getBlock()[14],
+    				cl.getBlock()[15],});
+    	}
+    }
+    
+    /* End Populate Table Methods */
     
     /* Observer Methods */
     
@@ -537,15 +564,14 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		
     	cpu.loadROM();
     	sleep(1000);
-    	populateRegisterTable();
-    	populateMemoryTable();
+    	populateAllTables();
     }
     
     private void runLoadFile() {
     	
     	System.out.println("LOAD FILE BUTTON CLICKED");
     	cpu.loadFromFile();
-    	populateMemoryTable();
+    	populateAllTables();
     }
     
     private void runRun() {
@@ -553,8 +579,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	System.out.println("RUN BUTTON CLICKED");
     	cpu.runThroughMemory();
     	sleep(1000);
-    	populateRegisterTable();
-    	populateMemoryTable();
+    	populateAllTables();
     }
     
     private void runHalt() {
@@ -571,7 +596,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		System.out.println(getInstructionWord());
 		
 		cpu.loadToggleInstruction(getInstructionWord());
-		populateMemoryTable();
+		populateAllTables();
 		//System.out.println(cpu.getMemory().get(MemoryLocation.RESERVED_ADDRESS_TOGGLE_INSTRUCTION).getValue().getValue());
     }
     
@@ -584,8 +609,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		cpu.singleStep();
 		sleep(200);
 		
-		populateRegisterTable();
-		populateMemoryTable();
+		populateAllTables();
 		populatePcInput();
     }
     
@@ -685,8 +709,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	cpu.inProcessing(inputInt);
     	validKeyClicked = true;
     	consoleKeyboardInput.setEnabled(false);
-    	populateRegisterTable();
-    	populateMemoryTable();
+    	populateAllTables();
     }
     
     /* End KeyListener Methods */
