@@ -1,0 +1,84 @@
+X1 stores _, the start of the character array for the file input; PROGRAM 2 START (this instruction stored at address p=?)
+Memory address i=? stores the address of the current array element being processed AKA File Input Character Address
+X2 stores _, the location of the first character of the word to find 
+Memory address x=? stores the address of the AKA Search Word Character Address
+Memory address b=? is the backup location for a register
+R0 stores the sentence count while searching (starts at 1)
+R1 stores the word count within a sentence while searching (starts at 1)
+R2 stores the current file input character while inputting file/search word character while inputting search word/file input character while searching
+R3 stores the EOF ASCII code (26) while inputting file/Enter key ASCII code (13) while inputting search word/current search word character while searching (check the EQUALORNOT bit for whether the file input character and search word character match)
+Output F
+Output I
+Output L
+Output E
+Output space (ASCII=?)
+Output I
+Output N
+Output P
+Output U
+Output T
+Output :
+Output newline (ASCII=10)
+Read character into R2; FILE INPUT LOOP START
+Test if the character (R3) is the EOF character (assumes file has exactly 6 sentences, period is only used to denote end of sentence)
+If EQUALORNOT is true, character is EOF, so jump to FILE INPUT LOOP END
+Else, store the character in the location indirect addressed by the File Input Character Address
+Output the character in R3
+Increment the File Input Character Address by loading the address into R1
+Then adding 1 (Immed) to R1
+Then storing R1 contents into the File Input Character Address
+Unconditional jump to FILE INPUT LOOP START
+Store the EOF character (R3) into the File Input Character Address; FILE INPUT LOOP END
+Output newline
+Output newline
+Output T
+Output Y
+Output P
+Output E
+Output space
+Output W
+Output O
+Output R
+Output D
+Output space
+Output T
+Output O
+Output space
+Output F
+Output I
+Output N
+Output D
+Output newline
+Output newline
+Set R3 to the Enter key ASCII (13)
+Read character into R2; SEARCH WORD INPUT LOOP START
+Test if the character (R3) is the Enter key
+If EQUALORNOT is true, character is Enter, so jump to SEARCH WORD INPUT LOOP END
+Else, store the character in the location indirect addressed by the Search Word Character Address
+Increment the Search Word Character Address by loading the address into R1
+Then adding 1 (Immed) to R1
+Then storing R1 contents into the Search Word Character Address
+Unconditional jump to SEARCH WORD INPUT LOOP START
+Store the Enter character (R3) into the Search Word Character Address; SEARCH WORD INPUT LOOP END
+Set R1 to 1
+Reset contents of File Input Character Address to the start of the array (stored in X1)
+Reset contents of Search Word Character Address to the start of the word (stored in X2)
+Load file input character into R2; FIND LOOP START
+
+
+
+
+
+Load search word character into R3; GET SEARCH WORD CHAR
+Subtract from R3 the Enter key ASCII code (13)
+If UNDERFLOW, R3 will still have the original character code, so jump to COMPARE CHARS
+Else if R3 = 0, jump to WORD FOUND
+Else add the Enter key ASCII code (13) back to R3 to get the original character code again
+; COMPARE CHARS
+
+
+
+
+
+
+Halt; PROGRAM 2 END
