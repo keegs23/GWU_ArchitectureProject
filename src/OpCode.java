@@ -108,18 +108,34 @@ public class OpCode
 	 * Jump If Greater Than or Equal To
 	 */
 	public static final String JGE = "001111";	//17
+        
 	/**
-	 * AND
+	 * Multiply Register by Register
 	 */
-	public static final String AND = "010111";	//23
+	public static final String MLT = "010000";	//20    
+        
 	/**
-	 * OR
+	 * Divide Register by Register
 	 */
-	public static final String ORR = "011000";	//24
+	public static final String DVD = "010001";	//21   
+        
 	/**
-	 * NOT
+	 * Test the Equality of Register and Register
 	 */
-	public static final String NOT = "011001";	//25
+	public static final String TRR = "010010";	//22   
+	
+	/**
+	 * Bitwise AND
+	 */
+	public static final String AND = "010011";	//23
+	/**
+	 * Bitwise OR
+	 */
+	public static final String ORR = "010100";	//24
+	/**
+	 * Bitwise NOT
+	 */
+	public static final String NOT = "010101";	//25
 	/**
 	 * Shift Register by Count
 	 */
@@ -128,4 +144,5 @@ public class OpCode
 	 * Rotate Register by Count
 	 */
 	public static final String RRC = "100000";	//32
+
 }

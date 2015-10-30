@@ -7,6 +7,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.Observable;
@@ -27,9 +29,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
-public class MiniComputerGui extends JFrame implements ActionListener, Observer {
+public class MiniComputerGui extends JFrame implements ActionListener, Observer, KeyListener {
 
-	protected static volatile boolean inputButtonClicked = false;
+	protected static volatile boolean validKeyClicked = false;
+	protected static volatile boolean haltButtonClicked = false;
 	private static final long serialVersionUID = -8217933506339143771L;
 	private static final int INSTRUCTION_SIZE = 16;	
 	private MiniComputer cpu;
@@ -44,20 +47,26 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
 	private JPanel memoryPanel;
 	private JPanel consolePrinterPanel;
 	private JPanel consoleKeyboardPanel;
+	private JPanel cachePanel;
 	private JLabel[] indicators;
 	private JToggleButton[] toggles;
 	private JButton instructionLoadButton;
 	private JTextField pcInput;
 	private JButton iplButton;
+	private JButton loadFileButton;
+	private JButton runButton;
 	private JButton haltButton;
 	private JButton singleStepButton;
 	private DefaultTableModel registerModel;
 	private DefaultTableModel memoryModel;
+	private DefaultTableModel cacheModel;
 	private JTable registerTable;
 	private JTable memoryTable;
+	private JTable cacheTable;
 	private JTextArea consolePrinterOutput;
-	private JTextArea consoleKeyboardInput;
-	private JButton consoleKeyboardButton;
+	private JTextField consoleKeyboardInput;
+	private JButton clearConsolePrinterButton;
+	private String consoleKeyboardInputHolder;
 
 	public MiniComputerGui() throws FileNotFoundException {
 
@@ -73,20 +82,26 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
 		memoryPanel = new JPanel();
 		consolePrinterPanel = new JPanel();
 		consoleKeyboardPanel = new JPanel();
+		cachePanel = new JPanel();
 		indicators = new JLabel[INSTRUCTION_SIZE];
 		toggles = new JToggleButton[INSTRUCTION_SIZE];
 		instructionLoadButton = new JButton("Load Instruction");
 		pcInput = new JTextField(10);
 		iplButton = new JButton("IPL");
+		loadFileButton = new JButton("Load Prgm 1");
+		runButton = new JButton("Run");
 		haltButton = new JButton("Halt");
 		singleStepButton = new JButton("Single Step");
 		registerModel = new DefaultTableModel();
 		memoryModel = new DefaultTableModel();
+		cacheModel = new DefaultTableModel();
 		registerTable = new JTable(registerModel);
 		memoryTable = new JTable(memoryModel);
+		cacheTable = new JTable(cacheModel);
 		consolePrinterOutput = new JTextArea();
-		consoleKeyboardInput = new JTextArea();
-		consoleKeyboardButton = new JButton("Enter");
+		consoleKeyboardInput = new JTextField(10);
+		clearConsolePrinterButton = new JButton("Clear Output Screen");
+		consoleKeyboardInputHolder = "";
 		
 		initUI();
     }
@@ -111,9 +126,11 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
         addToMemoryPanel();
         addToConsolePrinterPanel();
         addToConsoleKeyboardPanel();
+        addToCachePanel();
         
         initRegisterTable();
         initMemoryTable();
+        initCacheTable();
         
         addToLeftPanel();
         addToCenterPanel();
@@ -136,7 +153,8 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
         registerPanel.setLayout(new BorderLayout());
         memoryPanel.setLayout(new BorderLayout());
         consolePrinterPanel.setLayout(new BorderLayout());
-        consoleKeyboardPanel.setLayout(new BorderLayout());
+        consoleKeyboardPanel.setLayout(new FlowLayout());
+        cachePanel.setLayout(new BorderLayout());
     }
     
     private void setPanelBorders() {
@@ -148,18 +166,29 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
         memoryPanel.setBorder(new TitledBorder("Memory in Use"));
         consolePrinterPanel.setBorder(new TitledBorder("Console Printer"));
         consoleKeyboardPanel.setBorder(new TitledBorder("Console Keyboard"));
+        cachePanel.setBorder(new TitledBorder("Cache"));
     }
     
     private void addToIplPanel() {
     	
     	final int BUTTON_WIDTH = 150;
-    	final int BUTTON_HEIGHT = 75;
-    	final int FONT_SIZE = 30;
+    	final int BUTTON_HEIGHT = 35;
+    	final int FONT_SIZE = 20;
     	
     	iplButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
     	iplButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
     	iplButton.addActionListener(this);
         iplPanel.add(iplButton);
+        
+        loadFileButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+    	loadFileButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
+    	loadFileButton.addActionListener(this);
+        iplPanel.add(loadFileButton);
+        
+        runButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+    	runButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
+    	runButton.addActionListener(this);
+        iplPanel.add(runButton);
         
         haltButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
     	haltButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
@@ -213,18 +242,24 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     	consolePrinterOutput.setEditable(false);
     	consolePrinterOutput.setLineWrap(true);
     	consolePrinterOutput.setWrapStyleWord(true);
-    	consolePrinterPanel.add(new JScrollPane(consolePrinterOutput));
+    	consolePrinterPanel.add(new JScrollPane(consolePrinterOutput), BorderLayout.CENTER);
+    	
+    	clearConsolePrinterButton.addActionListener(this);
+    	consolePrinterPanel.add(clearConsolePrinterButton, BorderLayout.SOUTH);
     }
     
     private void addToConsoleKeyboardPanel() {
     	
-    	consoleKeyboardInput.setLineWrap(true);
-    	consoleKeyboardInput.setWrapStyleWord(true);
-    	consoleKeyboardPanel.add(new JScrollPane(consoleKeyboardInput), BorderLayout.CENTER);
+    	consoleKeyboardInput.setEnabled(false);
+    	consoleKeyboardInput.addKeyListener(this);
+    	consoleKeyboardPanel.add(consoleKeyboardInput);
+    }
+    
+    private void addToCachePanel() {
     	
-    	consoleKeyboardButton.setEnabled(false);
-    	consoleKeyboardButton.addActionListener(this);
-    	consoleKeyboardPanel.add(consoleKeyboardButton, BorderLayout.SOUTH);
+    	cacheTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    	cacheTable.setPreferredScrollableViewportSize(new Dimension(0, 0));
+    	cachePanel.add(new JScrollPane(cacheTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
     }
     
     private void initRegisterTable() {
@@ -265,6 +300,24 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
         memoryModel.addRow(new Object[]{"", ""});
     }
     
+    private void initCacheTable() {
+    	
+    	cacheModel.setRowCount(0);
+    	cacheModel.addColumn("Address Tag");
+    	
+    	int binaryInt;
+    	String temp;
+    	
+    	for (int i = 0; i < Cache.MAX_CACHE_SIZE; i++) {
+    		
+    		binaryInt = Integer.parseInt(Integer.toBinaryString(i));
+			temp = String.format("%04d", binaryInt);
+			cacheModel.addColumn(temp);
+    	}
+    	
+    	cacheModel.addRow(new Object[]{"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""});
+    }
+    
     private void addToLeftPanel() {
     	
     	leftPanel.add(iplPanel);
@@ -282,6 +335,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     	
     	rightPanel.add(consolePrinterPanel);
     	rightPanel.add(consoleKeyboardPanel);
+    	rightPanel.add(cachePanel);
     }
     
     private void addToMainPanel() {
@@ -299,6 +353,14 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     
     public void populatePcInput() {
     	pcInput.setText(cpu.getPC().getBitValue().getValue());
+    }
+    
+    public void clearConsoleKeyboard() {
+    	consoleKeyboardInput.setText("");
+    }
+    
+    public void clearConsolePrinter() {
+    	consolePrinterOutput.setText("");
     }
     
     public String getInstructionWord() {
@@ -365,6 +427,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     
     /* Observer Methods */
     
+    @Override
     public void update(Observable o, Object io) {
     	
     	IOObject ioObject = null;
@@ -373,7 +436,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     		ioObject = (IOObject) io;
     	}
     	catch (Exception e) {
-    		System.out.println("Exception: " + e.getMessage());
+    		System.err.println("Exception: " + e.getMessage());
     	}
     	
     	if (ioObject.getOpCode().equals(OpCode.IN) 
@@ -391,9 +454,10 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     
     private void runConsoleKeyboardInput() {
     	
-    	System.out.println("Inputting from console keyboard.");
+    	System.out.println("Ready to receive user input.");
     	
-    	consoleKeyboardButton.setEnabled(true);
+    	consoleKeyboardInput.setEnabled(true);
+    	consoleKeyboardInput.requestFocusInWindow();
     	
     }
     
@@ -402,14 +466,28 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     	System.out.println("Outputting to console printer.");
     	
     	String registerValue = cpu.getR(registerId).getBitValue().getValue();
+    	boolean regIsInt = cpu.getRegisterIsInt()[registerId];
     	
-		consolePrinterOutput.append(registerValue);
+    	if (regIsInt) {
+    		// Currently, once a register is set to hold an int, it should always hold an int.
+    		// TODO: Will need to change this later
+    		if (registerValue.equals(BitWord.VALUE_ENTER)) {
+    			// Print nothing for Enter key
+    		} else if (registerValue.equals(BitWord.VALUE_NEWLINE)) {
+    			consolePrinterOutput.append("\n");
+    		} else {
+    			consolePrinterOutput.append(Integer.parseInt(registerValue, 2) + "");
+    		}
+    	} else {
+    		consolePrinterOutput.append(DataConversion.binaryToText(registerValue));
+    	}
     }
     
     /* End Observer Methods */
     
     /* ActionListener Methods */
     
+    @Override
     public void actionPerformed(ActionEvent ae) {
     	
     	Object src = ae.getSource();
@@ -435,14 +513,18 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     	else { // else check the other buttons
     		if (src == iplButton) {
         		runIpl();
+    		} else if (src == loadFileButton) {
+    			runLoadFile();
+    		} else if (src == runButton) {
+    			runRun();
     		} else if (src == haltButton) {
     			runHalt();
         	} else if (src == instructionLoadButton) {
         		runInstructionLoad();
         	} else if (src == singleStepButton) {
         		runSingleStep();
-        	} else if (src == consoleKeyboardButton) {
-        		runConsoleKeyboard();
+        	} else if (src == clearConsolePrinterButton) {
+        		clearConsolePrinter();
         	} else {
         		System.out.println("ERROR: UNKNOWN EVENT SOURCE!");
         	}
@@ -454,6 +536,23 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     	System.out.println("IPL BUTTON CLICKED!");
 		
     	cpu.loadROM();
+    	sleep(1000);
+    	populateRegisterTable();
+    	populateMemoryTable();
+    }
+    
+    private void runLoadFile() {
+    	
+    	System.out.println("LOAD FILE BUTTON CLICKED");
+    	cpu.loadFromFile();
+    	populateMemoryTable();
+    }
+    
+    private void runRun() {
+    	
+    	System.out.println("RUN BUTTON CLICKED");
+    	cpu.runThroughMemory();
+    	sleep(1000);
     	populateRegisterTable();
     	populateMemoryTable();
     }
@@ -462,7 +561,8 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
     	
     	System.out.println("HALT BUTTON CLICKED!");
     	
-    	//TODO
+    	haltButtonClicked = true;
+    	consoleKeyboardInput.setEnabled(false);
     }
     
     private void runInstructionLoad() {
@@ -482,23 +582,114 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer 
 		
 		cpu.getPC().setBitValue(getPcInput());
 		cpu.singleStep();
+		sleep(200);
 		
 		populateRegisterTable();
 		populateMemoryTable();
 		populatePcInput();
     }
     
-    private void runConsoleKeyboard() {
+    private void sleep(int sleepTime) {
     	
-    	System.out.println("ENTER BUTTON CLICKED!");
-
-    	cpu.inProcessing(consoleKeyboardInput.getText());
-    	
-    	inputButtonClicked = true;
-    	consoleKeyboardButton.setEnabled(false);
+    	try{
+    		Thread.sleep(sleepTime);
+    	}
+    	catch(InterruptedException ie) {
+    		System.out.println("could not sleep");
+    	}
     }
     
     /* End ActionListener Methods */
+    
+    /* KeyListener Methods */
+    
+    @Override
+    public void keyPressed(KeyEvent ke) {
+    	
+    	int keyCode = ke.getKeyCode();
+    	
+    	switch (keyCode) {
+    	
+	    	case KeyEvent.VK_ENTER:
+	    	case KeyEvent.VK_0:
+	    	case KeyEvent.VK_1:
+	    	case KeyEvent.VK_2:
+	    	case KeyEvent.VK_3:
+	    	case KeyEvent.VK_4:
+	    	case KeyEvent.VK_5:
+	    	case KeyEvent.VK_6:
+	    	case KeyEvent.VK_7:
+	    	case KeyEvent.VK_8:
+	    	case KeyEvent.VK_9:
+	    		break;
+	    	default:
+	    		ke.consume();
+	    		break;
+    	}
+    }
+    
+    @Override
+    public void keyReleased(KeyEvent ke) {
+    	
+    	int keyCode = ke.getKeyCode();
+    	
+    	switch (keyCode) {
+    	
+	    	case KeyEvent.VK_ENTER:
+	    		System.out.println("Enter button pressed");
+	    		
+	    		if (!consoleKeyboardInput.getText().equals("")) {
+	    			int inputInt = Integer.parseInt(BitWord.VALUE_ENTER, 2);
+	    			processKeyClick(inputInt);
+		    		clearConsoleKeyboard();
+		    		consoleKeyboardInputHolder = "";
+		    		
+	    		} else {
+	    			System.out.println("Keyboard Input is blank!");
+	    		}
+	    		break;
+	    		
+	    	case KeyEvent.VK_0:
+	    	case KeyEvent.VK_1:
+	    	case KeyEvent.VK_2:
+	    	case KeyEvent.VK_3:
+	    	case KeyEvent.VK_4:
+	    	case KeyEvent.VK_5:
+	    	case KeyEvent.VK_6:
+	    	case KeyEvent.VK_7:
+	    	case KeyEvent.VK_8:
+	    	case KeyEvent.VK_9:
+	    		System.out.println("A number was pressed");
+	    		consoleKeyboardInputHolder = consoleKeyboardInput.getText();
+	    		
+	    		try {
+	    			int inputInt = Integer.parseInt(consoleKeyboardInputHolder);
+	    			processKeyClick(inputInt);
+	    			
+	    		} catch (NumberFormatException nfe) {
+	    			System.err.println("NumberFormatException: " + nfe.getMessage());
+	    		}
+	    		break;
+	    		
+	    	default:
+	    		consoleKeyboardInput.setText(consoleKeyboardInputHolder);
+	    		break;
+    	}
+    }
+    
+    @Override
+    public void keyTyped(KeyEvent ke) {}
+    
+    private void processKeyClick(int inputInt) {
+    	
+    	cpu.inProcessing(inputInt);
+    	validKeyClicked = true;
+    	consoleKeyboardInput.setEnabled(false);
+    	populateRegisterTable();
+    	populateMemoryTable();
+    }
+    
+    /* End KeyListener Methods */
 
     public static void main(String[] args) {
 

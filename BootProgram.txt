@@ -1,6 +1,6 @@
-0000110100010001	LDA 1,0,0,10001		Load R1 with value 10001 (binary)
-0000100100010000	STR 1,0,0,10000		Store R1 contents (10001) into memory address 10000 (binary)
-0000011000010000	LDR 2,0,0,10000		Load R2 with value (10001) at memory address 10000 (binary)
-1000010001010000	LDX 1,0,0,10000		Load X1 with value (10001) at memory address 10000 (binary)
-1000100001010100	STX 1,0,0,10100		Store X1 contents (10001) into memory address 10100 (binary)
-0000101001000001	STR 2,1,0,00001		Store R2 contents (10001) into memory address 10010 (10001 from X1 + 00001) (binary)
+0001100100011111	AIR 1,31			Add 31 to R1 // R1 Should be 31
+0001100100011111	AIR 1,31			Add 31 to R1 // R1 should be 62
+0001110100001010	SIR 1,10			Subtract 10 from R1 // R1 should be 52
+0000100100010110	STR 1,0,0,22		Store R1 into memory location 22 // 10110 should be 52
+0001000100010110	AMR 1,0,0,22		Add value at location 22 to R1 // should be 104
+0001010100010110	SMR 1,0,0,22		Subtract value at location 22 from R1 // should be 52

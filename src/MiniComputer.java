@@ -9,10 +9,13 @@ import java.util.Observable;
 import java.util.TreeMap;
 import java.util.Vector;
 
-public class MiniComputer extends Observable
+public class MiniComputer extends Observable implements Runnable
 {
 	public static final String MAX_MEMORY_ADDRESS = "0000011111111111";	//11 one bits = 2048 (decimal)
 	public static final String LOG_FILE_NAME = "trace-file.txt";
+	public static final String BOOT_PROGRAM_NAME = "BootProgram.txt";
+	public static final String PROGRAM_ONE_NAME = "Project1_bin.txt";
+	public static volatile ProgramCode currentProgram = ProgramCode.BOOTPROGRAM;
 	public final PrintWriter logger;
 	
 	/**
@@ -74,6 +77,12 @@ public class MiniComputer extends Observable
 	
 	private IOObject inputObject;
 	private IOObject outputObject;
+	private boolean[] registerIsInt;
+	private int bootPrgmLength;
+	private int prgmOneLength;
+	private String bootPrgmStart12Bits;
+	private String prgmOneStart12Bits;
+	
 	
 	public MiniComputer() throws FileNotFoundException
 	{
@@ -106,10 +115,25 @@ public class MiniComputer extends Observable
 		inputObject = new IOObject();
 		outputObject = new IOObject();
 		
+		// Initialize program lengths
+		bootPrgmLength = 0;
+		prgmOneLength = 0;
+		
+		bootPrgmStart12Bits = "";
+		prgmOneStart12Bits = "";
+		
 		// Initialize IRR
 		for (int i = 0; i < IRR.length; i++)
 		{
 			IRR[i] = new Register(16);
+		}
+		
+		// Initialize register flags
+		// true for int and false for ascii
+		registerIsInt = new boolean[4];
+		for (int i = 0; i < registerIsInt.length; i++)
+		{
+			registerIsInt[i] = false;
 		}
 	}
 	
@@ -199,6 +223,15 @@ public class MiniComputer extends Observable
 		return memory;
 	}
 	
+	public boolean[] getRegisterIsInt()
+	{
+		return registerIsInt;
+	}
+	
+	public void setRegisterIsInt(int regId, boolean isInt)
+	{
+		registerIsInt[regId] = isInt;
+	}
 	
 	/**
 	 * Loads the ROM contents.
@@ -206,10 +239,28 @@ public class MiniComputer extends Observable
 	 */
 	public void loadROM()
 	{
+		currentProgram = ProgramCode.BOOTPROGRAM;
+		loadToMemory(BOOT_PROGRAM_NAME, MemoryLocation.ADDRESS_BOOT_PRGM_START);
+		runThroughMemory();
+		
+	}
+	
+	/**
+	 * Loads the contents of the program.
+	 * Called when Load File button is pressed.
+	 */
+	public void loadFromFile()
+	{
+		currentProgram = ProgramCode.PROGRAMONE;
+		loadToMemory(PROGRAM_ONE_NAME, MemoryLocation.ADDRESS_PRGM_ONE_START);
+	}
+	
+	private void loadToMemory(String fileName, String startAddress)
+	{
 		// Read in and parse rom.txt 
 		// rom.txt is formatted so that each instruction is on a separate line, first 16 characters of each line are the instruction, rest are comments
 		// Make sure to only read the first 16 characters of each row (i.e. ignore the comments)
-		File file = new File("BootProgram.txt");
+		File file = new File(fileName);
 		try 
 		{
 			FileInputStream fileIn = new FileInputStream(file);
@@ -217,14 +268,14 @@ public class MiniComputer extends Observable
 			//Construct BufferedReader from InputStreamReader
 			BufferedReader br = new BufferedReader(new InputStreamReader(fileIn));
 		 
-			int bootPrgmLength = 0;
+			int prgmLength = 0;
 			String line = null;
-			String bootPrgmStart16Bits = MemoryLocation.ADDRESS_BOOT_PRGM_START;
-			String address = bootPrgmStart16Bits;
+			String prgmStart16Bits = startAddress;
+			String address = prgmStart16Bits;
 			while ((line = br.readLine()) != null) {
 				// Read the 16-bit instruction
 				String instruction = line.substring(0, 16);
-				bootPrgmLength++;
+				prgmLength++;
 				
 				// Store the instruction in memory
 				// Since technically the ROM is already supposed to be in the computer,
@@ -239,24 +290,69 @@ public class MiniComputer extends Observable
 			
 			br.close();
 			
-			// Execute boot program (mostly load/store)
-			// PC can only hold 12 bits, so chop off the leading zeros
-			String bootPrgmStart12Bits = bootPrgmStart16Bits.substring(4, 16);
-			PC.setBitValue(bootPrgmStart12Bits);
-			for(int k = 1; k <= bootPrgmLength; k++)
+			if (currentProgram.equals(ProgramCode.BOOTPROGRAM))
 			{
-				singleStep();
+				bootPrgmLength = prgmLength;
+				bootPrgmStart12Bits = prgmStart16Bits.substring(4, 16);
+			} 
+			else if (currentProgram.equals(ProgramCode.PROGRAMONE))
+			{
+				prgmOneLength = prgmLength;
+				prgmOneStart12Bits = prgmStart16Bits.substring(4, 16);
 			}
-			
-			// Set PC back to the start of the boot program
-			// PC can only hold 12 bits, so chop off the leading zeros
-			PC.setBitValue(bootPrgmStart12Bits);
 		}
 		catch(Exception ex)
 		{
 			// TODO: Handle exceptions
 			System.out.println(ex);
 		}
+	}
+	
+	public void runThroughMemory() {
+		
+		Thread thread = new Thread(this);
+		thread.start();
+	}
+	
+	/*
+	 * Overriden method from interface Runnable
+	 * Called when thread.start() is called
+	 * Used for creating a new thread in the program so the GUI doesn't freeze when waiting for user input
+	 */
+	@Override
+	public void run() {
+		
+		String prgmStart12Bits = "";
+		int prgmLength = 0;
+		
+		if (currentProgram == ProgramCode.BOOTPROGRAM)
+		{
+			prgmStart12Bits = bootPrgmStart12Bits;
+			prgmLength = bootPrgmLength;
+		}
+		else if (currentProgram == ProgramCode.PROGRAMONE)
+		{
+			prgmStart12Bits = prgmOneStart12Bits;
+			prgmLength = prgmOneLength;
+		}
+		
+		// Execute boot program (mostly load/store)
+		// PC can only hold 12 bits, so chop off the leading zeros
+		PC.setBitValue(prgmStart12Bits);
+		for(int k = 1; k <= prgmLength; k++)
+		{
+			if (MiniComputerGui.haltButtonClicked)
+			{
+				break;
+			}
+			singleStep();
+		}
+		
+		MiniComputerGui.haltButtonClicked = false;
+		
+		// Set PC back to the start of the boot program
+		// PC can only hold 12 bits, so chop off the leading zeros
+		PC.setBitValue(prgmStart12Bits);
 	}
 	
 	public void loadToggleInstruction(String instruction)
@@ -277,36 +373,39 @@ public class MiniComputer extends Observable
     	boolean isIndirectAddress; 
     	BitWord address; 
     	BitWord immediate;
+    	BitWord devId;
     	ConditionCode conditionCode;	//in decimal
-    	String arithmeticOrLogic; 
-    	String leftOrRight; 
-    	String shiftCount;
+        int rx; // in decimal
+        int ry; // in decimal
+        BitWord arithmeticOrLogic;
+        BitWord leftOrRight;
+        BitWord shiftCount;        
 		
-		// Transfer PC value to MAR
-		MAR.setBitValue(ArithmeticLogicUnit.padZeros(PC.getBitValue().getValue()));
-		
-		// TODO: Check if address is valid
-		
-		// Fetch word from memory located at address specified by MAR into MBR
-		if(memory.containsKey(MAR.getBitValue().getValue()))
-		{
-			MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
-		}
-		else
-		{			
-			MBR.setBitValue(BitWord.VALUE_DEFAULT);
-		}
-		
-		// Load instruction from MBR into IR
-		IR.setBitValue(MBR.getBitValue());
-		
-		// Parse instruction
-		BitInstruction instruction = new BitInstruction(IR.getBitValue());
-		Map<String, BitWord> instructionParse = instruction.ParseInstruction();
-		
-		// Switch-case on opcode to call the appropriate instruction method
-		boolean isTransferInstruction = false;
-		BitWord opcode = instructionParse.get(BitInstruction.KEY_OPCODE);
+        // Transfer PC value to MAR
+        MAR.setBitValue(ArithmeticLogicUnit.padZeros(PC.getBitValue().getValue()));
+
+        // TODO: Check if address is valid
+
+        // Fetch word from memory located at address specified by MAR into MBR
+        if(memory.containsKey(MAR.getBitValue().getValue()))
+        {
+                MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
+        }
+        else
+        {			
+                MBR.setBitValue(BitWord.VALUE_DEFAULT);
+        }
+
+        // Load instruction from MBR into IR
+        IR.setBitValue(MBR.getBitValue());
+
+        // Parse instruction
+        BitInstruction instruction = new BitInstruction(IR.getBitValue());
+        Map<String, BitWord> instructionParse = instruction.ParseInstruction();
+
+        // Switch-case on opcode to call the appropriate instruction method
+        boolean isTransferInstruction = false;
+        BitWord opcode = instructionParse.get(BitInstruction.KEY_OPCODE);
         switch (opcode.getValue())
         {
             case OpCode.HLT:
@@ -405,11 +504,15 @@ public class MiniComputer extends Observable
             	break;
             case OpCode.JSR:
             	isTransferInstruction = true;
-            	//KEEGAN TODO
+                index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2);
+                isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                address = instructionParse.get(BitInstruction.KEY_ADDRESS);
+                jsr(index, isIndirectAddress, address);            	
             	break;
             case OpCode.RFS:
             	isTransferInstruction = true;
-            	//KEEGAN TODO
+                immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE);
+                rfs(immediate);            	
             	break;
             case OpCode.SOB:
             	isTransferInstruction = true;
@@ -427,49 +530,70 @@ public class MiniComputer extends Observable
             	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
             	jge(register, index, isIndirectAddress, address);
             	break;
+            case OpCode.IN:
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	devId = instructionParse.get(BitInstruction.KEY_DEVID); 
+            	in(register, devId);
+                break;
+            case OpCode.OUT:
+            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+            	devId = instructionParse.get(BitInstruction.KEY_DEVID); 
+            	out(register, devId);
+                break;
+            case OpCode.MLT:
+                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
+                mlt(rx, ry);
+                break;
+            case OpCode.DVD:
+                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
+                dvd(rx, ry);
+                break;
+            case OpCode.TRR:
+                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
+                trr(rx, ry);
+            break;     
             case OpCode.SRC:
-            	isTransferInstruction = true;
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	arithmeticOrLogic = instructionParse.get(BitInstruction.KEY_ARITHMETIC_OR_LOGIC).getValue();
-            	leftOrRight = instructionParse.get(BitInstruction.KEY_LEFT_OR_RIGHT).getValue();
-            	shiftCount = instructionParse.get(BitInstruction.KEY_SHIFT_COUNT).getValue(); 
-            	src(register, arithmeticOrLogic, leftOrRight, shiftCount);            	
-            	break;
+                isTransferInstruction = true;
+                register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                arithmeticOrLogic = instructionParse.get(BitInstruction.KEY_ARITHMETIC_OR_LOGIC);
+                leftOrRight = instructionParse.get(BitInstruction.KEY_LEFT_OR_RIGHT);
+                shiftCount = instructionParse.get(BitInstruction.KEY_SHIFT_COUNT); 
+                src(register, arithmeticOrLogic, leftOrRight, shiftCount);            	
+                break;
             case OpCode.RRC:
-            	isTransferInstruction = true;
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	arithmeticOrLogic = instructionParse.get(BitInstruction.KEY_ARITHMETIC_OR_LOGIC).getValue();
-            	leftOrRight = instructionParse.get(BitInstruction.KEY_LEFT_OR_RIGHT).getValue();
-            	shiftCount = instructionParse.get(BitInstruction.KEY_SHIFT_COUNT).getValue(); 
-            	rrc(register, arithmeticOrLogic, leftOrRight, shiftCount);            	
-            	break;
+                isTransferInstruction = true;
+                register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                arithmeticOrLogic = instructionParse.get(BitInstruction.KEY_ARITHMETIC_OR_LOGIC);
+                leftOrRight = instructionParse.get(BitInstruction.KEY_LEFT_OR_RIGHT);
+                shiftCount = instructionParse.get(BitInstruction.KEY_SHIFT_COUNT); 
+                rrc(register, arithmeticOrLogic, leftOrRight, shiftCount);            	
+                break;
             case OpCode.AND:
-            	isTransferInstruction = true;
-            	//Use Kegan's Parsing nomenclature
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2);
-            	register2 = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2);
-            	and(register, register2);            	
-            	break;
+                isTransferInstruction = true;
+                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
+                and(rx, ry);            	
+                break;
             case OpCode.ORR: 
-            	isTransferInstruction = true;
-            	//Use Kegan's Parsing nomenclature
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2);
-            	register2 = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2);
-            	orr(register, register2);             	
-            	break;
+                isTransferInstruction = true;
+                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
+                orr(rx, ry);             	
+                break;
             case OpCode.NOT: 
-            	isTransferInstruction = true;
-            	//Use Kegan's Parsing nomenclature
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2);
-            	register2 = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2);
-            	not(register, register2);             	
-            	break;
+                isTransferInstruction = true;
+                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                not(rx);             	
+                break;
             default:
                 break;                        
         }
 		
 		// Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
-        if(!isTransferInstruction)
+        if(!isTransferInstruction && !opcode.getValue().equals(OpCode.HLT))
         {
         	// Increment PC
         	String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE);
@@ -562,7 +686,7 @@ public class MiniComputer extends Observable
 		// Move contents of IRR to memory at address specified by IAR		
 		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR[0].getBitValue());
 		// TreeMap.put() automatically replaces the value and adds a new key if necessary 
-		memory.put(IAR.getBitValue().getValue(), memLoc);
+		writeToCacheAndBuffer(IAR.getBitValue().getValue(), memLoc);
 	}
 	
 	/**
@@ -672,7 +796,7 @@ public class MiniComputer extends Observable
 		// Move contents of IRR to memory at address specified by IAR		
 		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR[0].getBitValue());
 		// TreeMap.put() automatically replaces the value and adds a new key if necessary 
-		memory.put(IAR.getBitValue().getValue(), memLoc);
+		writeToCacheAndBuffer(IAR.getBitValue().getValue(), memLoc);
 	}
 	
 	/**
@@ -779,7 +903,12 @@ public class MiniComputer extends Observable
 		// Store difference of register and memory contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue()));
+			Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
+			if (!(Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW))
+			{
+				registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
+			}
+			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW));
 		}
 	}
 	
@@ -805,7 +934,7 @@ public class MiniComputer extends Observable
 		}
 		
 		// Move immediate to MBR
-		MBR.setBitValue(immediate);
+		MBR.setBitValue(ArithmeticLogicUnit.padZeros(immediate.getValue()));
 		
 		// Move the data from the MBR to an Internal Result Register (IRR)
 		IRR[1].setBitValue(MBR.getBitValue());
@@ -839,7 +968,7 @@ public class MiniComputer extends Observable
 		}
 		
 		// Move immediate to MBR
-		MBR.setBitValue(immediate);
+		MBR.setBitValue(ArithmeticLogicUnit.padZeros(immediate.getValue()));
 		
 		// Move the data from the MBR to an Internal Result Register (IRR)
 		IRR[1].setBitValue(MBR.getBitValue());
@@ -847,7 +976,13 @@ public class MiniComputer extends Observable
 		// Store difference of IRR contents and MBR contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue()));
+			Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
+			if (!(Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW))
+			{
+				registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
+			}
+			setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW));
+			
 		}
 	}
 	
@@ -856,33 +991,33 @@ public class MiniComputer extends Observable
 	 * @param register
 	 * @param devId
 	 */
-	public void in(int register, String devId)
+	public void in(int register, BitWord devId)
 	{
 		inputObject.setOpCode(OpCode.IN);
 		inputObject.setRegisterId(register);
-		inputObject.setDevId(devId);
+		inputObject.setDevId(devId.getValue());
 		
 		setChanged();
 		notifyObservers(inputObject);
 		
-		while (MiniComputerGui.inputButtonClicked == false) {
+		while (MiniComputerGui.validKeyClicked == false) {
     		try {
-    			Thread.sleep(500);
+    			Thread.sleep(200);
     		}
     		catch (InterruptedException ie) {
     			System.out.println("Exception: " + ie.getMessage());
     		}
     	}
 		
-		MiniComputerGui.inputButtonClicked = false;
+		MiniComputerGui.validKeyClicked = false;
 	}
 	
 	/**
 	 * Input character to register from device
-	 * @param inputString
+	 * @param inputInt
 	 *
 	 */
-	public void inProcessing(String inputString)
+	public void inProcessing(int inputInt)
 	{
 		// Retrieve the specified Index Register (IR a.k.a X)
 		Register registerSelect1 = getR(inputObject.getRegisterId());
@@ -890,9 +1025,11 @@ public class MiniComputer extends Observable
 		// Store IRR contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(DataConversion.textToBinary(inputString));
+			registerSelect1.setBitValue(ArithmeticLogicUnit.padZeros(Integer.toBinaryString(inputInt)));
+			
+			// Value stored in this register is an integer
+			registerIsInt[inputObject.getRegisterId()] = true;
 		}
-		
 	}
 	
 	/**
@@ -900,11 +1037,11 @@ public class MiniComputer extends Observable
 	 * @param register
 	 * @param devId
 	 */
-	public void out(int register, String devId)
+	public void out(int register, BitWord devId)
 	{
 		outputObject.setOpCode(OpCode.OUT);
 		outputObject.setRegisterId(register);
-		outputObject.setDevId(devId);
+		outputObject.setDevId(devId.getValue());
 		
 		setChanged();
 		notifyObservers(outputObject);
@@ -1044,7 +1181,24 @@ public class MiniComputer extends Observable
 	 */
 	public void jsr(int index, boolean isIndirectAddress, BitWord address)
 	{
-		//KEEGAN TODO
+            // Calculate the effective address (EA)
+            BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
+            
+            // Set General Purpose Register R3 to the PC + 1
+            R3.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+
+            // Move the EA to the Internal Address Register (IAR)
+            IAR.setBitValue(ArithmeticLogicUnit.padZeros(ea.getValue()));
+            
+            // Set R0 to the address of the first parameter
+            // Assumes the parameter list starts at the max memory address 2048 and goes backward
+            // until the end of the parameters is indicated by -17777
+            R0.setBitValue(MAX_MEMORY_ADDRESS);
+            
+            // Store IAR contents into the PC
+	    // PC can only hold 12 bits so chop off the leading zeros
+            String pc = IAR.getBitValue().getValue().substring(4, 16);
+            PC.setBitValue(pc);   
 	}
 	
 	/**
@@ -1053,7 +1207,13 @@ public class MiniComputer extends Observable
 	 */
 	public void rfs(BitWord immed)
 	{
-		//KEEGAN TODO
+            // Set General Purpose Register 0 to Immed
+            R0.setBitValue(new BitWord(ArithmeticLogicUnit.padZeros(immed.getValue())));
+            
+            // Store IAR contents into the PC
+	    // PC can only hold 12 bits so chop off the leading zeros
+            String pc = R3.getBitValue().getValue().substring(4, 16);
+            PC.setBitValue(pc);         
 	}
 	
 	/**
@@ -1069,7 +1229,15 @@ public class MiniComputer extends Observable
 		Register registerSelect1 = getR(register);
 		
 		// Subtract one from the register contents
-		registerSelect1.setBitValue(ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE));
+		Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE);
+		boolean isUnderflow = (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW);
+		// If underflow, leave the register contents alone instead of setting it to gibberish
+		if(!isUnderflow) {
+			registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
+		}
+		
+		// Set Underflow bit
+		setConditionCode(ConditionCode.UNDERFLOW, isUnderflow);
 		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
@@ -1080,7 +1248,7 @@ public class MiniComputer extends Observable
 		// If IRR contents is > 0, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
 		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-		if(irr > 0) {
+		if(!isUnderflow && irr > 0) {
 			IAR.setBitValue(ea);
 		} else {
 			// Else set IAR value to PC contents + 1
@@ -1130,159 +1298,256 @@ public class MiniComputer extends Observable
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
 		PC.setBitValue(pc);
 	}
-
-	/**
+        
+         /**
+	 * Multiply Register by Register
+	 * @param rx
+	 * @param ry
+	 */
+        public void mlt(int rx, int ry) {
+            Register register1 = getR(rx);
+            Register register2 = getR(ry);
+            
+            //Registers must be either R0 or R2
+            if (!register1.equals(R0) && !register1.equals(R2))
+                System.out.println("Register must be R0 or R2.");
+            else if (!register2.equals(R0) && !register2.equals(R2))
+                System.out.println("Register must be R0 or R2.");
+            else {
+                String product = ArithmeticLogicUnit.multiply(register1.getBitValue().getValue(), register2.getBitValue().getValue());
+                
+                //Get high and low order bits from product
+                BitWord highBits = new BitWord(product.substring(0, 16));
+                BitWord lowBits = new BitWord(product.substring(16, 32));
+                
+                //rx contains high order bits
+                register1.setBitValue(highBits);
+                //rx + 1 contains low order bits
+                Register registerPlusOne = getR(rx + 1);
+                registerPlusOne.setBitValue(lowBits);
+            }                
+        } 
+        
+         /**
+	 * Divide Register by Register
+	 * @param rx
+	 * @param ry
+	 */
+        public void dvd(int rx, int ry) {
+            Register register1 = getR(rx);
+            Register register2 = getR(ry);
+            
+            //Registers must be either R0 or R2
+            if (!register1.equals(R0) && !register1.equals(R2))
+                System.out.println("Register must be R0 or R2.");
+            else if (!register2.equals(R0) && !register2.equals(R2))
+                System.out.println("Register must be R0 or R2.");
+            else {
+                Map<String, String> divisionMap = ArithmeticLogicUnit.divide(register1.getBitValue().getValue(), register2.getBitValue().getValue());
+                if (Integer.parseInt(divisionMap.get(ArithmeticLogicUnit.KEY_ISDIVZERO)) == 1) {
+                    setConditionCode(ConditionCode.DIVZERO, true);
+                }
+                else {
+                    setConditionCode(ConditionCode.DIVZERO, false);
+                    //rx = quotient
+                    register1.setBitValue(divisionMap.get(ArithmeticLogicUnit.KEY_QUOTIENT));
+                    //rx + 1 = remainder
+                    Register registerPlusOne = getR(rx + 1);
+                    registerPlusOne.setBitValue(divisionMap.get(ArithmeticLogicUnit.KEY_REMAINDER));
+                }
+            }              
+        }
+        
+         /**
+	 * Equality of Register and Register
+	 * @param rx
+	 * @param ry
+	 */
+        public void trr(int rx, int ry) {
+            Register register1 = getR(rx);
+            Register register2 = getR(ry);
+            
+            if (register1.getBitValue().equals(register2.getBitValue()))
+                setConditionCode(ConditionCode.EQUALORNOT, true);
+            else
+                setConditionCode(ConditionCode.EQUALORNOT, false);
+        }        
+        
+         /**
 	 * Shift Register by Count
 	 * @param register
 	 * @param arithmeticOrLogic
-	 * @param leftOrRight
-	 * @param shiftCount
+         * @param leftOrRight
+         * @param shiftCount
 	 */
-	public void src(int register, String arithmeticOrLogic, String leftOrRight, String shiftCount)
-	{
-		// Retrieve the specified register
-		Register registerSelect1 = getR(register);
-		
-		// Move the register contents into the Internal Result Register (IRR)?
-		IRR[0].setBitValue(registerSelect1.getBitValue());
+        public void src(int register, BitWord arithmeticOrLogic, BitWord leftOrRight, BitWord shiftCount)
+    	{
+            // Retrieve the specified register
+            Register registerSelect1 = getR(register);
 
-		// If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
-		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
-		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-		//if(irr >= 0) {
-			//IAR.setBitValue(ea);  
-		//} else {
-			// Else set IAR value to Shift Register
-			// src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
-			IAR.setBitValue(ArithmeticLogicUnit.src(String.valueOf(irr), arithmeticOrLogic, leftOrRight, shiftCount));
-		//}
-		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-		
-		// Store IAR contents into the PC
-		// PC can only hold 12 bits so chop off the leading zeros
-		//String pc = IAR.getBitValue().getValue().substring(4, 16);
-		//PC.setBitValue(pc);
-	}
-	/**
-	 * Rotate Register by Count
-	 * @param register
-	 * @param arithmeticOrLogic
-	 * @param leftOrRight
-	 * @param shiftCount
-	 */
-	public void rrc(int register, String arithmeticOrLogic, String leftOrRight, String shiftCount)
-	{
-		// Retrieve the specified register
-		Register registerSelect1 = getR(register);
-		
-		// Move the register contents into the Internal Result Register (IRR)?
-		IRR[0].setBitValue(registerSelect1.getBitValue());
+            // Move the register contents into the Internal Result Register (IRR)?
+            IRR[0].setBitValue(registerSelect1.getBitValue());
 
-		// If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
-		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
-		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-		//if(irr >= 0) {
-			//IAR.setBitValue(ea);  
-		//} else {
-			// Else set IAR value to Shift Register
-			// src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
-			IAR.setBitValue(ArithmeticLogicUnit.rrc(String.valueOf(irr), arithmeticOrLogic, leftOrRight, shiftCount));
-		//}
-		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-		
-		// Store IAR contents into the PC
-		// PC can only hold 12 bits so chop off the leading zeros
-		//String pc = IAR.getBitValue().getValue().substring(4, 16);
-		//PC.setBitValue(pc);
-	}	
-	public void and(int register, int register2)
-	{
-		// Retrieve the specified register
-		Register registerSelect1 = getR(register);
-		Register registerSelect2 = getR(register2);
-		
-		// Move the register contents into the Internal Result Register (IRR)?
-		IRR[0].setBitValue(registerSelect1.getBitValue());
-		IRR[1].setBitValue(registerSelect1.getBitValue());
+            // If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
+            // Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
+            int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
+            //if(irr >= 0) {
+                    //IAR.setBitValue(ea);  
+            //} else {
+                    // Else set IAR value to Shift Register
+                    // src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
+                    IAR.setBitValue(ArithmeticLogicUnit.src(String.valueOf(irr), arithmeticOrLogic.getValue(), leftOrRight.getValue(), shiftCount.getValue()));
+            //}
 
-		// If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
-		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
-		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-		int irr2 = Integer.parseInt(IRR[1].getBitValue().getValue());
-		//if(irr >= 0) {
-			//IAR.setBitValue(ea);  
-		//} else {
-			// Else set IAR value to Shift Register
-			// src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
-			IAR.setBitValue(ArithmeticLogicUnit.and(String.valueOf(irr), String.valueOf(irr2)));
-		//}
-		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-		
-		// Store IAR contents into the PC
-		// PC can only hold 12 bits so chop off the leading zeros
-		//String pc = IAR.getBitValue().getValue().substring(4, 16);
-		//PC.setBitValue(pc);
-	}
+            // TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
+
+            // Store IAR contents into the PC
+            // PC can only hold 12 bits so chop off the leading zeros
+            //String pc = IAR.getBitValue().getValue().substring(4, 16);
+            //PC.setBitValue(pc);
+    	}
+        
+    	/**
+    	 * Rotate Register by Count
+    	 * @param register
+    	 * @param arithmeticOrLogic
+    	 * @param leftOrRight
+    	 * @param shiftCount
+    	 */
+    	public void rrc(int register, BitWord arithmeticOrLogic, BitWord leftOrRight, BitWord shiftCount)
+    	{
+            // Retrieve the specified register
+            Register registerSelect1 = getR(register);
+
+            // Move the register contents into the Internal Result Register (IRR)?
+            IRR[0].setBitValue(registerSelect1.getBitValue());
+
+            // If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
+            // Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
+            int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
+            //if(irr >= 0) {
+                    //IAR.setBitValue(ea);  
+            //} else {
+                    // Else set IAR value to Shift Register
+                    // src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
+                    IAR.setBitValue(ArithmeticLogicUnit.rrc(String.valueOf(irr), arithmeticOrLogic.getValue(), leftOrRight.getValue(), shiftCount.getValue()));
+            //}
+
+            // TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
+
+            // Store IAR contents into the PC
+            // PC can only hold 12 bits so chop off the leading zeros
+            //String pc = IAR.getBitValue().getValue().substring(4, 16);
+            //PC.setBitValue(pc);
+    	}
+
+        /**
+        * Logical and of Register and Register
+        * @param register
+        * @param register2
+        */
+    	public void and(int register, int register2)
+    	{
+            // Retrieve the specified register
+            Register registerSelect1 = getR(register);
+            Register registerSelect2 = getR(register2);
+
+            // Move the register contents into the Internal Result Register (IRR)?
+            IRR[0].setBitValue(registerSelect1.getBitValue());
+            IRR[1].setBitValue(registerSelect2.getBitValue());
+
+            // If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
+            // Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
+            int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
+            int irr2 = Integer.parseInt(IRR[1].getBitValue().getValue());
+            //if(irr >= 0) {
+                    //IAR.setBitValue(ea);  
+            //} else {
+                    // Else set IAR value to Shift Register
+                    // src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
+                    IAR.setBitValue(ArithmeticLogicUnit.and(String.valueOf(irr), String.valueOf(irr2)));
+            //}
+
+            // TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
+
+            // Store IAR contents into the PC
+            // PC can only hold 12 bits so chop off the leading zeros
+            //String pc = IAR.getBitValue().getValue().substring(4, 16);
+            //PC.setBitValue(pc);
+    	}
+    	
+        /**
+        * Logical or of Register and Register
+        * @param register
+        * @param register2
+        */        
+    	public void orr(int register, int register2)
+    	{
+            // Retrieve the specified register
+            Register registerSelect1 = getR(register);
+            Register registerSelect2 = getR(register2);
+
+            // Move the register contents into the Internal Result Register (IRR)?
+            IRR[0].setBitValue(registerSelect1.getBitValue());
+            IRR[1].setBitValue(registerSelect2.getBitValue());
+
+            // If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
+            // Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
+            int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
+            int irr2 = Integer.parseInt(IRR[1].getBitValue().getValue());
+            //if(irr >= 0) {
+                    //IAR.setBitValue(ea);  
+            //} else {
+                    // Else set IAR value to Shift Register
+                    // src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
+                    IAR.setBitValue(ArithmeticLogicUnit.orr(String.valueOf(irr), String.valueOf(irr2)));
+            //}
+
+            // TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
+
+            // Store IAR contents into the PC
+            // PC can only hold 12 bits so chop off the leading zeros
+            //String pc = IAR.getBitValue().getValue().substring(4, 16);
+            //PC.setBitValue(pc);
+    	}
+    	
+        /**
+        * Logical not of Register and Register
+        * @param register
+        */        
+    	public void not(int register)
+    	{
+            // Retrieve the specified register
+            Register registerSelect1 = getR(register);
+
+            // Move the register contents into the Internal Result Register (IRR)?
+            IRR[0].setBitValue(registerSelect1.getBitValue());
+
+            // If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
+            // Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
+            int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
+            //if(irr >= 0) {
+                    //IAR.setBitValue(ea);  
+            //} else {
+                    // Else set IAR value to Shift Register
+                    // src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
+                    IAR.setBitValue(ArithmeticLogicUnit.not(String.valueOf(irr)));
+            //}
+
+            // TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
+
+            // Store IAR contents into the PC
+            // PC can only hold 12 bits so chop off the leading zeros
+            //String pc = IAR.getBitValue().getValue().substring(4, 16);
+            //PC.setBitValue(pc);
+    	}
+
 	
-	public void orr(int register, int register2)
-	{
-		// Retrieve the specified register
-		Register registerSelect1 = getR(register);
-		Register registerSelect2 = getR(register2);
-		
-		// Move the register contents into the Internal Result Register (IRR)?
-		IRR[0].setBitValue(registerSelect1.getBitValue());
-		IRR[1].setBitValue(registerSelect1.getBitValue());
-
-		// If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
-		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
-		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-		int irr2 = Integer.parseInt(IRR[1].getBitValue().getValue());
-		//if(irr >= 0) {
-			//IAR.setBitValue(ea);  
-		//} else {
-			// Else set IAR value to Shift Register
-			// src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
-			IAR.setBitValue(ArithmeticLogicUnit.and(String.valueOf(irr), String.valueOf(irr2)));
-		//}
-		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-		
-		// Store IAR contents into the PC
-		// PC can only hold 12 bits so chop off the leading zeros
-		//String pc = IAR.getBitValue().getValue().substring(4, 16);
-		//PC.setBitValue(pc);
-	}
+	// TODO in later parts: other instructions
 	
-	public void not(int register)
-	{
-		// Retrieve the specified register
-		Register registerSelect1 = getR(register);
-		
-		// Move the register contents into the Internal Result Register (IRR)?
-		IRR[0].setBitValue(registerSelect1.getBitValue());
-
-		// If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
-		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
-		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-		//if(irr >= 0) {
-			//IAR.setBitValue(ea);  
-		//} else {
-			// Else set IAR value to Shift Register
-			// src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
-			IAR.setBitValue(ArithmeticLogicUnit.and(String.valueOf(irr)));
-		//}
-		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-		
-		// Store IAR contents into the PC
-		// PC can only hold 12 bits so chop off the leading zeros
-		//String pc = IAR.getBitValue().getValue().substring(4, 16);
-		//PC.setBitValue(pc);
-	}		
+	/* End Instruction methods */
+	
+	/* Helpers */
 	
 	private BitWord calculateEffectiveAddress(int indexRegister, boolean isIndirectAddress, BitWord address)
 	{		
@@ -1337,6 +1602,72 @@ public class MiniComputer extends Observable
 			}
 		}
 	}
+	
+	private void setConditionCode(ConditionCode conditionCode, boolean isTrue)
+	{
+		String flag = isTrue ? "1" : "0";
+		String first = CC.getBitValue().getValue().substring(0, conditionCode.ordinal());
+		String last = CC.getBitValue().getValue().substring(conditionCode.ordinal()+1, CC.getBitSize());
+			
+		CC.setBitValue(first + flag + last);
+	}        
+	
+	private void writeToCacheAndBuffer(String address, MemoryLocation memLoc) 
+	{
+		
+		// TODO: write to cache
+		logger.println("Writing to write buffer");
+		memory.put(address, memLoc);
+	}
+        
+        private void fetchFromCache() {
+            MemoryLocation tempMemory = null;   
+            int count = 1;
+            String firstTwelveBits = MAR.getBitValue().getValue().substring(0, 13);
+            logger.println("Searching for the following 12 bit address in the cache: " + firstTwelveBits);              
+            for (CacheLine cacheLine : cache) {         
+                //if first 12 bits of address tag match
+                if (firstTwelveBits.equals(cacheLine.addressTag.getValue())) {
+                   MemoryLocation[] tempBlock = cacheLine.getBlock();
+                   for (MemoryLocation block : tempBlock) {
+                       //get address from block 
+                       if (block.getAddress().getValue().equals(firstTwelveBits)) {
+                           tempMemory = block;
+                           break;
+                       }
+                   }
+                   logger.println(count + ". Address in cache: " + cacheLine.getAddressTag() + " is a match.");                   
+                   break; //found in cache, move on
+                }
+                else
+                    logger.println(count + ". Address in cache: " + cacheLine.getAddressTag() + " not a match.");
+                count++;
+            }            
+            if (tempMemory != null) {
+                //memory was in cache                
+                MBR.setBitValue(tempMemory.getAddress());
+                logger.println("Address was found in cache. Setting MBR... Value = " + MBR.getBitValue().getValue());
+            }
+            else {
+                //memory was not in cache
+                logger.println("Address was not in cache... find in memory and put in cache.");
+                // Fetch the contents in memory at the address specified by MAR into the MBR
+                if(memory.containsKey(MAR.getBitValue().getValue()))
+                {
+                    MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
+                }
+                else
+                {			
+                    MBR.setBitValue(BitWord.VALUE_DEFAULT);
+                }
+                //put memory in cache and remove first element (fifo)
+                //first on
+                cache.add(new CacheLine(MBR.getBitValue().getValue()));
+                //if cache is greater than 16, first off
+                if(cache.size() > 16)
+                    cache.remove(0);
+            }
+        }
 	
 	/* End Helpers */
 }

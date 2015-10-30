@@ -10,12 +10,13 @@ public class BitInstruction extends BitWord
     public static final String KEY_INDIRECT_ADDR = "indirectAddr";
     public static final String KEY_IMMEDIATE = "immediate";
     public static final String KEY_CONDITION_CODE = "conditionCode";
-    public static final String KEY_ARITHMETIC_OR_LOGIC = "ArithmeticOrLogic";
-    public static final String KEY_LEFT_OR_RIGHT = "LeftOrRight";
-    public static final String KEY_SHIFT_COUNT = "SHiftCount";
-    public static final String KEY_REGISTER2 = "register2";
-    
-    
+    public static final String KEY_DEVID = "devId";
+    public static final String KEY_RX = "rx";
+    public static final String KEY_RY = "ry";
+    public static final String KEY_ARITHMETIC_OR_LOGIC = "arithmeticOrLogic";
+    public static final String KEY_LEFT_OR_RIGHT = "leftOrRight";
+    public static final String KEY_SHIFT_COUNT = "shiftCount";    
+        
     public BitInstruction()
     {
         super();
@@ -83,10 +84,10 @@ public class BitInstruction extends BitWord
             	instructionParts = parseLoadStoreIndex(opCode);
             	break;
             case OpCode.JSR:
-            	//KEEGAN TODO
+            	instructionParts = parseLoadStoreIndex(opCode);
             	break;
             case OpCode.RFS:
-            	//KEEGAN TODO
+            	instructionParts = parseImmediate(opCode);
             	break;
             case OpCode.SOB:
             	//Instruction schema is similar to that of the load/store instructions
@@ -96,17 +97,32 @@ public class BitInstruction extends BitWord
             	//Instruction schema is similar to that of the load/store instructions
             	instructionParts = parseLoadStore(opCode);
             	break;
+            case OpCode.IN:
+            	instructionParts = parseIO(opCode);
+            	break;
+            case OpCode.OUT:
+            	instructionParts = parseIO(opCode);
+            	break;
+            case OpCode.MLT:
+                instructionParts = parseArithmetic(opCode, true);
+                break;
+            case OpCode.DVD:
+                instructionParts = parseArithmetic(opCode, true);
+                break;
+            case OpCode.TRR:
+                instructionParts = parseArithmetic(opCode, true);
+                break;
             case OpCode.AND:
             	//AND
-            	instructionParts = parseLogic(opCode);  // use whatever Kegan calls his opCode parser
+            	instructionParts = parseArithmetic(opCode, true);
             	break;
             case OpCode.ORR:
-            	//AND
-            	instructionParts = parseLogic(opCode); // use whatever Kegan calls his opCode parser
+            	//ORR
+            	instructionParts = parseArithmetic(opCode, true);
             	break;
             case OpCode.NOT:
-            	//AND
-            	instructionParts = parseLogic(opCode); // use whatever Kegan calls his opCode parser
+            	//NOT
+            	instructionParts = parseArithmetic(opCode, false);
             	break;
             case OpCode.SRC:
             	//Shift
@@ -206,21 +222,57 @@ public class BitInstruction extends BitWord
         
         return parse;
     }
-    private Map<String, BitWord> parseShiftRotate(String opCode)
+    
+    /**
+     * Parses the register and device id
+     * @param opCode
+     * @return 
+     */
+    private Map<String, BitWord> parseIO(String opCode)
     {
         Map<String, BitWord> parse = new HashMap<String, BitWord>();
         
         String register = value.substring(6, 8);  
-        String ArithmeticOrLogic = value.substring(8, 9);  //this is a flag to adjust for a sign bit; 0 = arithmetic and 1 = logic;
-    	String LeftOrRight = value.substring(9, 10);  // left = 1; right = 0;
-    	String ShiftCount = value.substring(12, 16);  //number of times to shift the bits
+        String devId = value.substring(11, 16);
         
         parse.put(KEY_OPCODE, new BitWord(opCode));
         parse.put(KEY_REGISTER, new BitWord(register));
-        parse.put(KEY_ARITHMETIC_OR_LOGIC, new BitWord(ArithmeticOrLogic));
-        parse.put(KEY_LEFT_OR_RIGHT, new BitWord(LeftOrRight));
-        parse.put(KEY_SHIFT_COUNT, new BitWord(ShiftCount));
-
+        parse.put(KEY_DEVID, new BitWord(devId));
+        
         return parse;
     }
+    
+    private Map<String, BitWord> parseArithmetic(String opCode, boolean includeRY)
+    {
+        Map<String, BitWord> parse = new HashMap<String, BitWord>();
+        
+        String rx = value.substring(6, 8);
+        
+        parse.put(KEY_OPCODE, new BitWord(opCode));
+        parse.put(KEY_RX, new BitWord(rx));        
+        
+        if (includeRY){
+            String ry = value.substring(8, 10);
+            parse.put(KEY_RY, new BitWord(ry));
+        }
+        
+        return parse;
+    }
+    
+    private Map<String, BitWord> parseShiftRotate(String opCode) {
+        Map<String, BitWord> parse = new HashMap<String, BitWord>();
+        
+        String register = value.substring(6,8);
+        String arithmeticOrLogic = value.substring(8,9);
+        String leftOrRight = value.substring(9,10);
+        String shiftCount = value.substring(11,16);
+        
+        parse.put(KEY_OPCODE, new BitWord(opCode));
+        parse.put(KEY_REGISTER, new BitWord(register));
+        parse.put(KEY_ARITHMETIC_OR_LOGIC, new BitWord(arithmeticOrLogic));
+        parse.put(KEY_LEFT_OR_RIGHT, new BitWord(leftOrRight));
+        parse.put(KEY_SHIFT_COUNT, new BitWord(shiftCount));
+        
+        return parse;
+    }    
 }

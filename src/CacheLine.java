@@ -48,4 +48,15 @@ public class CacheLine {
 			System.err.println("Block must be of size " + BLOCK_SIZE + "!");
 		}
 	}
+	
+	// Chihoon TODO: fix this
+	public void addToBlock(MemoryLocation memLoc) {
+		
+		for (int i = 0; i < BLOCK_SIZE; i++) {
+			if (block[i] == null) {
+				block[i] = memLoc;
+				break;
+			}
+		}
+	}
 }
