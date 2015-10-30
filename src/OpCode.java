@@ -139,10 +139,10 @@ public class OpCode
 	/**
 	 * Shift Register by Count
 	 */
-	public static final String SRC = "011111";	//31
+	public static final String SRC = "011001";	//31
 	/**
 	 * Rotate Register by Count
 	 */
-	public static final String RRC = "100000";	//32
+	public static final String RRC = "011010";	//32
 
 }
