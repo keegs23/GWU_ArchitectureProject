@@ -1,12 +1,12 @@
-X1 stores _, the start of the character array for the file input; PROGRAM 2 START (this instruction stored at address p=?)
+X1 stores _, the start address of the character array for the file input; PROGRAM 2 START (this instruction stored at address p=?)
 Memory address i=? stores the address of the current array element being processed AKA File Input Character Address
-X2 stores _, the location of the first character of the word to find 
+X2 stores _, the address of the first character of the word to find 
 Memory address x=? stores the address of the AKA Search Word Character Address
-Memory address b=? is the backup location for a register
+Memory address m=? stores the previous char comparison result (defaults to 1)
 R0 stores the sentence count while searching (starts at 1)
 R1 stores the word count within a sentence while searching (starts at 1)
 R2 stores the current file input character while inputting file/search word character while inputting search word/file input character while searching
-R3 stores the EOF ASCII code (26) while inputting file/Enter key ASCII code (13) while inputting search word/current search word character while searching (check the EQUALORNOT bit for whether the file input character and search word character match)
+R3 stores the character to compare to--EOF ASCII code (26) while inputting file/Enter key ASCII code (13) while inputting search word/current search word character while searching (check the EQUALORNOT bit for whether the file input character and search word character match)
 Output F
 Output I
 Output L
@@ -63,22 +63,72 @@ Store the Enter character (R3) into the Search Word Character Address; SEARCH WO
 Set R1 to 1
 Reset contents of File Input Character Address to the start of the array (stored in X1)
 Reset contents of Search Word Character Address to the start of the word (stored in X2)
-Load file input character into R2; FIND LOOP START
-
-
-
-
-
-Load search word character into R3; GET SEARCH WORD CHAR
-Subtract from R3 the Enter key ASCII code (13)
-If UNDERFLOW, R3 will still have the original character code, so jump to COMPARE CHARS
-Else if R3 = 0, jump to WORD FOUND
-Else add the Enter key ASCII code (13) back to R3 to get the original character code again
-; COMPARE CHARS
-
-
-
-
-
-
+Load the file input character indirect addressed by i into R2; FIND LOOP START
+Load EOF character (ASCII=26) into R3
+Test if file input character (R2) is EOF (R3)
+If EQUALORNOT is true, is EOF, so jump to PROGRAM 2 END
+Load a space (' ') into R3
+Test if file input character (R3) is a space (R3)
+If EQUALORNOT is true, is a space, so jump to INCREMENT WORD COUNT (assumes there is only 1 space after a period before the next sentence starts)
+Load '.' (ASCII=?) into R3
+Test if file input character (R2) is a period (R3)
+If EQUALORNOT is true, is a period, so jump to INCREMENT SENTENCE COUNT
+Load the previous result of the char comparison between file input and search word (stored in m) into R3
+If prev comparison result (R3) is 1 (i.e. not 0), jump to GET SEARCH WORD CHAR
+Else, unconditional jump to INCREMENT FILE INPUT CHAR ADDRESS
+Add 1 (Immed) to R1; INCREMENT WORD COUNT
+Reset Search Word Character Address to the start (stored in X2)
+Reset "previous" char comparison result (stored in m) to 1 by loading 1 into R3
+Then storing R3 contents into m
+Unconditional jump to INCREMENT FILE INPUT CHAR ADDRESS
+Add 1 (Immed) to R0; INCREMENT SENTENCE COUNT
+Reset word count in R1 to 0 (next char will be a space, so word count will be incremented to 1)
+Unconditional jump to INCREMENT FILE INPUT CHAR ADDRESS
+Load search word character indirect addressed by x into R3; GET SEARCH WORD CHAR
+Load the Enter key ASCII (13) into R2
+Test if the search word character is the Enter key
+If EQUALORNOT is true, character is Enter, so jump to WORD FOUND
+Load the file input character indirect addressed by i into R2; COMPARE CHARS
+Test if the file input char (R2) and the search word char (R3) are equal (case sensitive)
+If EQUALORNOT, they match, so jump to INCREMENT SEARCH WORD CHAR ADDRESS
+Else, store EQUALORNOT result (0) to m (via R3)
+Unconditional jump to INCREMENT FILE INPUT CHAR ADDRESS
+Load the contents of x into R3; INCREMENT SEARCH WORD CHAR ADDRESS
+Then add 1 (Immed) to R3
+Then store R3 contents back into x
+Store char match EQUALORNOT result (1) to m (via R3) by loading 1 into R3
+Then storing R3 contents into m
+Load the contents of i into R3; INCREMENT FILE INPUT CHAR ADDRESS
+Then add 1 (Immed) to R3
+Then store R3 contents back into i
+Unconditional jump to FIND LOOP START
+Reset contents of x to the start of the search word (stored in X2); WORD FOUND
+Load the search word char indirect addressed by x into R2; PRINT SEARCH WORD LOOP START
+Load the Enter key ASCII (13) into R3
+Test if the search word char (R2) is the Enter key (R3)
+If EQUALORNOT, jump to PRINT SENTENCE NUMBER
+Else, output R2 contents; PRINT SEARCH WORD CHAR
+Increment the address in x by loading the contents of x into R3
+Then adding 1 (Immed) to R3
+Then storing the R3 contents back into x
+Unconditional jump to PRINT SEARCH WORD LOOP START
+Output newline; PRINT SENTENCE NUMBER
+Output S
+Output E
+Output N
+Output T
+Output E
+Output N
+Output C
+Output E
+Output space
+Output sentence number of search word (stored in R0)--NOT ASCII
+Output comma (ASCII=?)
+Output space
+Output W
+Output O
+Output R
+Output D
+Output space
+Output word number within sentence of search word (stored in R1)--NOT ASCII...
 Halt; PROGRAM 2 END
