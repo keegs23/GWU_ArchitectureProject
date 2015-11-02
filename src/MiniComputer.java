@@ -15,6 +15,8 @@ public class MiniComputer extends Observable implements Runnable
 	public static final String LOG_FILE_NAME = "trace-file.txt";
 	public static final String BOOT_PROGRAM_NAME = "BootProgram.txt";
 	public static final String PROGRAM_ONE_NAME = "Project1_bin.txt";
+	public static final String PROGRAM_TWO_NAME = "Project2_bin.txt";
+	public static final String PROGRAM_TWO_INPUT_NAME = "prgm-2-input.txt";
 	public static volatile ProgramCode currentProgram = ProgramCode.BOOTPROGRAM;
 	public final PrintWriter logger;
 	
@@ -81,8 +83,11 @@ public class MiniComputer extends Observable implements Runnable
 	private boolean[] registerIsInt;
 	private int bootPrgmLength;
 	private int prgmOneLength;
+	private int prgmTwoLength;
 	private String bootPrgmStart12Bits;
 	private String prgmOneStart12Bits;
+	private String prgmTwoStart12Bits;
+	private int prgmTwoInputPointer;
 	
 	
 	public MiniComputer() throws FileNotFoundException
@@ -120,9 +125,12 @@ public class MiniComputer extends Observable implements Runnable
 		// Initialize program lengths
 		bootPrgmLength = 0;
 		prgmOneLength = 0;
+		prgmTwoLength = 0;
 		
 		bootPrgmStart12Bits = "";
 		prgmOneStart12Bits = "";
+		prgmTwoStart12Bits = "";
+		prgmTwoInputPointer = 0;
 		
 		// Initialize IRR
 		for (int i = 0; i < IRR.length; i++)
@@ -249,17 +257,28 @@ public class MiniComputer extends Observable implements Runnable
 		currentProgram = ProgramCode.BOOTPROGRAM;
 		loadToMemory(BOOT_PROGRAM_NAME, MemoryLocation.ADDRESS_BOOT_PRGM_START);
 		runThroughMemory();
-		
 	}
 	
 	/**
 	 * Loads the contents of the program.
 	 * Called when Load File button is pressed.
 	 */
-	public void loadFromFile()
+	public void loadFromFile(String fileName)
 	{
-		currentProgram = ProgramCode.PROGRAMONE;
-		loadToMemory(PROGRAM_ONE_NAME, MemoryLocation.ADDRESS_PRGM_ONE_START);
+		if (fileName.equals(PROGRAM_ONE_NAME)) 
+		{
+			currentProgram = ProgramCode.PROGRAMONE;
+		}
+		else if (fileName.equals(PROGRAM_TWO_NAME))
+		{
+			currentProgram = ProgramCode.PROGRAMTWO;
+		}
+		else 
+		{
+			System.out.println("Invalid File selected");
+			return;
+		}
+		loadToMemory(fileName, MemoryLocation.ADDRESS_PRGM_ONE_START);
 	}
 	
 	private void loadToMemory(String fileName, String startAddress)
@@ -307,6 +326,11 @@ public class MiniComputer extends Observable implements Runnable
 				prgmOneLength = prgmLength;
 				prgmOneStart12Bits = prgmStart16Bits.substring(4, 16);
 			}
+			else if (currentProgram.equals(ProgramCode.PROGRAMTWO))
+			{
+				prgmTwoLength = prgmLength;
+				prgmTwoStart12Bits = prgmStart16Bits.substring(4, 16);
+			}
 		}
 		catch(Exception ex)
 		{
@@ -341,6 +365,11 @@ public class MiniComputer extends Observable implements Runnable
 		{
 			prgmStart12Bits = prgmOneStart12Bits;
 			prgmLength = prgmOneLength;
+		}
+		else if (currentProgram == ProgramCode.PROGRAMTWO)
+		{
+			prgmStart12Bits = prgmTwoStart12Bits;
+			prgmLength = prgmTwoLength;
 		}
 		
 		// Execute boot program (mostly load/store)
@@ -1004,23 +1033,75 @@ public class MiniComputer extends Observable implements Runnable
 		inputObject.setRegisterId(register);
 		inputObject.setDevId(devId.getValue());
 		
-		setChanged();
-		notifyObservers(inputObject);
-		
-		while (MiniComputerGui.validKeyClicked == false) {
-    		try {
-    			Thread.sleep(200);
-    		}
-    		catch (InterruptedException ie) {
-    			System.out.println("Exception: " + ie.getMessage());
-    		}
-    	}
-		
-		MiniComputerGui.validKeyClicked = false;
+		if (devId.getValue() == DeviceId.FILE_READER_ASCII)
+		{
+			char inputChar = loadPrgm2Input();
+			inProcessing(DataConversion.textToBinary(inputChar), register);
+		}
+		else if (devId.getValue() == DeviceId.CONSOLE_KEYBOARD)
+		{
+			setChanged();
+			notifyObservers(inputObject);
+			
+			while (MiniComputerGui.validKeyClicked == false) {
+	    		try {
+	    			Thread.sleep(200);
+	    		}
+	    		catch (InterruptedException ie) {
+	    			System.out.println("Exception: " + ie.getMessage());
+	    		}
+	    	}
+			
+			MiniComputerGui.validKeyClicked = false;
+		}
 	}
 	
 	/**
-	 * Input character to register from device
+	 * Read character from Program 2 input file
+	 * @return character read
+	 */
+	public char loadPrgm2Input()
+	{
+
+		File file = null;
+		FileInputStream fileIn = null;
+		BufferedReader br = null;
+		int value = 0;
+		
+		try 
+		{
+			file = new File(PROGRAM_TWO_INPUT_NAME);
+			fileIn = new FileInputStream(file);
+			br = new BufferedReader(new InputStreamReader(fileIn));
+			
+			br.skip(prgmTwoInputPointer); // start where previous call left off
+			
+			value = br.read(); // read in next character
+			
+			if (value == -1) // if EOF
+			{
+				value = 26;
+				prgmTwoInputPointer = 0;
+			}
+			else
+			{
+				prgmTwoInputPointer++;
+			}
+			
+			fileIn.close();
+			br.close();
+		}
+		catch(Exception ex)
+		{
+			// TODO: Handle exceptions
+			System.out.println(ex.getMessage());
+		}
+		
+		return (char) value;
+	}
+	
+	/**
+	 * Input character to register from console keyboard
 	 * @param inputInt
 	 *
 	 */
@@ -1033,9 +1114,23 @@ public class MiniComputer extends Observable implements Runnable
 		if(registerSelect1 != null)
 		{
 			registerSelect1.setBitValue(ArithmeticLogicUnit.padZeros(Integer.toBinaryString(inputInt)));
-			
-			// Value stored in this register is an integer
-			registerIsInt[inputObject.getRegisterId()] = true;
+		}
+	}
+	
+	/**
+	 * Input character to register from file
+	 * @param inputString, register
+	 *
+	 */
+	public void inProcessing(String inputString, int register)
+	{
+		// Retrieve the specified Index Register (IR a.k.a X)
+		Register registerSelect1 = getR(register);
+		
+		// Store IRR contents into the specified register
+		if(registerSelect1 != null)
+		{
+			registerSelect1.setBitValue(inputString);
 		}
 	}
 	

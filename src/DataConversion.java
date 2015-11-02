@@ -8,18 +8,17 @@ public class DataConversion {
 	 */
 	public static String binaryToText(String inputString) {
 		
-		int inputInt = Integer.parseInt(inputString, 2);
+		int outputInt = Integer.parseInt(inputString, 2);
 		
-		return new Character((char) inputInt).toString();
+		return new Character((char) outputInt).toString();
 	}
 	
 	/**
-	 * Converts single ASCII character string to 16-bit binary string
+	 * Converts single ASCII character to 16-bit binary string
 	 */
-	public static String textToBinary(String inputString) {
+	public static String textToBinary(char inputChar) {
 		
-		char outputChar = inputString.charAt(0);
-		int outputInt = (int) outputChar;
+		int outputInt = (int) inputChar;
 		String outputString = Integer.toBinaryString(outputInt);
 		
 		return ArithmeticLogicUnit.padZeros(outputString);

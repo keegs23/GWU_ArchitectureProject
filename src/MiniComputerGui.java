@@ -16,6 +16,7 @@ import java.util.Observer;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,6 +28,7 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 public class MiniComputerGui extends JFrame implements ActionListener, Observer, KeyListener {
@@ -57,6 +59,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	private JButton runButton;
 	private JButton haltButton;
 	private JButton singleStepButton;
+	private JFileChooser fileChooser;
 	private DefaultTableModel registerModel;
 	private DefaultTableModel memoryModel;
 	private DefaultTableModel cacheModel;
@@ -92,6 +95,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		runButton = new JButton("Run");
 		haltButton = new JButton("Halt");
 		singleStepButton = new JButton("Single Step");
+		fileChooser = new JFileChooser();
 		registerModel = new DefaultTableModel();
 		memoryModel = new DefaultTableModel();
 		cacheModel = new DefaultTableModel();
@@ -570,8 +574,16 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     private void runLoadFile() {
     	
     	System.out.println("LOAD FILE BUTTON CLICKED");
-    	cpu.loadFromFile();
-    	populateAllTables();
+    	
+    	FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt");
+    	fileChooser.setFileFilter(filter);
+    	int returnVal = fileChooser.showOpenDialog(this);
+    	
+    	if (returnVal == JFileChooser.APPROVE_OPTION) {
+    		String fileName = fileChooser.getSelectedFile().getName();
+    		cpu.loadFromFile(fileName);
+    		populateAllTables();
+    	}
     }
     
     private void runRun() {
@@ -628,31 +640,6 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     /* KeyListener Methods */
     
     @Override
-    public void keyPressed(KeyEvent ke) {
-    	
-    	int keyCode = ke.getKeyCode();
-    	
-    	switch (keyCode) {
-    	
-	    	case KeyEvent.VK_ENTER:
-	    	case KeyEvent.VK_0:
-	    	case KeyEvent.VK_1:
-	    	case KeyEvent.VK_2:
-	    	case KeyEvent.VK_3:
-	    	case KeyEvent.VK_4:
-	    	case KeyEvent.VK_5:
-	    	case KeyEvent.VK_6:
-	    	case KeyEvent.VK_7:
-	    	case KeyEvent.VK_8:
-	    	case KeyEvent.VK_9:
-	    		break;
-	    	default:
-	    		ke.consume();
-	    		break;
-    	}
-    }
-    
-    @Override
     public void keyReleased(KeyEvent ke) {
     	
     	int keyCode = ke.getKeyCode();
@@ -696,10 +683,25 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	    		break;
 	    		
 	    	default:
-	    		consoleKeyboardInput.setText(consoleKeyboardInputHolder);
+	    		if (MiniComputer.currentProgram == ProgramCode.PROGRAMONE) {
+	    			consoleKeyboardInput.setText(consoleKeyboardInputHolder);
+	    		}
+	    		else if (MiniComputer.currentProgram == ProgramCode.PROGRAMTWO){
+	    			System.out.println("A character was pressed");
+		    		
+		    		try {
+		    			processKeyClick(keyCode);
+		    			
+		    		} catch (NumberFormatException nfe) {
+		    			System.err.println("NumberFormatException: " + nfe.getMessage());
+		    		}
+	    		}
 	    		break;
     	}
     }
+    
+    @Override
+    public void keyPressed(KeyEvent ke) {}
     
     @Override
     public void keyTyped(KeyEvent ke) {}
