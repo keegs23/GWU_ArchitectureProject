@@ -16,6 +16,7 @@ import java.util.Observer;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,6 +28,7 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 public class MiniComputerGui extends JFrame implements ActionListener, Observer, KeyListener {
@@ -57,6 +59,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	private JButton runButton;
 	private JButton haltButton;
 	private JButton singleStepButton;
+	private JFileChooser fileChooser;
 	private DefaultTableModel registerModel;
 	private DefaultTableModel memoryModel;
 	private DefaultTableModel cacheModel;
@@ -92,6 +95,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		runButton = new JButton("Run");
 		haltButton = new JButton("Halt");
 		singleStepButton = new JButton("Single Step");
+		fileChooser = new JFileChooser();
 		registerModel = new DefaultTableModel();
 		memoryModel = new DefaultTableModel();
 		cacheModel = new DefaultTableModel();
@@ -378,17 +382,16 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	return sb.toString();
     }
     
-    public void populateRegisterRow(String registerName, Register register) {
+    /* Populate Table Methods */
+    
+    public void populateAllTables() {
     	
-    	for (int i = 0; i < registerModel.getRowCount(); i++) {
-    		if (registerModel.getValueAt(i, 0).equals(registerName)) {
-    			registerModel.setValueAt(register.getBitValue().getValue(), i, 1);
-    			break;
-    		}
-    	}
+    	populateRegisterTable();
+    	populateMemoryTable();
+    	populateCacheTable();
     }
     
-    public void populateRegisterTable() {
+    private void populateRegisterTable() {
     	
     	registerModel.setRowCount(0);
     	registerModel.addRow(new Object[]{"PC", cpu.getPC().getBitValue().getValue()});
@@ -412,7 +415,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
         registerModel.addRow(new Object[]{"X3", cpu.getX(3).getBitValue().getValue()});
     }
     
-    public void populateMemoryTable() {
+    private void populateMemoryTable() {
     	
     	memoryModel.setRowCount(0);
         
@@ -424,6 +427,34 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     		memoryModel.addRow(new Object[]{address, value});
     	}
     }
+    
+    private void populateCacheTable() {
+    	
+    	cacheModel.setRowCount(0);
+    	
+    	for (CacheLine cl : cpu.getCache().getCache()) {
+    		cacheModel.addRow(new Object[]{
+    				cl.getAddressTag(), 
+    				cl.getBlock()[0],
+    				cl.getBlock()[1],
+    				cl.getBlock()[2],
+    				cl.getBlock()[3],
+    				cl.getBlock()[4],
+    				cl.getBlock()[5],
+    				cl.getBlock()[6],
+    				cl.getBlock()[7],
+    				cl.getBlock()[8],
+    				cl.getBlock()[9],
+    				cl.getBlock()[10],
+    				cl.getBlock()[11],
+    				cl.getBlock()[12],
+    				cl.getBlock()[13],
+    				cl.getBlock()[14],
+    				cl.getBlock()[15],});
+    	}
+    }
+    
+    /* End Populate Table Methods */
     
     /* Observer Methods */
     
@@ -537,15 +568,32 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		
     	cpu.loadROM();
     	sleep(1000);
+<<<<<<< HEAD
     	populateRegisterTable();
     	populateMemoryTable();
+=======
+    	populateAllTables();
+>>>>>>> origin/master
     }
     
     private void runLoadFile() {
     	
     	System.out.println("LOAD FILE BUTTON CLICKED");
+<<<<<<< HEAD
     	cpu.loadFromFile();
     	populateMemoryTable();
+=======
+    	
+    	FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt");
+    	fileChooser.setFileFilter(filter);
+    	int returnVal = fileChooser.showOpenDialog(this);
+    	
+    	if (returnVal == JFileChooser.APPROVE_OPTION) {
+    		String fileName = fileChooser.getSelectedFile().getName();
+    		cpu.loadFromFile(fileName);
+    		populateAllTables();
+    	}
+>>>>>>> origin/master
     }
     
     private void runRun() {
@@ -553,8 +601,12 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	System.out.println("RUN BUTTON CLICKED");
     	cpu.runThroughMemory();
     	sleep(1000);
+<<<<<<< HEAD
     	populateRegisterTable();
     	populateMemoryTable();
+=======
+    	populateAllTables();
+>>>>>>> origin/master
     }
     
     private void runHalt() {
@@ -571,7 +623,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		System.out.println(getInstructionWord());
 		
 		cpu.loadToggleInstruction(getInstructionWord());
-		populateMemoryTable();
+		populateAllTables();
 		//System.out.println(cpu.getMemory().get(MemoryLocation.RESERVED_ADDRESS_TOGGLE_INSTRUCTION).getValue().getValue());
     }
     
@@ -584,12 +636,12 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		cpu.singleStep();
 		sleep(200);
 		
-		populateRegisterTable();
-		populateMemoryTable();
+		populateAllTables();
 		populatePcInput();
     }
     
     private void sleep(int sleepTime) {
+<<<<<<< HEAD
     	
     	try{
     		Thread.sleep(sleepTime);
@@ -605,28 +657,20 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     
     @Override
     public void keyPressed(KeyEvent ke) {
+=======
+>>>>>>> origin/master
     	
-    	int keyCode = ke.getKeyCode();
-    	
-    	switch (keyCode) {
-    	
-	    	case KeyEvent.VK_ENTER:
-	    	case KeyEvent.VK_0:
-	    	case KeyEvent.VK_1:
-	    	case KeyEvent.VK_2:
-	    	case KeyEvent.VK_3:
-	    	case KeyEvent.VK_4:
-	    	case KeyEvent.VK_5:
-	    	case KeyEvent.VK_6:
-	    	case KeyEvent.VK_7:
-	    	case KeyEvent.VK_8:
-	    	case KeyEvent.VK_9:
-	    		break;
-	    	default:
-	    		ke.consume();
-	    		break;
+    	try{
+    		Thread.sleep(sleepTime);
+    	}
+    	catch(InterruptedException ie) {
+    		System.out.println("could not sleep");
     	}
     }
+    
+    /* End ActionListener Methods */
+    
+    /* KeyListener Methods */
     
     @Override
     public void keyReleased(KeyEvent ke) {
@@ -672,10 +716,25 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	    		break;
 	    		
 	    	default:
-	    		consoleKeyboardInput.setText(consoleKeyboardInputHolder);
+	    		if (MiniComputer.currentProgram == ProgramCode.PROGRAMONE) {
+	    			consoleKeyboardInput.setText(consoleKeyboardInputHolder);
+	    		}
+	    		else if (MiniComputer.currentProgram == ProgramCode.PROGRAMTWO){
+	    			System.out.println("A character was pressed");
+		    		
+		    		try {
+		    			processKeyClick(keyCode);
+		    			
+		    		} catch (NumberFormatException nfe) {
+		    			System.err.println("NumberFormatException: " + nfe.getMessage());
+		    		}
+	    		}
 	    		break;
     	}
     }
+    
+    @Override
+    public void keyPressed(KeyEvent ke) {}
     
     @Override
     public void keyTyped(KeyEvent ke) {}
@@ -685,8 +744,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	cpu.inProcessing(inputInt);
     	validKeyClicked = true;
     	consoleKeyboardInput.setEnabled(false);
-    	populateRegisterTable();
-    	populateMemoryTable();
+    	populateAllTables();
     }
     
     /* End KeyListener Methods */
