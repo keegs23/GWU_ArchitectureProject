@@ -122,7 +122,7 @@ Output N
 Output C
 Output E
 Output space
-Output sentence number of search word (stored in R0)--NOT ASCII
+Output sentence number of search word (1-6, stored in R0)--NOT ASCII
 Output comma (ASCII=?)
 Output space
 Output W
@@ -130,5 +130,10 @@ Output O
 Output R
 Output D
 Output space
-Output word number within sentence of search word (stored in R1)--NOT ASCII...
+Copy the word number (stored in R1) to R2 to prep for division (transfer through repurposed address m)--NOT ASCII...; PRINT WORD NUMBER
+Load 10 (decimal) into R0 as the divisor (assumes a sentence will have no more than 99 words)
+Divide the word count (R2) by 10 (decimal, R0)
+If the quotient (in R2) = 0, jump to PRINT ONES DIGIT
+Else, output the tens digit (R2)
+Output the remainder/ones digit (in R3); PRINT ONES DIGIT
 Halt; PROGRAM 2 END
