@@ -568,21 +568,12 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		
     	cpu.loadROM();
     	sleep(1000);
-<<<<<<< HEAD
-    	populateRegisterTable();
-    	populateMemoryTable();
-=======
     	populateAllTables();
->>>>>>> origin/master
     }
     
     private void runLoadFile() {
     	
     	System.out.println("LOAD FILE BUTTON CLICKED");
-<<<<<<< HEAD
-    	cpu.loadFromFile();
-    	populateMemoryTable();
-=======
     	
     	FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt");
     	fileChooser.setFileFilter(filter);
@@ -593,7 +584,6 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     		cpu.loadFromFile(fileName);
     		populateAllTables();
     	}
->>>>>>> origin/master
     }
     
     private void runRun() {
@@ -601,12 +591,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	System.out.println("RUN BUTTON CLICKED");
     	cpu.runThroughMemory();
     	sleep(1000);
-<<<<<<< HEAD
-    	populateRegisterTable();
-    	populateMemoryTable();
-=======
     	populateAllTables();
->>>>>>> origin/master
     }
     
     private void runHalt() {
@@ -640,26 +625,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		populatePcInput();
     }
     
-    private void sleep(int sleepTime) {
-<<<<<<< HEAD
-    	
-    	try{
-    		Thread.sleep(sleepTime);
-    	}
-    	catch(InterruptedException ie) {
-    		System.out.println("could not sleep");
-    	}
-    }
-    
-    /* End ActionListener Methods */
-    
-    /* KeyListener Methods */
-    
-    @Override
-    public void keyPressed(KeyEvent ke) {
-=======
->>>>>>> origin/master
-    	
+    private void sleep(int sleepTime) {    	
     	try{
     		Thread.sleep(sleepTime);
     	}
