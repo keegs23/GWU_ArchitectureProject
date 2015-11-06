@@ -42,6 +42,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	private JPanel leftPanel;
 	private JPanel centerPanel;
 	private JPanel rightPanel;
+	private JPanel statusPanel;
 	private JPanel iplPanel;
 	private JPanel instructionPanel;
 	private JPanel pcPanel;
@@ -50,6 +51,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	private JPanel consolePrinterPanel;
 	private JPanel consoleKeyboardPanel;
 	private JPanel cachePanel;
+	private JLabel statusLabel;
 	private JLabel[] indicators;
 	private JToggleButton[] toggles;
 	private JButton instructionLoadButton;
@@ -78,6 +80,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		leftPanel = new JPanel();
 		centerPanel = new JPanel();
 		rightPanel = new JPanel();
+		statusPanel = new JPanel();
 		iplPanel = new JPanel();
 		instructionPanel = new JPanel();
 		pcPanel = new JPanel();
@@ -86,12 +89,13 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		consolePrinterPanel = new JPanel();
 		consoleKeyboardPanel = new JPanel();
 		cachePanel = new JPanel();
+		statusLabel = new JLabel();
 		indicators = new JLabel[INSTRUCTION_SIZE];
 		toggles = new JToggleButton[INSTRUCTION_SIZE];
 		instructionLoadButton = new JButton("Load Instruction");
 		pcInput = new JTextField(10);
 		iplButton = new JButton("IPL");
-		loadFileButton = new JButton("Load Prgm 1");
+		loadFileButton = new JButton("Load Prgm");
 		runButton = new JButton("Run");
 		haltButton = new JButton("Halt");
 		singleStepButton = new JButton("Single Step");
@@ -113,7 +117,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     private void initUI() {
 
     	final int WINDOW_WIDTH = 1000;
-    	final int WINDOW_HEIGHT = 800;
+    	final int WINDOW_HEIGHT = 900;
     	
     	setTitle("The Mini Computer");
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -123,6 +127,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	setPanelLayouts();
         setPanelBorders();
         
+        addToStatusPanel();
         addToIplPanel();
         addToInstructionPanel();
         addToPcPanel();
@@ -151,6 +156,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        statusPanel.setLayout(new GridLayout(0, 1));
         iplPanel.setLayout(new FlowLayout());
         instructionPanel.setLayout(new GridLayout(0, 2));
         pcPanel.setLayout(new FlowLayout());
@@ -163,6 +169,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     
     private void setPanelBorders() {
     	
+    	statusPanel.setBorder(new TitledBorder("Machine Status"));
     	iplPanel.setBorder(new TitledBorder("Initial Program Load"));
         instructionPanel.setBorder(new TitledBorder("Instructions"));
         pcPanel.setBorder(new TitledBorder("Program Counter"));
@@ -171,6 +178,17 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
         consolePrinterPanel.setBorder(new TitledBorder("Console Printer"));
         consoleKeyboardPanel.setBorder(new TitledBorder("Console Keyboard"));
         cachePanel.setBorder(new TitledBorder("Cache"));
+    }
+    
+    private void addToStatusPanel() {
+    	
+    	statusLabel.setText("OK");
+    	statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    	statusLabel.setOpaque(true);
+    	statusLabel.setBackground(Color.GREEN);
+    	statusLabel.setPreferredSize(new Dimension(0, 0));
+    	
+    	statusPanel.add(statusLabel, BorderLayout.NORTH);
     }
     
     private void addToIplPanel() {
@@ -324,6 +342,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     
     private void addToLeftPanel() {
     	
+    	leftPanel.add(statusPanel);
     	leftPanel.add(iplPanel);
         leftPanel.add(instructionPanel);
         leftPanel.add(pcPanel);
@@ -450,7 +469,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     				cl.getBlock()[12],
     				cl.getBlock()[13],
     				cl.getBlock()[14],
-    				cl.getBlock()[15],});
+    				cl.getBlock()[15]});
     	}
     }
     
@@ -474,9 +493,8 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     			&& ioObject.getDevId().equals(DeviceId.CONSOLE_KEYBOARD)) {
     		runConsoleKeyboardInput();
     		
-    	} else if (ioObject.getOpCode().equals(OpCode.OUT) 
-    			&& ioObject.getDevId().equals(DeviceId.CONSOLE_PRINTER)) {
-    		runConsolePrinterOutput(ioObject.getRegisterId());
+    	} else if (ioObject.getOpCode().equals(OpCode.OUT)) {
+    		runConsolePrinterOutput(ioObject.getRegisterId(), ioObject.getDevId());
     		
     	} else {
     		System.out.println("ERROR: UNKNOWN OBSERVABLE SOURCE!");
@@ -492,16 +510,14 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	
     }
     
-    private void runConsolePrinterOutput(int registerId) {
+    private void runConsolePrinterOutput(int registerId, String devId) {
     	
     	System.out.println("Outputting to console printer.");
     	
     	String registerValue = cpu.getR(registerId).getBitValue().getValue();
-    	boolean regIsInt = cpu.getRegisterIsInt()[registerId];
     	
-    	if (regIsInt) {
-    		// Currently, once a register is set to hold an int, it should always hold an int.
-    		// TODO: Will need to change this later
+    	if (devId.equals(DeviceId.CONSOLE_PRINTER)) {
+    		
     		if (registerValue.equals(BitWord.VALUE_ENTER)) {
     			// Print nothing for Enter key
     		} else if (registerValue.equals(BitWord.VALUE_NEWLINE)) {
@@ -509,8 +525,10 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     		} else {
     			consolePrinterOutput.append(Integer.parseInt(registerValue, 2) + "");
     		}
-    	} else {
+    	} else if (devId.equals(DeviceId.CONSOLE_PRINTER_ASCII)){
     		consolePrinterOutput.append(DataConversion.binaryToText(registerValue));
+    	} else {
+    		System.out.println("ERROR: UNKNOWN DEVICE ID");
     	}
     }
     

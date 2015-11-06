@@ -80,7 +80,7 @@ public class MiniComputer extends Observable implements Runnable
 	
 	private IOObject inputObject;
 	private IOObject outputObject;
-	private boolean[] registerIsInt;
+	
 	private int bootPrgmLength;
 	private int prgmOneLength;
 	private int prgmTwoLength;
@@ -138,13 +138,6 @@ public class MiniComputer extends Observable implements Runnable
 			IRR[i] = new Register(16);
 		}
 		
-		// Initialize register flags
-		// true for int and false for ascii
-		registerIsInt = new boolean[4];
-		for (int i = 0; i < registerIsInt.length; i++)
-		{
-			registerIsInt[i] = false;
-		}
 	}
 	
 	/* Register getters */
@@ -238,15 +231,6 @@ public class MiniComputer extends Observable implements Runnable
 		return theCache;
 	}
 	
-	public boolean[] getRegisterIsInt()
-	{
-		return registerIsInt;
-	}
-	
-	public void setRegisterIsInt(int regId, boolean isInt)
-	{
-		registerIsInt[regId] = isInt;
-	}
 	
 	/**
 	 * Loads the ROM contents.
@@ -625,6 +609,7 @@ public class MiniComputer extends Observable implements Runnable
                 not(rx);             	
                 break;
             default:
+            	// chihoon TODO: machine fault, invalid opcode
                 break;                        
         }
 		
