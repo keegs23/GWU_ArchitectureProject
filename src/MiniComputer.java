@@ -1,7 +1,10 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Map;
@@ -18,7 +21,7 @@ public class MiniComputer extends Observable implements Runnable
 	public static final String PROGRAM_TWO_NAME = "Project2_bin.txt";
 	public static final String PROGRAM_TWO_INPUT_NAME = "prgm-2-input.txt";
 	public static volatile ProgramCode currentProgram = ProgramCode.BOOTPROGRAM;
-	public final PrintWriter logger;
+	public static PrintWriter logger;
 	
 	/**
 	 * Program Counter (12 bits)
@@ -88,12 +91,13 @@ public class MiniComputer extends Observable implements Runnable
 	private String prgmOneStart12Bits;
 	private String prgmTwoStart12Bits;
 	private int prgmTwoInputPointer;
+	private boolean isRunningTrap;
 	
 	
-	public MiniComputer() throws FileNotFoundException
+	public MiniComputer() throws FileNotFoundException, IOException
 	{
 		// Initialize logger
-		logger = new PrintWriter(new File(LOG_FILE_NAME));
+		logger = new PrintWriter(new BufferedWriter(new FileWriter(LOG_FILE_NAME)), true);
 		
 		// Initialize Registers (sizes specified by the table in the project description)
 		PC = new Register(12); //register size is 12 bits
@@ -131,6 +135,7 @@ public class MiniComputer extends Observable implements Runnable
 		prgmOneStart12Bits = "";
 		prgmTwoStart12Bits = "";
 		prgmTwoInputPointer = 0;
+		isRunningTrap = false;
 		
 		// Initialize IRR
 		for (int i = 0; i < IRR.length; i++)
@@ -400,6 +405,7 @@ public class MiniComputer extends Observable implements Runnable
         BitWord arithmeticOrLogic;
         BitWord leftOrRight;
         BitWord shiftCount;        
+        BitWord trapCode;
 		
         // Transfer PC value to MAR
         MAR.setBitValue(ArithmeticLogicUnit.padZeros(PC.getBitValue().getValue()));
@@ -432,7 +438,8 @@ public class MiniComputer extends Observable implements Runnable
                 //TODO in Part II
                 break;
             case OpCode.TRAP:
-                //TODO in Part II
+                trapCode = instructionParse.get(BitInstruction.KEY_TRAP_CODE);
+                trap(trapCode);
                 break;
             case OpCode.LDR:
             	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
@@ -614,7 +621,9 @@ public class MiniComputer extends Observable implements Runnable
         }
 		
 		// Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
-        if(!isTransferInstruction && !opcode.getValue().equals(OpCode.HLT))
+        if(!isTransferInstruction 
+        		&& !opcode.getValue().equals(OpCode.HLT)
+        		&& !opcode.getValue().equals(OpCode.TRAP))
         {
         	// Increment PC
         	String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE);
@@ -623,9 +632,44 @@ public class MiniComputer extends Observable implements Runnable
         	PC.setBitValue(pc);
         }
         // For transfer instructions, PC is set when executing that instruction
+        
+        if(isRunningTrap)
+        {
+        	// Retrieve next PC from reserved memory location 2
+    		String pc = memory.get(MemoryLocation.RESERVED_ADDRESS_TRAP_PC).getValue().getValue();
+    		// PC can only hold 12 bits, so chop off the leading zeros
+    		pc = pc.substring(4,  16);
+    		PC.setBitValue(pc);
+    		
+    		isRunningTrap = false;
+        }
 	}
 	
 	/* Instruction methods */
+	
+	/**
+	 * Trap to Memory Address 0
+	 * @param trap code
+	 */
+	public void trap(BitWord trapCode)
+	{
+		// Write PC+1 to reserved memory location 2
+		String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE);
+		MemoryLocation memLoc = new MemoryLocation(MemoryLocation.RESERVED_ADDRESS_TRAP_PC, pc);
+		
+		theCache.writeToCacheAndMemory(memory, MemoryLocation.RESERVED_ADDRESS_TRAP_PC, memLoc);
+		
+		// Set PC to trap routine address
+		BitWord trapAddress = memory.get(MemoryLocation.RESERVED_ADDRESS_TRAP).getValue();
+		String trapRoutineAddress = ArithmeticLogicUnit.add(trapAddress.getValue(), trapCode.getValue());
+		
+		PC.setBitValue(trapRoutineAddress);
+		
+		isRunningTrap = true;
+		
+		// Run trap instruction
+		singleStep();
+	}
 	
 	/**
 	 * Load Register From Memory
@@ -707,7 +751,7 @@ public class MiniComputer extends Observable implements Runnable
 		// Move contents of IRR to memory at address specified by IAR		
 		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR[0].getBitValue());
 		// TreeMap.put() automatically replaces the value and adds a new key if necessary 
-		writeToCacheAndBuffer(IAR.getBitValue().getValue(), memLoc);
+		theCache.writeToCacheAndMemory(memory, IAR.getBitValue().getValue(), memLoc);
 	}
 	
 	/**
@@ -817,7 +861,7 @@ public class MiniComputer extends Observable implements Runnable
 		// Move contents of IRR to memory at address specified by IAR		
 		MemoryLocation memLoc = new MemoryLocation(IAR.getBitValue(), IRR[0].getBitValue());
 		// TreeMap.put() automatically replaces the value and adds a new key if necessary 
-		writeToCacheAndBuffer(IAR.getBitValue().getValue(), memLoc);
+		theCache.writeToCacheAndMemory(memory, IAR.getBitValue().getValue(), memLoc);
 	}
 	
 	/**
@@ -1698,14 +1742,6 @@ public class MiniComputer extends Observable implements Runnable
 			
 		CC.setBitValue(first + flag + last);
 	}        
-	
-	private void writeToCacheAndBuffer(String address, MemoryLocation memLoc) 
-	{
-		
-		// TODO: write to cache
-		logger.println("Writing to write buffer");
-		memory.put(address, memLoc);
-	}
         
         private void fetchFromCache() {
             MemoryLocation tempMemory = null;   

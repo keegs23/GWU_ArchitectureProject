@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -73,7 +74,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	private JButton clearConsolePrinterButton;
 	private String consoleKeyboardInputHolder;
 
-	public MiniComputerGui() throws FileNotFoundException {
+	public MiniComputerGui() throws FileNotFoundException, IOException {
 
 		cpu = new MiniComputer();
 		mainPanel = getContentPane();
@@ -156,7 +157,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
-        statusPanel.setLayout(new GridLayout(0, 1));
+        statusPanel.setLayout(new GridLayout(0, 2));
         iplPanel.setLayout(new FlowLayout());
         instructionPanel.setLayout(new GridLayout(0, 2));
         pcPanel.setLayout(new FlowLayout());
@@ -745,7 +746,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 				try {
 					gui = new MiniComputerGui();
 					gui.setVisible(true);
-				} catch (FileNotFoundException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
             }

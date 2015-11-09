@@ -16,6 +16,7 @@ public class BitInstruction extends BitWord
     public static final String KEY_ARITHMETIC_OR_LOGIC = "arithmeticOrLogic";
     public static final String KEY_LEFT_OR_RIGHT = "leftOrRight";
     public static final String KEY_SHIFT_COUNT = "shiftCount";    
+    public static final String KEY_TRAP_CODE = "trapCode";
         
     public BitInstruction()
     {
@@ -39,7 +40,7 @@ public class BitInstruction extends BitWord
                 //BEN TODO
                 break;
             case OpCode.TRAP:
-                //TODO in Part III
+                instructionParts = parseTrap();
                 break;
             case OpCode.LDR:
                 instructionParts = parseLoadStore(opCode);
@@ -275,4 +276,21 @@ public class BitInstruction extends BitWord
         
         return parse;
     }    
+    
+    /**
+     * Parses trap instruction
+     * @param
+     * @return 
+     */
+    private Map<String, BitWord> parseTrap()
+    {
+        Map<String, BitWord> parse = new HashMap<String, BitWord>();
+        
+        String trapCode = value.substring(12, 16);
+        
+        parse.put(KEY_OPCODE, new BitWord(OpCode.TRAP));
+        parse.put(KEY_TRAP_CODE, new BitWord(trapCode));
+        
+        return parse;
+    }
 }
