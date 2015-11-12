@@ -4,6 +4,7 @@ public class BitWord {
 	public static final String VALUE_ENTER = "1111111111111111"; //Represents value for Enter character
 	public static final String VALUE_NEWLINE = "1010101010101010"; //Represents value for New line character
 	public static final String VALUE_DEFAULT = VALUE_ZERO;
+	public static final String VALUE_INVALID_OPCODE = "111111"; //Unused Opcode value. Represents invalid opcode
 	
 	protected final String value;
 	
