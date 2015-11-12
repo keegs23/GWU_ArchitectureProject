@@ -228,6 +228,9 @@ public final class ArithmeticLogicUnit {
 	{
             //register will be of length 16 bits
             int n = 16;
+            p = padZeros(p);
+            q = padZeros(q);
+            String pbuild = null;
             for(int i = 0;i<n;i++)
             {
                 String pbit = p.substring(i, i+1);
@@ -237,40 +240,29 @@ public final class ArithmeticLogicUnit {
                 if (i==0)
                 {
                     //edge case: first bit
-                    if (r == "00" || r == "01" || r == "10")
+                    if (r.equals("00") || r.equals("01") || r.equals("10"))
                     {
-                            p= "0" + p.substring(i+1, i+2);
+                            pbuild = "0";
                     }
-                    else if (r == "11")
+                    else if (r.equals("11"))
                     {
-                            p= "1" + p.substring(i+1, i+2);
+                            pbuild = "1";
                     }
                 }
-                else if (i==n)
-                {// edge case:  last bit
-                        if (r == "00" || r == "01" || r == "10")
+                else 
+                {// general case: second through last bit
+                        if (r.equals("00") || r.equals("01") || r.equals("10"))
                         {
-                                p= p.substring(i-1, i)+"0";
+                                pbuild = pbuild + "0";
                         }
-                        else if (r == "11")
+                        else if (r.equals("11"))
                         {
-                                p= p.substring(i-1, i)+"1";
+                                pbuild = pbuild + "1";
                         }
 
                 }
-                else
-                {//general case
-                        if (r == "00" || r == "01" || r == "10")
-                        {
-                                p= p.substring(i-1, i)+"0"+ p.substring(i+1, i+2);
-                        }
-                        else if (r == "11")
-                        {
-                                p= p.substring(i-1, i)+"1"+ p.substring(i+1, i+2);
-                        }
-                }
             }
-            return p;
+            return pbuild;
 	}		
 		
         /**
@@ -283,6 +275,9 @@ public final class ArithmeticLogicUnit {
         {
             //register will be of length 16 bits
             int n = 16;
+            p = padZeros(p);
+            q = padZeros(q);
+            String pbuild = null;
             for(int i = 0;i<n;i++)
             {
                 String pbit = p.substring(i, i+1);
@@ -292,42 +287,28 @@ public final class ArithmeticLogicUnit {
                 if (i==0)
                 {
                     //edge case: first bit
-                    if (r == "11" || r == "01" || r == "10")
+                    if (r.equals("11") || r.equals("01") || r.equals("10"))
                     {
-                            p= "1" + p.substring(i+1, n);
+                            pbuild = "1";
                     }
-                    else if (r == "00")
+                    else if (r.equals("00"))
                     {
-                            p= "0" + p.substring(i+1, n);
-                    }
-                }
-                else if (i==n)
-                {
-                    // edge case:  last bit
-                    if (r == "11" || r == "01" || r == "10")
-                    {
-                            p= p.substring(0, i)+"1";
-                    }
-                    else if (r == "00")
-                    {
-                            p= p.substring(0, i)+"0";
+                            pbuild = "0";
                     }
                 }
-                else
-                {
-                    //general case
-                    if (r == "11" || r == "01" || r == "10")
-                    {
-                            p= p.substring(0, i)+"1"+ p.substring(i+1, n);
-                    }
-                    else if (r == "00")
-                    {
-                            p= p.substring(0, i)+"0"+ p.substring(i+1, n);
-                    }
+                else 
+                {// general case: second through last bit
+                        if (r.equals("11") || r.equals("01") || r.equals("10"))
+                        {
+                                pbuild = pbuild + "1";
+                        }
+                        else if (r.equals("00"))
+                        {
+                                pbuild = pbuild + "0";
+                        }
                 }
             }
-            
-            return p;
+            return pbuild;
         }
         /**
          * Logical NOT of RegisterP ; i.e. switch "1's & 0's"
@@ -338,17 +319,18 @@ public final class ArithmeticLogicUnit {
         {
             //register will be of length 16 bits
             int n = 16;
+            p = padZeros(p);
             for(int i = 0;i<n;i++)
             {
                 String r = p.substring(i, i+1);
                 if (i==0)
                 {
                     //edge case: first bit
-                    if (r == "1")
+                    if (r.equals("1"))
                     {
                         p= "0" + p.substring(i+1, n); //switch the first bit, save the rest
                     }
-                    else if (r == "0")
+                    else if (r.equals("0"))
                     {
                         p= "1" + p.substring(i+1, n);
                     }
@@ -356,11 +338,11 @@ public final class ArithmeticLogicUnit {
                 else if (i==n)
                 {
                     // edge case:  last bit
-                    if (r == "0")
+                    if (r.equals("0"))
                     {
                         p= p.substring(0, i)+"1"; //save everything, but switch the last bit
                     }
-                    else if (r == "1")
+                    else if (r.equals("1"))
                     {
                         p= p.substring(0, i)+"0";
                     }
@@ -368,11 +350,11 @@ public final class ArithmeticLogicUnit {
                 else
                 {
                     //general case
-                    if (r == "0" )
+                    if (r.equals("0") )
                     {
                         p= p.substring(0, i)+"1"+ p.substring(i+1, n); //change the ith bit
                     }
-                    else if (r == "1")
+                    else if (r.equals("1"))
                     {
                         p= p.substring(0, i)+"0"+ p.substring(i+1, n);
                     }
@@ -397,7 +379,7 @@ public final class ArithmeticLogicUnit {
             //String LeftOrRight = bitword.substring(9, 10);  // left = 1; right = 0;
             //String sCount = bitword.substring(12, 16);
             //convert sCount from string to number, this will be the loop counter
-            int n = Integer.parseInt(sCount);
+            int n = Integer.parseInt(sCount,2);
             String buffer;
             String keeper;
             String shifted;
@@ -407,26 +389,27 @@ public final class ArithmeticLogicUnit {
             // the chip small.  i.e. a 'two shift' isn't build into the hardware.
 
             /////we can use this same code for rotation by setting the Buffer = substring(0,1) or substring(15,16)////
-
+            
+            Registervalue = padZeros(Registervalue);
             for(int i = 0;i<n;i++)
                     {
                             //shift values left
-                            if(LeftOrRight == "1")
+                            if(LeftOrRight.equals("1"))
                             {
                                     keeper = Registervalue.substring(1, 16);
                                     buffer = "0";
                                     shifted = keeper + buffer;  ///shifted to the left
-                                    if(ArithmeticOrLogic == "0")  //i.e. arithmetic shift
+                                    if(ArithmeticOrLogic.equals("0"))  //i.e. arithmetic shift
                                     {
                                             String overflow = Registervalue.substring(1, 2);
-                                            if (overflow == "1" ) {String SetOverflow = "1";}   /////////////do we have an ALU overflow flag set yet?????????????????????????
+                                            if (overflow.equals("1")) {String SetOverflow = "1";}   /////////////do we have an ALU overflow flag set yet?????????????????????????
                                     }
                             }
                             else
                             {
                                     //shift values right  
                                     keeper = Registervalue.substring(0, 15);
-                                    if(ArithmeticOrLogic == "0")  //i.e. arithmetic shift
+                                    if(ArithmeticOrLogic.equals("0"))  //i.e. arithmetic shift
                                     {//if you are arithmetic shifting to the right, then you insert the sign bit
                                             buffer = Registervalue.substring(0, 1); 
                                     }
@@ -456,7 +439,7 @@ public final class ArithmeticLogicUnit {
             //String LeftOrRight = bitword.substring(9, 10);  // left = 1; right = 0;
             //String sCount = bitword.substring(12, 16);
             //convert sCount from string to number, this will be the loop counter
-            int n = Integer.parseInt(sCount);
+            int n = Integer.parseInt(sCount,2);
             String buffer;
             String keeper;
             String shifted;
@@ -466,10 +449,11 @@ public final class ArithmeticLogicUnit {
             // and then loop through the ALU again to perform additional shifts to keep the real estate on 
             // the chip small.  i.e. a 'two shift' isn't build into the hardware.
 
+            Registervalue = padZeros(Registervalue);
             for(int i = 0;i<n;i++)
                     {
                             //shift values left
-                            if(LeftOrRight == "1")
+                            if(LeftOrRight.equals("1"))
                             {
                                     keeper = Registervalue.substring(1, 16);
                                     buffer = Registervalue.substring(0, 1);

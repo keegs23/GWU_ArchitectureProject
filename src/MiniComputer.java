@@ -581,7 +581,7 @@ public class MiniComputer extends Observable implements Runnable
                 rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
                 ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
                 trr(rx, ry);
-            break;     
+                break;     
             case OpCode.SRC:
                 isTransferInstruction = true;
                 register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
@@ -1518,24 +1518,14 @@ public class MiniComputer extends Observable implements Runnable
 
             // Move the register contents into the Internal Result Register (IRR)?
             IRR[0].setBitValue(registerSelect1.getBitValue());
-
-            // If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
-            // Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
             int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-            //if(irr >= 0) {
-                    //IAR.setBitValue(ea);  
-            //} else {
-                    // Else set IAR value to Shift Register
-                    // src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
-                    IAR.setBitValue(ArithmeticLogicUnit.src(String.valueOf(irr), arithmeticOrLogic.getValue(), leftOrRight.getValue(), shiftCount.getValue()));
-            //}
-
-            // TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-
-            // Store IAR contents into the PC
-            // PC can only hold 12 bits so chop off the leading zeros
-            //String pc = IAR.getBitValue().getValue().substring(4, 16);
-            //PC.setBitValue(pc);
+            //after performing the shift save the new value in the IRR
+            IRR[0].setBitValue(ArithmeticLogicUnit.src(String.valueOf(irr), arithmeticOrLogic.getValue(), leftOrRight.getValue(), shiftCount.getValue()));
+    		// Store IRR contents into the specified register
+    		if(registerSelect1 != null)
+    		{
+    			registerSelect1.setBitValue(IRR[0].getBitValue());
+    		}
     	}
         
     	/**
@@ -1552,24 +1542,13 @@ public class MiniComputer extends Observable implements Runnable
 
             // Move the register contents into the Internal Result Register (IRR)?
             IRR[0].setBitValue(registerSelect1.getBitValue());
-
-            // If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
-            // Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
             int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-            //if(irr >= 0) {
-                    //IAR.setBitValue(ea);  
-            //} else {
-                    // Else set IAR value to Shift Register
-                    // src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
-                    IAR.setBitValue(ArithmeticLogicUnit.rrc(String.valueOf(irr), arithmeticOrLogic.getValue(), leftOrRight.getValue(), shiftCount.getValue()));
-            //}
-
-            // TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-
-            // Store IAR contents into the PC
-            // PC can only hold 12 bits so chop off the leading zeros
-            //String pc = IAR.getBitValue().getValue().substring(4, 16);
-            //PC.setBitValue(pc);
+            IRR[0].setBitValue(ArithmeticLogicUnit.rrc(String.valueOf(irr), arithmeticOrLogic.getValue(), leftOrRight.getValue(), shiftCount.getValue()));
+    		// Store IRR contents into the specified register
+    		if(registerSelect1 != null)
+    		{
+    			registerSelect1.setBitValue(IRR[0].getBitValue());
+    		}
     	}
 
         /**
@@ -1590,21 +1569,13 @@ public class MiniComputer extends Observable implements Runnable
             // If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
             // Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
             int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-            int irr2 = Integer.parseInt(IRR[1].getBitValue().getValue());
-            //if(irr >= 0) {
-                    //IAR.setBitValue(ea);  
-            //} else {
-                    // Else set IAR value to Shift Register
-                    // src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
-                    IAR.setBitValue(ArithmeticLogicUnit.and(String.valueOf(irr), String.valueOf(irr2)));
-            //}
-
-            // TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-
-            // Store IAR contents into the PC
-            // PC can only hold 12 bits so chop off the leading zeros
-            //String pc = IAR.getBitValue().getValue().substring(4, 16);
-            //PC.setBitValue(pc);
+            int irrtwo = Integer.parseInt(IRR[1].getBitValue().getValue());
+            IRR[0].setBitValue(ArithmeticLogicUnit.and(String.valueOf(irr), String.valueOf(irrtwo)));
+            
+    		if(registerSelect1 != null)
+    		{
+    			registerSelect1.setBitValue(IRR[0].getBitValue());
+    		}
     	}
     	
         /**
@@ -1625,21 +1596,14 @@ public class MiniComputer extends Observable implements Runnable
             // If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
             // Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
             int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-            int irr2 = Integer.parseInt(IRR[1].getBitValue().getValue());
-            //if(irr >= 0) {
-                    //IAR.setBitValue(ea);  
-            //} else {
-                    // Else set IAR value to Shift Register
-                    // src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
-                    IAR.setBitValue(ArithmeticLogicUnit.orr(String.valueOf(irr), String.valueOf(irr2)));
-            //}
+            int irrtwo = Integer.parseInt(IRR[1].getBitValue().getValue());
+            IRR[0].setBitValue(ArithmeticLogicUnit.orr(String.valueOf(irr), String.valueOf(irrtwo)));
+            
+    		if(registerSelect1 != null)
+    		{
+    			registerSelect1.setBitValue(IRR[0].getBitValue());
+    		}
 
-            // TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-
-            // Store IAR contents into the PC
-            // PC can only hold 12 bits so chop off the leading zeros
-            //String pc = IAR.getBitValue().getValue().substring(4, 16);
-            //PC.setBitValue(pc);
     	}
     	
         /**
@@ -1657,20 +1621,13 @@ public class MiniComputer extends Observable implements Runnable
             // If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
             // Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
             int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-            //if(irr >= 0) {
-                    //IAR.setBitValue(ea);  
-            //} else {
-                    // Else set IAR value to Shift Register
-                    // src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
-                    IAR.setBitValue(ArithmeticLogicUnit.not(String.valueOf(irr)));
-            //}
-
-            // TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-
-            // Store IAR contents into the PC
-            // PC can only hold 12 bits so chop off the leading zeros
-            //String pc = IAR.getBitValue().getValue().substring(4, 16);
-            //PC.setBitValue(pc);
+            //perform logic of NOT statement on bitword
+            IRR[0].setBitValue(ArithmeticLogicUnit.not(String.valueOf(irr)));
+    		//write the answer to the rx specified register
+            if(registerSelect1 != null)
+    		{
+    			registerSelect1.setBitValue(IRR[0].getBitValue());
+    		}
     	}
 
 	
