@@ -69,6 +69,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	private JTable registerTable;
 	private JTable memoryTable;
 	private JTable cacheTable;
+	private JButton refreshTablesButton;
 	private JTextArea consolePrinterOutput;
 	private JTextField consoleKeyboardInput;
 	private JButton clearConsolePrinterButton;
@@ -107,6 +108,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		registerTable = new JTable(registerModel);
 		memoryTable = new JTable(memoryModel);
 		cacheTable = new JTable(cacheModel);
+		refreshTablesButton = new JButton("Refresh Table Data");
 		consolePrinterOutput = new JTextArea();
 		consoleKeyboardInput = new JTextField(10);
 		clearConsolePrinterButton = new JButton("Clear Output Screen");
@@ -253,7 +255,11 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     }
     
     private void addToRegisterPanel() {
-        registerPanel.add(new JScrollPane(registerTable));
+    	
+        registerPanel.add(new JScrollPane(registerTable), BorderLayout.CENTER);
+        
+        refreshTablesButton.addActionListener(this);
+        registerPanel.add(refreshTablesButton, BorderLayout.SOUTH);
     }
     
     private void addToMemoryPanel() {
@@ -328,13 +334,11 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	cacheModel.setRowCount(0);
     	cacheModel.addColumn("Address Tag");
     	
-    	int binaryInt;
     	String temp;
     	
     	for (int i = 0; i < Cache.MAX_CACHE_SIZE; i++) {
     		
-    		binaryInt = Integer.parseInt(Integer.toBinaryString(i));
-			temp = String.format("%04d", binaryInt);
+			temp = DataConversion.intToFourBitString(i);
 			cacheModel.addColumn(temp);
     	}
     	
@@ -454,23 +458,23 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	
     	for (CacheLine cl : cpu.getCache().getCache()) {
     		cacheModel.addRow(new Object[]{
-    				cl.getAddressTag(), 
-    				cl.getBlock()[0],
-    				cl.getBlock()[1],
-    				cl.getBlock()[2],
-    				cl.getBlock()[3],
-    				cl.getBlock()[4],
-    				cl.getBlock()[5],
-    				cl.getBlock()[6],
-    				cl.getBlock()[7],
-    				cl.getBlock()[8],
-    				cl.getBlock()[9],
-    				cl.getBlock()[10],
-    				cl.getBlock()[11],
-    				cl.getBlock()[12],
-    				cl.getBlock()[13],
-    				cl.getBlock()[14],
-    				cl.getBlock()[15]});
+    				cl.getAddressTag().getValue(), 
+    				cl.getBlock()[0].getValue().getValue(),
+    				cl.getBlock()[1].getValue().getValue(),
+    				cl.getBlock()[2].getValue().getValue(),
+    				cl.getBlock()[3].getValue().getValue(),
+    				cl.getBlock()[4].getValue().getValue(),
+    				cl.getBlock()[5].getValue().getValue(),
+    				cl.getBlock()[6].getValue().getValue(),
+    				cl.getBlock()[7].getValue().getValue(),
+    				cl.getBlock()[8].getValue().getValue(),
+    				cl.getBlock()[9].getValue().getValue(),
+    				cl.getBlock()[10].getValue().getValue(),
+    				cl.getBlock()[11].getValue().getValue(),
+    				cl.getBlock()[12].getValue().getValue(),
+    				cl.getBlock()[13].getValue().getValue(),
+    				cl.getBlock()[14].getValue().getValue(),
+    				cl.getBlock()[15].getValue().getValue()});
     	}
     }
     
@@ -479,23 +483,35 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     /* Observer Methods */
     
     @Override
-    public void update(Observable o, Object io) {
+    public void update(Observable o, Object obj) {
     	
-    	IOObject ioObject = null;
-    	
-    	try {
-    		ioObject = (IOObject) io;
-    	}
-    	catch (Exception e) {
-    		System.err.println("Exception: " + e.getMessage());
-    	}
-    	
-    	if (ioObject.getOpCode().equals(OpCode.IN) 
-    			&& ioObject.getDevId().equals(DeviceId.CONSOLE_KEYBOARD)) {
-    		runConsoleKeyboardInput();
+    	if (obj instanceof IOObject) {
     		
-    	} else if (ioObject.getOpCode().equals(OpCode.OUT)) {
-    		runConsolePrinterOutput(ioObject.getRegisterId(), ioObject.getDevId());
+    		IOObject ioObject = (IOObject) obj;
+    		
+    		if (ioObject.getOpCode().equals(OpCode.IN) 
+        			&& ioObject.getDevId().equals(DeviceId.CONSOLE_KEYBOARD)) {
+        		runConsoleKeyboardInput();
+        		
+        	} else if (ioObject.getOpCode().equals(OpCode.OUT)) {
+        		runConsolePrinterOutput(ioObject.getRegisterId(), ioObject.getDevId());
+        		
+        	} else {
+        		System.out.println("ERROR: UNKNOWN I/O CODE!");
+        	}
+    		
+    	} else if (obj instanceof Register) {
+    		
+    		Register MFR = (Register) obj;
+    		int machineFaultCode = Integer.parseInt(MFR.getBitValue().getValue(), 2);
+    		
+    		if (machineFaultCode == 15) {
+    			statusLabel.setBackground(Color.GREEN);
+    			statusLabel.setText("OK");
+    		} else {
+    			statusLabel.setBackground(Color.RED);
+    			statusLabel.setText("FAULT: CODE " + machineFaultCode);
+    		}
     		
     	} else {
     		System.out.println("ERROR: UNKNOWN OBSERVABLE SOURCE!");
@@ -573,6 +589,8 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
         		runInstructionLoad();
         	} else if (src == singleStepButton) {
         		runSingleStep();
+        	} else if (src == refreshTablesButton) {
+        		populateAllTables();
         	} else if (src == clearConsolePrinterButton) {
         		clearConsolePrinter();
         	} else {

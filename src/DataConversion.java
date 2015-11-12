@@ -9,8 +9,9 @@ public class DataConversion {
 	public static String binaryToText(String inputString) {
 		
 		int outputInt = Integer.parseInt(inputString, 2);
+		Character outputChar = new Character((char) outputInt);
 		
-		return new Character((char) outputInt).toString();
+		return outputChar.toString();
 	}
 	
 	/**
@@ -22,6 +23,16 @@ public class DataConversion {
 		String outputString = Integer.toBinaryString(outputInt);
 		
 		return ArithmeticLogicUnit.padZeros(outputString);
+	}
+	
+	/**
+	 * Converts int to four-bit binary string
+	 */
+	public static String intToFourBitString(int inputInt) {
+		
+		int outputInt = Integer.parseInt(Integer.toBinaryString(inputInt));
+		
+		return String.format("%04d", outputInt);
 	}
 
 }

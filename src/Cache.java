@@ -114,13 +114,11 @@ public class Cache {
 		MiniComputer.logger.print("Adding new cacheline to cache with addressTag " + firstTwelveBits + "... ");
 		
 		CacheLine newCacheLine = new CacheLine(firstTwelveBits);
-		int binaryInt;
 		String lastFourBits;
 		
 		for (int i = 0; i < newCacheLine.getBlock().length; i++) {
 			
-			binaryInt = Integer.parseInt(Integer.toBinaryString(i)); // TODO: move this to DataConversion
-			lastFourBits = String.format("%04d", binaryInt);
+			lastFourBits = DataConversion.intToFourBitString(i);
 			newCacheLine.getBlock()[i] = new MemoryLocation(firstTwelveBits + lastFourBits, BitWord.VALUE_ZERO); // initialize each block
 		}
 		

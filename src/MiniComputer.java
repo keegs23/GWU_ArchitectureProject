@@ -92,6 +92,7 @@ public class MiniComputer extends Observable implements Runnable
 	private String prgmTwoStart12Bits;
 	private int prgmTwoInputPointer;
 	private boolean isRunningTrap;
+	private boolean isRunningFault;
 	
 	
 	public MiniComputer() throws FileNotFoundException, IOException
@@ -117,6 +118,8 @@ public class MiniComputer extends Observable implements Runnable
 		X2 = new Register(16);
 		X3 = new Register(16);
 		
+		MFR.setBitValue("1111"); //Default value of MFR is set to 15, since 0 - 3 are fault values
+		
 		// Initialize Memory and Cache
 		memory = new TreeMap<String, MemoryLocation>();
 		cache = new Vector<CacheLine>();
@@ -136,6 +139,7 @@ public class MiniComputer extends Observable implements Runnable
 		prgmTwoStart12Bits = "";
 		prgmTwoInputPointer = 0;
 		isRunningTrap = false;
+		isRunningFault = false;
 		
 		// Initialize IRR
 		for (int i = 0; i < IRR.length; i++)
@@ -361,19 +365,36 @@ public class MiniComputer extends Observable implements Runnable
 			prgmLength = prgmTwoLength;
 		}
 		
+		MiniComputerGui.haltButtonClicked = false;
+		
+		MFR.setBitValue("1111");
+		//Update GUI status panel
+		setChanged();
+		notifyObservers(MFR);
+		
 		// Execute boot program (mostly load/store)
 		// PC can only hold 12 bits, so chop off the leading zeros
 		PC.setBitValue(prgmStart12Bits);
 		for(int k = 1; k <= prgmLength; k++)
 		{
+			int machineFaultCode = Integer.parseInt(MFR.getBitValue().getValue(), 2);
+			
 			if (MiniComputerGui.haltButtonClicked)
 			{
+				System.out.println("TERMINATED: Halt has been clicked");
 				break;
 			}
-			singleStep();
+			else if (machineFaultCode < 15)
+			{
+				System.out.println("TERMINATED: Machine fault, code " + machineFaultCode);
+				break;
+			}
+			else
+			{
+				// continue running program
+				singleStep();
+			}
 		}
-		
-		MiniComputerGui.haltButtonClicked = false;
 		
 		// Set PC back to the start of the boot program
 		// PC can only hold 12 bits, so chop off the leading zeros
@@ -407,6 +428,13 @@ public class MiniComputer extends Observable implements Runnable
         BitWord shiftCount;        
         BitWord trapCode;
 		
+        System.out.println("PC: " + PC.getBitValue().getValue()); // DEBUG code
+        
+        MFR.setBitValue("1111");
+		//Update GUI status panel
+		setChanged();
+		notifyObservers(MFR);
+		
         // Transfer PC value to MAR
         MAR.setBitValue(ArithmeticLogicUnit.padZeros(PC.getBitValue().getValue()));
 
@@ -432,6 +460,12 @@ public class MiniComputer extends Observable implements Runnable
         // Switch-case on opcode to call the appropriate instruction method
         boolean isTransferInstruction = false;
         BitWord opcode = instructionParse.get(BitInstruction.KEY_OPCODE);
+        
+        if (opcode == null)
+        {
+        	opcode = new BitWord(BitWord.VALUE_INVALID_OPCODE);
+        }
+        
         switch (opcode.getValue())
         {
             case OpCode.HLT:
@@ -616,7 +650,7 @@ public class MiniComputer extends Observable implements Runnable
                 not(rx);             	
                 break;
             default:
-            	// chihoon TODO: machine fault, invalid opcode
+            	handleMachineFault(FaultCode.ILLEGAL_OPCODE);
                 break;                        
         }
 		
@@ -643,6 +677,17 @@ public class MiniComputer extends Observable implements Runnable
     		
     		isRunningTrap = false;
         }
+        
+        if(isRunningFault)
+        {
+        	// Retrieve next PC from reserved memory location 4
+    		String pc = memory.get(MemoryLocation.RESERVED_ADDRESS_FAULT_PC).getValue().getValue();
+    		// PC can only hold 12 bits, so chop off the leading zeros
+    		pc = pc.substring(4,  16);
+    		PC.setBitValue(pc);
+    		
+    		isRunningFault = false;
+        }
 	}
 	
 	/* Instruction methods */
@@ -653,22 +698,33 @@ public class MiniComputer extends Observable implements Runnable
 	 */
 	public void trap(BitWord trapCode)
 	{
-		// Write PC+1 to reserved memory location 2
-		String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE);
-		MemoryLocation memLoc = new MemoryLocation(MemoryLocation.RESERVED_ADDRESS_TRAP_PC, pc);
+		int trapCodeInt = Integer.parseInt(trapCode.getValue(), 2);
 		
-		theCache.writeToCacheAndMemory(memory, MemoryLocation.RESERVED_ADDRESS_TRAP_PC, memLoc);
+		if (trapCodeInt < 0 || trapCodeInt > 15)
+		{
+			handleMachineFault(FaultCode.ILLEGAL_TRAP_CODE);
+			return;
+		}
 		
-		// Set PC to trap routine address
-		BitWord trapAddress = memory.get(MemoryLocation.RESERVED_ADDRESS_TRAP).getValue();
-		String trapRoutineAddress = ArithmeticLogicUnit.add(trapAddress.getValue(), trapCode.getValue());
-		
-		PC.setBitValue(trapRoutineAddress);
-		
-		isRunningTrap = true;
-		
-		// Run trap instruction
-		singleStep();
+		if (memory.get(MemoryLocation.RESERVED_ADDRESS_TRAP) != null)
+		{
+			// Write PC+1 to reserved memory location 2
+			String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE);
+			MemoryLocation memLoc = new MemoryLocation(MemoryLocation.RESERVED_ADDRESS_TRAP_PC, pc);
+			
+			theCache.writeToCacheAndMemory(memory, MemoryLocation.RESERVED_ADDRESS_TRAP_PC, memLoc);
+			
+			// Set PC to trap routine address
+			BitWord trapAddress = memory.get(MemoryLocation.RESERVED_ADDRESS_TRAP).getValue();
+			String trapRoutineAddress = ArithmeticLogicUnit.add(trapAddress.getValue(), trapCode.getValue());
+			
+			PC.setBitValue(trapRoutineAddress);
+			
+			isRunningTrap = true;
+			
+			// Run trap instruction
+			singleStep();
+		}
 	}
 	
 	/**
@@ -687,6 +743,12 @@ public class MiniComputer extends Observable implements Runnable
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 
+		// Machine Fault check
+		if (isIllegalMemoryAddress(ea))
+		{
+			return;
+		}
+				
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);
 		
@@ -730,6 +792,12 @@ public class MiniComputer extends Observable implements Runnable
 		// Calculate the effective address (EA)	
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
+		// Machine Fault check
+		if (isIllegalMemoryAddress(ea))
+		{
+			return;
+		}
+				
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);
 		
@@ -768,7 +836,7 @@ public class MiniComputer extends Observable implements Runnable
 		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
-
+				
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);
 		
@@ -800,6 +868,12 @@ public class MiniComputer extends Observable implements Runnable
 		// Pass in 0 for index since it is used to specify the index register to load into instead of for addressing like usual
 		BitWord ea = calculateEffectiveAddress(0, isIndirectAddress, address);
 
+		// Machine Fault check
+		if (isIllegalMemoryAddress(ea))
+		{
+			return;
+		}
+				
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);
 		
@@ -843,6 +917,12 @@ public class MiniComputer extends Observable implements Runnable
 		// Pass in 0 for index since it is used to specify the index register to store into instead of for addressing like usual
 		BitWord ea = calculateEffectiveAddress(0, isIndirectAddress, address);
 		
+		// Machine Fault check
+		if (isIllegalMemoryAddress(ea))
+		{
+			return;
+		}
+				
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);
 		
@@ -879,6 +959,12 @@ public class MiniComputer extends Observable implements Runnable
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 
+		// Machine Fault check
+		if (isIllegalMemoryAddress(ea))
+		{
+			return;
+		}
+		
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);
 		
@@ -933,6 +1019,12 @@ public class MiniComputer extends Observable implements Runnable
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 
+		// Machine Fault check
+		if (isIllegalMemoryAddress(ea))
+		{
+			return;
+		}
+				
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);
 		
@@ -1069,6 +1161,7 @@ public class MiniComputer extends Observable implements Runnable
 		}
 		else if (devId.getValue() == DeviceId.CONSOLE_KEYBOARD)
 		{
+			// update GUI to allow typing into console keyboard
 			setChanged();
 			notifyObservers(inputObject);
 			
@@ -1174,6 +1267,7 @@ public class MiniComputer extends Observable implements Runnable
 		outputObject.setRegisterId(register);
 		outputObject.setDevId(devId.getValue());
 		
+		// update GUI by entering output to console printer
 		setChanged();
 		notifyObservers(outputObject);
 	}
@@ -1193,6 +1287,12 @@ public class MiniComputer extends Observable implements Runnable
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
+		// Machine Fault check
+		if (isIllegalMemoryAddress(ea))
+		{
+			return;
+		}
+				
 		// Move the register contents into the Internal Result Register (IRR)?
 		IRR[0].setBitValue(registerSelect1.getBitValue());
 
@@ -1229,6 +1329,12 @@ public class MiniComputer extends Observable implements Runnable
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
+		// Machine Fault check
+		if (isIllegalMemoryAddress(ea))
+		{
+			return;
+		}
+				
 		// Move the register contents into the Internal Result Register (IRR)?
 		IRR[0].setBitValue(registerSelect1.getBitValue());
 
@@ -1262,6 +1368,12 @@ public class MiniComputer extends Observable implements Runnable
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
+		// Machine Fault check
+		if (isIllegalMemoryAddress(ea))
+		{
+			return;
+		}
+				
 		// Copy the specified bit from the CC register into the Internal Result Register (IRR)
 		IRR[0].setBitValue(ArithmeticLogicUnit.padZeros(CC.getBitValue().getValue().substring(conditionCode.ordinal(), conditionCode.ordinal()+1)));
 
@@ -1293,6 +1405,12 @@ public class MiniComputer extends Observable implements Runnable
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 
+		// Machine Fault check
+		if (isIllegalMemoryAddress(ea))
+		{
+			return;
+		}
+				
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);
 		
@@ -1315,6 +1433,12 @@ public class MiniComputer extends Observable implements Runnable
             // Calculate the effective address (EA)
             BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
             
+    		// Machine Fault check
+    		if (isIllegalMemoryAddress(ea))
+    		{
+    			return;
+    		}
+    				
             // Set General Purpose Register R3 to the PC + 1
             R3.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
 
@@ -1373,6 +1497,12 @@ public class MiniComputer extends Observable implements Runnable
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
+		// Machine Fault check
+		if (isIllegalMemoryAddress(ea))
+		{
+			return;
+		}
+				
 		// Move the register contents into the Internal Result Register (IRR)?
 		IRR[0].setBitValue(registerSelect1.getBitValue());
 
@@ -1409,6 +1539,12 @@ public class MiniComputer extends Observable implements Runnable
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
+		// Machine Fault check
+		if (isIllegalMemoryAddress(ea))
+		{
+			return;
+		}
+				
 		// Move the register contents into the Internal Result Register (IRR)?
 		IRR[0].setBitValue(registerSelect1.getBitValue());
 
@@ -1743,6 +1879,75 @@ public class MiniComputer extends Observable implements Runnable
 		CC.setBitValue(first + flag + last);
 	}        
         
+	private boolean isIllegalMemoryAddress(BitWord bitAddress)
+	{
+		if (MemoryLocation.isAddressReserved(bitAddress.getValue()))
+		{
+			handleMachineFault(FaultCode.ILLEGAL_MEMORY_ADDRESS_TO_RESERVED_LOCATION);
+			return true;
+		}
+		
+		if (Integer.parseInt(bitAddress.getValue(), 2) > 2047)
+		{
+			handleMachineFault(FaultCode.ILLEGAL_MEMORY_ADDRESS_BEYOND_2048);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private void handleMachineFault(FaultCode faultCode)
+	{
+		if (memory.get(MemoryLocation.RESERVED_ADDRESS_FAULT) != null)
+		{
+			// Write PC+1 to reserved memory location 4
+			String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE);
+			MemoryLocation memLoc = new MemoryLocation(MemoryLocation.RESERVED_ADDRESS_FAULT_PC, pc);
+			
+			theCache.writeToCacheAndMemory(memory, MemoryLocation.RESERVED_ADDRESS_FAULT_PC, memLoc);
+			
+			// Set PC to fault trap address
+			BitWord faultAddress = memory.get(MemoryLocation.RESERVED_ADDRESS_FAULT).getValue();
+			
+			PC.setBitValue(faultAddress);
+			
+			isRunningFault = true;
+			
+			// Run machine fault instruction
+			singleStep();
+		}
+		
+		String fault = MFR.getBitValue().getValue();
+		
+		if (faultCode == FaultCode.ILLEGAL_MEMORY_ADDRESS_TO_RESERVED_LOCATION)
+		{
+			System.out.println("Error: Illegal Memory Address to Reserved Location");
+			fault = "0000"; // 0
+		}
+		if (faultCode == FaultCode.ILLEGAL_TRAP_CODE)
+		{
+			System.out.println("Error: Illegal Trap Code");
+			fault = "0001"; // 1
+		}
+		if (faultCode == FaultCode.ILLEGAL_OPCODE)
+		{
+			System.out.println("Error: Illegal OpCode");
+			fault = "0010"; // 2
+		}
+		if (faultCode == FaultCode.ILLEGAL_MEMORY_ADDRESS_BEYOND_2048)
+		{
+			System.out.println("Error: Illegal Memory Address Beyond 2048");
+			fault = "0011"; // 3
+		}	
+		
+		MFR.setBitValue(fault);
+		
+		//Update GUI status panel
+		setChanged();
+		notifyObservers(MFR);
+		
+	}
+	
         private void fetchFromCache() {
             MemoryLocation tempMemory = null;   
             int count = 1;
