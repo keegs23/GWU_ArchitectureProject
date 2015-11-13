@@ -617,7 +617,6 @@ public class MiniComputer extends Observable implements Runnable
                 trr(rx, ry);
                 break;     
             case OpCode.SRC:
-                isTransferInstruction = true;
                 register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
                 arithmeticOrLogic = instructionParse.get(BitInstruction.KEY_ARITHMETIC_OR_LOGIC);
                 leftOrRight = instructionParse.get(BitInstruction.KEY_LEFT_OR_RIGHT);
@@ -625,7 +624,6 @@ public class MiniComputer extends Observable implements Runnable
                 src(register, arithmeticOrLogic, leftOrRight, shiftCount);            	
                 break;
             case OpCode.RRC:
-                isTransferInstruction = true;
                 register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
                 arithmeticOrLogic = instructionParse.get(BitInstruction.KEY_ARITHMETIC_OR_LOGIC);
                 leftOrRight = instructionParse.get(BitInstruction.KEY_LEFT_OR_RIGHT);
@@ -633,19 +631,16 @@ public class MiniComputer extends Observable implements Runnable
                 rrc(register, arithmeticOrLogic, leftOrRight, shiftCount);            	
                 break;
             case OpCode.AND:
-                isTransferInstruction = true;
                 rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
                 ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
                 and(rx, ry);            	
                 break;
             case OpCode.ORR: 
-                isTransferInstruction = true;
                 rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
                 ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
                 orr(rx, ry);             	
                 break;
             case OpCode.NOT: 
-                isTransferInstruction = true;
                 rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
                 not(rx);             	
                 break;
