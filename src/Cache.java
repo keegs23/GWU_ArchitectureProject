@@ -136,32 +136,35 @@ public class Cache {
 	}
         
         public String fetchFromCache(String addr, Map<String, MemoryLocation> memory) {
+        	
             MemoryLocation tempMemory = null;   
             String value;
             int count = 1;
             String firstTwelveBits = addr.substring(0, 12);
-            MiniComputer.logger.println("Searching for the following 12 bit address in the cache: " + firstTwelveBits);              
+            
+            MiniComputer.logger.println("Searching for the following 12 bit address in the cache: " + firstTwelveBits);   
+            
             for (CacheLine cacheLine : cache) {         
                 //if first 12 bits of address tag match
                 if (firstTwelveBits.equals(cacheLine.addressTag.getValue())) {
                    MemoryLocation[] tempBlock = cacheLine.getBlock();
                    for (MemoryLocation block : tempBlock) {
                        //get address from block 
-                       if (block.getAddress().getValue().equals(firstTwelveBits)) {
+                       if (block.getAddress().getValue().equals(addr)) {
                            tempMemory = block;
                            break;
                        }
                    }
-                   MiniComputer.logger.println(count + ". Address in cache: " + cacheLine.getAddressTag() + " is a match.");                   
+                   MiniComputer.logger.println(count + ". Address in cache: " + cacheLine.getAddressTag().getValue() + " is a match.");                   
                    break; //found in cache, move on
                 }
                 else
-                    MiniComputer.logger.println(count + ". Address in cache: " + cacheLine.getAddressTag() + " not a match.");
+                    MiniComputer.logger.println(count + ". Address in cache: " + cacheLine.getAddressTag().getValue() + " not a match.");
                 count++;
             }            
             if (tempMemory != null) {
                 //memory was in cache                
-                value = tempMemory.getAddress().getValue();
+                value = tempMemory.getValue().getValue();
                 MiniComputer.logger.println("Address was found in cache. Setting MBR... Value = " + value);
             }
             else {
