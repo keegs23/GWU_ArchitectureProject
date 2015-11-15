@@ -68,7 +68,12 @@ public class OpCode
 	 * Output character to device from register
 	 */
 	public static final String OUT  = "110010"; //62
-
+        
+        /**
+         * Check Device Status to Register
+         */
+        public static final String CHK = "110011"; //63
+        
 	/**
 	 * Jump If Zero
 	 */

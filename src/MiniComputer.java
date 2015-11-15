@@ -78,7 +78,6 @@ public class MiniComputer extends Observable implements Runnable
 	/**
 	 * Size 16
 	 */
-	private Vector<CacheLine> cache;
 	private Cache theCache; // this will replace cache once all cache methods are moved to Cache class
 	
 	private IOObject inputObject;
@@ -123,7 +122,6 @@ public class MiniComputer extends Observable implements Runnable
 		
 		// Initialize Memory and Cache
 		memory = new TreeMap<String, MemoryLocation>();
-		cache = new Vector<CacheLine>();
 		theCache = new Cache();
 		
 		// Initialize I/O transfer objects
@@ -613,6 +611,11 @@ public class MiniComputer extends Observable implements Runnable
                     register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
                     devId = instructionParse.get(BitInstruction.KEY_DEVID); 
                     out(register, devId);
+                    break;
+                case OpCode.CHK:
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2);
+                    devId = instructionParse.get(BitInstruction.KEY_DEVID);
+                    chk(register, devId);
                     break;
                 case OpCode.MLT:
                     rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
@@ -1292,6 +1295,63 @@ public class MiniComputer extends Observable implements Runnable
 		notifyObservers(outputObject);
 	}
 	
+        /**
+         * Check Device Status to Register
+         * @param register
+         * @param devId
+         */
+        public void chk(int register, BitWord devId)
+        {
+            Register selectedRegister = getR(register);
+            if (devId.getValue() == DeviceId.CARD_READER || devId.getValue() == DeviceId.CONSOLE_KEYBOARD 
+                    || devId.getValue() == DeviceId.CONSOLE_PRINTER || devId.getValue() == DeviceId.CONSOLE_PRINTER_ASCII)
+            {
+                selectedRegister.setBitValue(BitWord.VALUE_ONE);
+            }
+            else if (devId.getValue() == DeviceId.FILE_READER_ASCII)
+            {
+                //Try to open file
+                File file = null;
+		FileInputStream fileIn = null;
+		BufferedReader br = null;
+		int value = 0;
+                try 
+		{
+			file = new File(PROGRAM_TWO_INPUT_NAME);
+			fileIn = new FileInputStream(file);
+			br = new BufferedReader(new InputStreamReader(fileIn));
+			
+			br.skip(prgmTwoInputPointer); // start where previous call left off
+			
+			value = br.read(); // read in next character
+			
+			if (value == -1) // if EOF
+			{
+				value = 26;
+				prgmTwoInputPointer = 0;
+			}
+			else
+			{
+				prgmTwoInputPointer++;
+			}
+			
+			fileIn.close();
+			br.close();
+                        //set to true if no errors
+                        selectedRegister.setBitValue(BitWord.VALUE_ONE);
+		}
+		catch(Exception ex)
+		{
+                    //set to false if error is thrown when opening file
+                    selectedRegister.setBitValue(BitWord.VALUE_ZERO);
+		}
+            }
+            else
+            {
+                selectedRegister.setBitValue(BitWord.VALUE_ZERO);
+            }
+        }
+        
 	/**
 	 * Jump If Zero
 	 * @param register

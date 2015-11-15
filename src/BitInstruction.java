@@ -104,6 +104,9 @@ public class BitInstruction extends BitWord
             case OpCode.OUT:
             	instructionParts = parseIO(opCode);
             	break;
+            case OpCode.CHK:
+                instructionParts = parseIO(opCode);
+                break;
             case OpCode.MLT:
                 instructionParts = parseArithmetic(opCode, true);
                 break;
