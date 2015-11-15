@@ -20,7 +20,7 @@ AIR 3,0,0,binary 11111		Result should be 15 ones at this point
 SRC 3,1,1,1
 AIR 3,0,0,1 				R3 now has 16 ones
 STR 3,1,0,24(e)				Store the 16 ones in the Enter address e
-LDA 3,0,0,10101				Memory address n=185 stores the bit string that represents a newline character, 1010101010101010? (don't use ASCII code since that could be mistaken for a number)
+LDA 3,0,0,binary 10101				Memory address n=185 stores the bit string that represents a newline character, 1010101010101010? (don't use ASCII code since that could be mistaken for a number)
 SRC 3,1,1,5					Get newline bit string by logically shifting left 5 bits and adding the ones and zeros
 AIR 3,0,0,binary 01010	
 SRC 3,1,1,5
