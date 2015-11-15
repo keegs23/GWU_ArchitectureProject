@@ -14,21 +14,21 @@ public class MemoryLocation
 	public static final String RESERVED_ADDRESS_TRAP_FIRST = "0000011111100110";	//Memory Address 2022 (octal 3746)
 	public static final List<String> RESERVED_TRAP_TABLE = Arrays.asList(		//Memory Addresses 2022 - 2037 (octal 3746 - 3765)
 			RESERVED_ADDRESS_TRAP_FIRST,
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000001"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000010"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000011"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000100"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000101"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000110"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000111"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001000"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001001"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001010"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001011"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001100"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001101"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001110"),
-			ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001111"));
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000001").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000010").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000011").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000100").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000101").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000110").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000000111").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001000").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001001").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001010").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001011").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001100").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001101").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001110").get(ArithmeticLogicUnit.KEY_SUM),
+			(String) ArithmeticLogicUnit.add(RESERVED_ADDRESS_TRAP_FIRST, "0000000000001111").get(ArithmeticLogicUnit.KEY_SUM));
 	
 	public static final String ADDRESS_BOOT_PRGM_START = "0000000000001000";	//Memory Address 8 (octal 10)
 	public static final String ADDRESS_PRGM_ONE_START = "0000000000011110";		//Memory Address 30 (octal 36)
