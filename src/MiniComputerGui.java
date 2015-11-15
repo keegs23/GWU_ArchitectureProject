@@ -376,7 +376,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     /**** public methods ****/
     
     public String getPcInput() {
-    	return pcInput.getText();
+    	return pcInput.getText().trim();
     }
     
     public void populatePcInput() {
@@ -654,12 +654,23 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	System.out.println("SINGLE STEP BUTTON CLICKED!");
 		System.out.println(getPcInput());
 		
-		cpu.getPC().setBitValue(getPcInput());
-		cpu.singleStep();
-		sleep(200);
+		String address = getPcInput();
+		
+		if (MemoryLocation.isAddressReserved(address)) {
+			System.out.println("Error: Address is reserved");
+		}
+		else if (Integer.parseInt(address, 2) > 2047) {
+			System.out.println("Error: Address is beyond 2048");
+		}
+		else {
+			cpu.getPC().setBitValue(getPcInput());
+			cpu.singleStep();
+			sleep(200);
+			
+			populatePcInput();
+		}
 		
 		populateAllTables();
-		populatePcInput();
     }
     
     private void sleep(int sleepTime) {    	

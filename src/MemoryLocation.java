@@ -79,6 +79,7 @@ public class MemoryLocation
 		{
 			return false;
 		}
+		addr = ArithmeticLogicUnit.padZeros16(addr);
 		
 		return addr.equals(RESERVED_ADDRESS_TRAP) || 
 				addr.equals(RESERVED_ADDRESS_FAULT) || 
