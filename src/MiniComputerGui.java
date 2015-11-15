@@ -196,9 +196,9 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     
     private void addToIplPanel() {
     	
-    	final int BUTTON_WIDTH = 150;
-    	final int BUTTON_HEIGHT = 35;
-    	final int FONT_SIZE = 20;
+    	final int BUTTON_WIDTH = 120;
+    	final int BUTTON_HEIGHT = 25;
+    	final int FONT_SIZE = 15;
     	
     	iplButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
     	iplButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
@@ -655,6 +655,14 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		System.out.println(getPcInput());
 		
 		String address = getPcInput();
+		
+		try {
+			Integer.parseInt(address, 2);
+		}
+		catch(NumberFormatException nfe) {
+			System.out.println("Error: Enter valid digits only");
+			return;
+		}
 		
 		if (MemoryLocation.isAddressReserved(address)) {
 			System.out.println("Error: Address is reserved");
