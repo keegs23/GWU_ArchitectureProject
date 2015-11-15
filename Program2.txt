@@ -148,10 +148,10 @@ LDR 2,0/1,1,23(i)		Load the file input character indirect addressed by i into R2
 LDA 3,0,0,26			Load EOF character (ASCII=26) into R3
 TRR 2,3					Test if file input character (R2) is EOF (R3)
 JCC 3,3,0,14(p2e)		If EQUALORNOT is true, is EOF, so jump to PROGRAM 2 END
-LDA 3,0,0,32			Load a space (' ', ASCII=32) into R3
+AIR 3,6					Load a space (' ', ASCII=32) into R3
 TRR 2,3					Test if file input character (R2) is a space (R3)
 JCC 3,1,0,25(iwc)		If EQUALORNOT is true, is a space, so jump to INCREMENT WORD COUNT (assumes there is only 1 space after a period before the next sentence starts)
-LDA 3,0,0,46			Load '.' (ASCII=46) into R3
+AIR 3,14				Load '.' (ASCII=46) into R3
 TRR 2,3					Test if file input character (R2) is a period (R3)
 JCC 3,2,0,0(isc)		If EQUALORNOT is true, is a period, so jump to INCREMENT SENTENCE COUNT
 LDR 3,3,0,26(m)			Load the previous result of the char comparison between file input and search word (stored in m) into R3
