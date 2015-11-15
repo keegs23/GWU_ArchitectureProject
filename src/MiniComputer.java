@@ -338,7 +338,6 @@ public class MiniComputer extends Observable implements Runnable
 		}
 		catch(Exception ex)
 		{
-			// TODO: Handle exceptions
 			System.out.println(ex);
 		}
 	}
@@ -449,8 +448,6 @@ public class MiniComputer extends Observable implements Runnable
             // Transfer PC value to MAR
             MAR.setBitValue(ArithmeticLogicUnit.padZeros16(PC.getBitValue().getValue()));
 
-            // TODO: Check if address is valid
-
             // Fetch word from memory located at address specified by MAR into MBR
             /*if(memory.containsKey(MAR.getBitValue().getValue()))
             {
@@ -482,7 +479,7 @@ public class MiniComputer extends Observable implements Runnable
             switch (opcode.getValue())
             {
                 case OpCode.HLT:
-                    //TODO in Part II
+                    //Skip to end
                     break;
                 case OpCode.TRAP:
                     trapCode = instructionParse.get(BitInstruction.KEY_TRAP_CODE);
@@ -768,8 +765,6 @@ public class MiniComputer extends Observable implements Runnable
 		// Move the contents of IAR to the MAR
 		MAR.setBitValue(IAR.getBitValue());
 		
-		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
-		
 		// Fetch the contents in memory at the address specified by MAR into the MBR
 		/*if(memory.containsKey(MAR.getBitValue().getValue()))
 		{
@@ -818,8 +813,6 @@ public class MiniComputer extends Observable implements Runnable
 		
 		// Since this instruction does not retrieve from memory, MAR and MBR will not be used for this instruction
 		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-		
 		// Move the contents of the specified register to the IRR
 		if(registerSelect1 != null)
 		{
@@ -855,7 +848,7 @@ public class MiniComputer extends Observable implements Runnable
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);
 		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
+		// Note: Don't need to check for valid address here since we are not looking for it in memory
 		
 		// MAR and MBR are not used because this instruction does not fetch from memory
 		// Move the data from the IAR to an Internal Result Register (IRR)
@@ -894,8 +887,6 @@ public class MiniComputer extends Observable implements Runnable
 		
 		// Move the contents of IAR to the MAR
 		MAR.setBitValue(IAR.getBitValue());
-		
-		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
 		
 		// Fetch the contents in memory at the address specified by MAR into the MBR
 		/*if(memory.containsKey(MAR.getBitValue().getValue()))
@@ -945,8 +936,6 @@ public class MiniComputer extends Observable implements Runnable
 		
 		// Since this instruction is not fetching from memory, MAR and MBR will not be used
 		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-		
 		// Move the contents of the specified register to the IRR
 		if (indexSelect1 != null) {
 			IRR[0].setBitValue(indexSelect1.getBitValue());
@@ -987,8 +976,6 @@ public class MiniComputer extends Observable implements Runnable
 		
 		// Move the contents of IAR to the MAR
 		MAR.setBitValue(IAR.getBitValue());
-		
-		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
 		
 		// Fetch the contents in memory at the address specified by MAR into the MBR
 		/*if(memory.containsKey(MAR.getBitValue().getValue()))
@@ -1053,8 +1040,6 @@ public class MiniComputer extends Observable implements Runnable
 		
 		// Move the contents of IAR to the MAR
 		MAR.setBitValue(IAR.getBitValue());
-		
-		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
 		
 		// Fetch the contents in memory at the address specified by MAR into the MBR
 		/*if(memory.containsKey(MAR.getBitValue().getValue()))
@@ -1240,7 +1225,7 @@ public class MiniComputer extends Observable implements Runnable
 		}
 		catch(Exception ex)
 		{
-			// TODO: Handle exceptions
+			System.out.println(PROGRAM_TWO_INPUT_NAME + " not found!");
 			System.out.println(ex.getMessage());
 		}
 		
@@ -1388,8 +1373,6 @@ public class MiniComputer extends Observable implements Runnable
 			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
 		}
 		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-		
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
@@ -1430,8 +1413,6 @@ public class MiniComputer extends Observable implements Runnable
 			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
 		}
 		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-		
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
@@ -1468,8 +1449,6 @@ public class MiniComputer extends Observable implements Runnable
 			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
 		}
 		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-		
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
@@ -1495,8 +1474,6 @@ public class MiniComputer extends Observable implements Runnable
 				
 		// Move the EA to the Internal Address Register (IAR)
 		IAR.setBitValue(ea);
-		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
 		
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
@@ -1598,8 +1575,6 @@ public class MiniComputer extends Observable implements Runnable
 			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
 		}
 		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
-		
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
@@ -1639,8 +1614,6 @@ public class MiniComputer extends Observable implements Runnable
 			// Else set IAR value to PC contents + 1
 			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
 		}
-		
-		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
 		
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
@@ -1905,7 +1878,7 @@ public class MiniComputer extends Observable implements Runnable
 				addr = (String) ArithmeticLogicUnit.add(indexValue, toAdd).get(ArithmeticLogicUnit.KEY_SUM);
 			}
 			
-			// TODO: Check that addr is valid (not reserved, not larger than max)
+			// Valid address checking is done after this method
 			
 			if(memory.containsKey(addr))	//MemoryLocation
 			{
