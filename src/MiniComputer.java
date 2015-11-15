@@ -1649,13 +1649,19 @@ public class MiniComputer extends Observable implements Runnable
 
             // Move the register contents into the Internal Result Register (IRR)?
             IRR[0].setBitValue(registerSelect1.getBitValue());
-            int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-            //after performing the shift save the new value in the IRR
-            IRR[0].setBitValue(ArithmeticLogicUnit.src(String.valueOf(irr), arithmeticOrLogic.getValue(), leftOrRight.getValue(), shiftCount.getValue()));
-    		// Store IRR contents into the specified register
+            
     		if(registerSelect1 != null)
     		{
-    			registerSelect1.setBitValue(IRR[0].getBitValue());
+    			//registerSelect1.setBitValue(IRR[0].getBitValue());
+    			Map<String, Object> differenceMap = ArithmeticLogicUnit.src(IRR[0].getBitValue().getValue(), arithmeticOrLogic.getValue(), leftOrRight.getValue(), shiftCount.getValue());
+    			if (!(Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISOVERFLOW))
+    			{//after performing the shift save the new value in the IRR
+    				IRR[0].setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_REGISTERVALUE)));
+    				// Store IRR contents into the specified register
+    				registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_REGISTERVALUE)));
+    			}
+    			setConditionCode(ConditionCode.OVERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISOVERFLOW));
+    		
     		}
     	}
         
@@ -1673,8 +1679,7 @@ public class MiniComputer extends Observable implements Runnable
 
             // Move the register contents into the Internal Result Register (IRR)?
             IRR[0].setBitValue(registerSelect1.getBitValue());
-            int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
-            IRR[0].setBitValue(ArithmeticLogicUnit.rrc(String.valueOf(irr), arithmeticOrLogic.getValue(), leftOrRight.getValue(), shiftCount.getValue()));
+            IRR[0].setBitValue(ArithmeticLogicUnit.rrc(IRR[0].getBitValue().getValue(), arithmeticOrLogic.getValue(), leftOrRight.getValue(), shiftCount.getValue()));
     		// Store IRR contents into the specified register
     		if(registerSelect1 != null)
     		{

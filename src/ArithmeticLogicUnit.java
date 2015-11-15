@@ -11,6 +11,8 @@ public final class ArithmeticLogicUnit {
         public static final String KEY_REMAINDER = "remainder";
         public static final String KEY_ISDIVZERO = "isDivZero"; 
         public static final String KEY_ISUNDERFLOW = "isUnderflow";
+        public static final String KEY_ISOVERFLOW = "isOverflow";
+        public static final String KEY_REGISTERVALUE = "RegisterValue";
 
 	/**
 	 * Adds the 2 binary bit Strings
@@ -367,7 +369,7 @@ public final class ArithmeticLogicUnit {
          * @param bitword : which is a bitString
          * @return The register will shift left/right, logic/arithmetic, 1-15 units 
          */	
-        public static String src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
+        public static Map<String, Object> src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
         {
             //Parse bitword
             // this parse may have to occur in the main program and the Register passed in??
@@ -383,6 +385,8 @@ public final class ArithmeticLogicUnit {
             String buffer;
             String keeper;
             String shifted;
+            boolean isOverFlow = false;
+            Map<String,Object> returnMap = new HashMap<String,Object>();
 
             // please note that the mechanics of the simple machine would in fact shift one bit at a time.
             // and then loop through the ALU again to perform additional shifts to keep the real estate on 
@@ -401,8 +405,8 @@ public final class ArithmeticLogicUnit {
                                     shifted = keeper + buffer;  ///shifted to the left
                                     if(ArithmeticOrLogic.equals("0"))  //i.e. arithmetic shift
                                     {
-                                            String overflow = Registervalue.substring(1, 2);
-                                            if (overflow.equals("1")) {String SetOverflow = "1";}   /////////////do we have an ALU overflow flag set yet?????????????????????????
+                                            String overflow = Registervalue.substring(0, 1);
+                                            if (overflow.equals("1")) {isOverFlow = true;}
                                     }
                             }
                             else
@@ -421,8 +425,10 @@ public final class ArithmeticLogicUnit {
                             }
                             Registervalue = shifted;  // this is to get ready to loop through one more time 
                     }
+            returnMap.put(KEY_REGISTERVALUE, Registervalue);
+            returnMap.put(KEY_ISOVERFLOW, isOverFlow);
             // this is to exit with final answer
-            return Registervalue;
+            return returnMap;
         }
         /**
          * ROTATE Register Command
