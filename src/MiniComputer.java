@@ -118,7 +118,8 @@ public class MiniComputer extends Observable implements Runnable
 		X2 = new Register(16);
 		X3 = new Register(16);
 		
-		MFR.setBitValue("1111"); //Default value of MFR is set to 15, since 0 - 3 are fault values
+		//Default value of MFR is set to 15, since 0 - 3 are fault values
+		MFR.setBitValue("1111");
 		
 		// Initialize Memory and Cache
 		memory = new TreeMap<String, MemoryLocation>();
@@ -146,6 +147,9 @@ public class MiniComputer extends Observable implements Runnable
 		{
 			IRR[i] = new Register(16);
 		}
+		
+		// Initialize trap and machine fault addresses
+		initReservedAddresses();
 		
 	}
 	
@@ -240,6 +244,13 @@ public class MiniComputer extends Observable implements Runnable
 		return theCache;
 	}
 	
+	/*
+	 * Initialize Reserved memory addresses
+	 */
+	public void initReservedAddresses()
+	{
+		
+	}
 	
 	/**
 	 * Loads the ROM contents.
@@ -404,7 +415,7 @@ public class MiniComputer extends Observable implements Runnable
 	public void loadToggleInstruction(String instruction)
 	{
 		// Store the toggle inputs into MemoryLocation.RESERVED_ADDRESS_TOGGLE_INSTRUCTION
-		memory.put(MemoryLocation.RESERVED_ADDRESS_TOGGLE_INSTRUCTION, 
+		theCache.writeToCacheAndMemory(memory, MemoryLocation.RESERVED_ADDRESS_TOGGLE_INSTRUCTION, 
 				new MemoryLocation(MemoryLocation.RESERVED_ADDRESS_TOGGLE_INSTRUCTION, instruction));
 	}
 	
