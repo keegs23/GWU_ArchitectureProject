@@ -7,14 +7,14 @@ AIR 0,30				X2 stores index address 143? initially to help access larger address
 AIR 0,29				R0 now holds 143
 STR 0,0,0,29
 LDX 2,0,29			
-SRC 0,1,1,0				X3 stores index address 262 to help access larger addresses (shifting left 1 arithmetically effectively multiplies by 2)
+SRC 0,0,1,1				X3 stores index address 262 to help access larger addresses (shifting left 1 arithmetically effectively multiplies by 2)
 SIR 0,6					R0 now holds 262			
 STR 0,0,0,29
 LDX 3,0,29			
 AIR 0,30				Memory address a=284 stores the start address of the character array for the file input, 290
 STR 0,3,0,22(a)
 STR 0,3,0,23(i)			Memory address i=285 stores the address of the current array element being processed AKA File Input Character Address
-SRC 0,2,1,0				Memory address w=286 stores the address of the first character of the word to find, 1160 (shifting left by 2 arithmetically effectively multiplies by 4)
+SRC 0,0,1,2				Memory address w=286 stores the address of the first character of the word to find, 1160 (shifting left by 2 arithmetically effectively multiplies by 4)
 STR 0,3,0,24(w)
 STR 0,3,0,25(x)			Memory address x=287 stores the address of the AKA Search Word Character Address
 LDA 0,0,0,1				Memory address m=288 stores the previous char comparison result b/w the file input and search word (defaults to 1)
@@ -38,7 +38,7 @@ OUT 2,4
 LDA 2,0,0,30			Output space (ASCII=32)
 SIR 2,2
 OUT 2,4			
-SRC 2,1,0,0				Output I (ASCII=73)
+SRC 2,0,1,1				Output I (ASCII=73)
 AIR 2,9
 OUT 2,4			
 AIR 2,5					Output N (ASCII=78)
@@ -66,7 +66,7 @@ STR 3,3,1,23(i)			Store the EOF character (R3) into the address indirect address
 LDA 3,0,0,10			Output newline (ASCII=10)
 OUT 3,4			
 OUT 3,4					Output newline (ASCII=10)			
-SRC 3,3,0,0				Output T (ASCII=84)
+SRC 3,0,1,3				Output T (ASCII=84)
 AIR 3,4
 OUT 3,4			
 AIR 3,5					Output Y (ASCII=89)
@@ -78,7 +78,7 @@ OUT 3,4
 LDA 3,0,0,30			Output space (ASCII=32)
 AIR 3,2
 OUT 3,4			
-SRC 3,2,0,0				Output W (ASCII=87)
+SRC 3,0,1,2				Output W (ASCII=87)
 AIR 3,23
 OUT 3,4			
 SIR 3,8					Output O (ASCII=79)
@@ -90,7 +90,7 @@ OUT 3,4
 LDA 3,0,0,30			Output space (ASCII=32)
 AIR 3,2
 OUT 3,4			
-SRC 3,2,0,0				Output T (ASCII=84)
+SRC 3,0,1,2				Output T (ASCII=84)
 AIR 3,20
 OUT 3,4			
 SIR 3,5					Output O (ASCII=79)
@@ -98,7 +98,7 @@ OUT 3,4
 LDA 3,0,0,30			Output space (ASCII=32)
 AIR 3,2
 OUT 3,4			
-SRC 3,2,0,0				Output F (ASCII=70)
+SRC 3,0,1,2				Output F (ASCII=70)
 AIR 3,6
 OUT 3,4			
 AIR 3,3					Output I (ASCII=73)
@@ -200,7 +200,7 @@ STR 3,3,0,25(x)			Then storing the R3 contents back into x
 JMA 2,0,22(pswls)		Unconditional jump to PRINT SEARCH WORD LOOP START
 LDA 3,0,0,10			Output newline (ASCII=10); PRINT SENTENCE NUMBER
 OUT 3,4			
-SRC 3,3,0,0				Output S (ASCII=83)
+SRC 3,0,1,3				Output S (ASCII=83)
 AIR 3,3
 OUT 3,4			
 SIR 3,14				Output E (ASCII=69)
@@ -225,7 +225,7 @@ AIR 3,12				Output comma (ASCII=44)
 OUT 3,4			
 SIR 3,12				Output space (ASCII=32)
 OUT 3,4			
-SRC 3,2,0,0				Output W (ASCII=87)
+SRC 3,0,1,2				Output W (ASCII=87)
 AIR 3,23
 OUT 3,4			
 SIR 3,8					Output O (ASCII=79)
