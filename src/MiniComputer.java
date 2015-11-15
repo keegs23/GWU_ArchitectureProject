@@ -10,7 +10,6 @@ import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Observable;
 import java.util.TreeMap;
-import java.util.Vector;
 
 public class MiniComputer extends Observable implements Runnable
 {
@@ -479,7 +478,7 @@ public class MiniComputer extends Observable implements Runnable
             switch (opcode.getValue())
             {
                 case OpCode.HLT:
-                    //Skip to end
+                	// Skip to end
                     break;
                 case OpCode.TRAP:
                     trapCode = instructionParse.get(BitInstruction.KEY_TRAP_CODE);
@@ -728,7 +727,7 @@ public class MiniComputer extends Observable implements Runnable
 			BitWord trapAddress = memory.get(MemoryLocation.RESERVED_ADDRESS_TRAP).getValue();
 			String trapRoutineAddress = (String) ArithmeticLogicUnit.add(trapAddress.getValue(), trapCode.getValue()).get(ArithmeticLogicUnit.KEY_SUM);
 			
-			PC.setBitValue(trapRoutineAddress);
+			PC.setBitValue(trapRoutineAddress.substring(4,16));
 			
 			isRunningTrap = true;
 			
@@ -1928,7 +1927,7 @@ public class MiniComputer extends Observable implements Runnable
 			// Set PC to fault trap address
 			BitWord faultAddress = memory.get(MemoryLocation.RESERVED_ADDRESS_FAULT).getValue();
 			
-			PC.setBitValue(faultAddress);
+			PC.setBitValue(faultAddress.getValue().substring(4, 16));
 			
 			isRunningFault = true;
 			
