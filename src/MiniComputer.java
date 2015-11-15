@@ -1969,7 +1969,7 @@ public class MiniComputer extends Observable implements Runnable
         
         private void readCacheHelper()
         {
-            MBR.setBitValue(theCache.fetchFromCache(MAR, memory));
+            MBR.setBitValue(theCache.fetchFromCache(MAR.getBitValue().getValue(), memory));
         }
 	/* End Helpers */
 }
