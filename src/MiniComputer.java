@@ -304,7 +304,7 @@ public class MiniComputer extends Observable implements Runnable
 				memory.put(address, memLoc);
 				
 				// Increment address
-				address = ArithmeticLogicUnit.add(address, BitWord.VALUE_ONE);
+				address = (String) ArithmeticLogicUnit.add(address, BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM);
 			}
 			
 			br.close();
@@ -436,7 +436,7 @@ public class MiniComputer extends Observable implements Runnable
 		notifyObservers(MFR);
 		
         // Transfer PC value to MAR
-        MAR.setBitValue(ArithmeticLogicUnit.padZeros(PC.getBitValue().getValue()));
+        MAR.setBitValue(ArithmeticLogicUnit.padZeros16(PC.getBitValue().getValue()));
 
         // TODO: Check if address is valid
 
@@ -655,7 +655,7 @@ public class MiniComputer extends Observable implements Runnable
         		&& !opcode.getValue().equals(OpCode.TRAP))
         {
         	// Increment PC
-        	String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE);
+        	String pc = (String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM);
         	// PC can only hold 12 bits, so chop off the leading zeros
         	pc = pc.substring(4, 16);
         	PC.setBitValue(pc);
@@ -704,14 +704,14 @@ public class MiniComputer extends Observable implements Runnable
 		if (memory.get(MemoryLocation.RESERVED_ADDRESS_TRAP) != null)
 		{
 			// Write PC+1 to reserved memory location 2
-			String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE);
+			String pc = (String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM);
 			MemoryLocation memLoc = new MemoryLocation(MemoryLocation.RESERVED_ADDRESS_TRAP_PC, pc);
 			
 			theCache.writeToCacheAndMemory(memory, MemoryLocation.RESERVED_ADDRESS_TRAP_PC, memLoc);
 			
 			// Set PC to trap routine address
 			BitWord trapAddress = memory.get(MemoryLocation.RESERVED_ADDRESS_TRAP).getValue();
-			String trapRoutineAddress = ArithmeticLogicUnit.add(trapAddress.getValue(), trapCode.getValue());
+			String trapRoutineAddress = (String) ArithmeticLogicUnit.add(trapAddress.getValue(), trapCode.getValue()).get(ArithmeticLogicUnit.KEY_SUM);
 			
 			PC.setBitValue(trapRoutineAddress);
 			
@@ -993,10 +993,14 @@ public class MiniComputer extends Observable implements Runnable
 		IRR[1].setBitValue(MBR.getBitValue());
 				
 		// Store sum of register and memory contents into the specified register
+		Map<String, Object> result = ArithmeticLogicUnit.add(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue());
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(ArithmeticLogicUnit.add(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue()));
+			registerSelect1.setBitValue((String) result.get(ArithmeticLogicUnit.KEY_SUM));
 		}
+		
+		// Set the OVERFLOW bit
+		setConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW));
 	}
 	
 	/** Subtract Memory From Register
@@ -1086,7 +1090,7 @@ public class MiniComputer extends Observable implements Runnable
 		}
 		
 		// Move immediate to MBR
-		MBR.setBitValue(ArithmeticLogicUnit.padZeros(immediate.getValue()));
+		MBR.setBitValue(ArithmeticLogicUnit.padZeros16(immediate.getValue()));
 		
 		// Move the data from the MBR to an Internal Result Register (IRR)
 		IRR[1].setBitValue(MBR.getBitValue());
@@ -1094,7 +1098,7 @@ public class MiniComputer extends Observable implements Runnable
 		// Store sum of IRR contents and MBR contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(ArithmeticLogicUnit.add(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue()));
+			registerSelect1.setBitValue((String) ArithmeticLogicUnit.add(IRR[0].getBitValue().getValue(), IRR[1].getBitValue().getValue()).get(ArithmeticLogicUnit.KEY_SUM));
 		}
 	}
 	
@@ -1120,7 +1124,7 @@ public class MiniComputer extends Observable implements Runnable
 		}
 		
 		// Move immediate to MBR
-		MBR.setBitValue(ArithmeticLogicUnit.padZeros(immediate.getValue()));
+		MBR.setBitValue(ArithmeticLogicUnit.padZeros16(immediate.getValue()));
 		
 		// Move the data from the MBR to an Internal Result Register (IRR)
 		IRR[1].setBitValue(MBR.getBitValue());
@@ -1230,7 +1234,7 @@ public class MiniComputer extends Observable implements Runnable
 		// Store IRR contents into the specified register
 		if(registerSelect1 != null)
 		{
-			registerSelect1.setBitValue(ArithmeticLogicUnit.padZeros(Integer.toBinaryString(inputInt)));
+			registerSelect1.setBitValue(ArithmeticLogicUnit.padZeros16(Integer.toBinaryString(inputInt)));
 		}
 	}
 	
@@ -1298,7 +1302,7 @@ public class MiniComputer extends Observable implements Runnable
 			IAR.setBitValue(ea);
 		} else {
 			// Else set IAR value to PC contents + 1
-			IAR.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
 		}
 		
 		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
@@ -1340,7 +1344,7 @@ public class MiniComputer extends Observable implements Runnable
 			IAR.setBitValue(ea);
 		} else {
 			// Else set IAR value to PC contents + 1
-			IAR.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
 		}
 		
 		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
@@ -1370,7 +1374,7 @@ public class MiniComputer extends Observable implements Runnable
 		}
 				
 		// Copy the specified bit from the CC register into the Internal Result Register (IRR)
-		IRR[0].setBitValue(ArithmeticLogicUnit.padZeros(CC.getBitValue().getValue().substring(conditionCode.ordinal(), conditionCode.ordinal()+1)));
+		IRR[0].setBitValue(ArithmeticLogicUnit.padZeros16(CC.getBitValue().getValue().substring(conditionCode.ordinal(), conditionCode.ordinal()+1)));
 
 		// If the specified CC bit is 1, move the EA to the Internal Address Register (IAR)
 		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
@@ -1378,7 +1382,7 @@ public class MiniComputer extends Observable implements Runnable
 			IAR.setBitValue(ea);
 		} else {
 			// Else set IAR value to PC contents + 1
-			IAR.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
 		}
 		
 		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
@@ -1435,10 +1439,10 @@ public class MiniComputer extends Observable implements Runnable
     		}
     				
             // Set General Purpose Register R3 to the PC + 1
-            R3.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+            R3.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
 
             // Move the EA to the Internal Address Register (IAR)
-            IAR.setBitValue(ArithmeticLogicUnit.padZeros(ea.getValue()));
+            IAR.setBitValue(ArithmeticLogicUnit.padZeros16(ea.getValue()));
             
             // Set R0 to the address of the first parameter
             // Assumes the parameter list starts at the max memory address 2048 and goes backward
@@ -1458,7 +1462,7 @@ public class MiniComputer extends Observable implements Runnable
 	public void rfs(BitWord immed)
 	{
             // Set General Purpose Register 0 to Immed
-            R0.setBitValue(new BitWord(ArithmeticLogicUnit.padZeros(immed.getValue())));
+            R0.setBitValue(new BitWord(ArithmeticLogicUnit.padZeros16(immed.getValue())));
             
             // Store IAR contents into the PC
 	    // PC can only hold 12 bits so chop off the leading zeros
@@ -1508,7 +1512,7 @@ public class MiniComputer extends Observable implements Runnable
 			IAR.setBitValue(ea);
 		} else {
 			// Else set IAR value to PC contents + 1
-			IAR.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
 		}
 		
 		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
@@ -1550,7 +1554,7 @@ public class MiniComputer extends Observable implements Runnable
 			IAR.setBitValue(ea);
 		} else {
 			// Else set IAR value to PC contents + 1
-			IAR.setBitValue(ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE));
+			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
 		}
 		
 		// TODO: Check that address specified by IAR is valid (not reserved, not larger than max)
@@ -1779,7 +1783,7 @@ public class MiniComputer extends Observable implements Runnable
 		{
 			if(indexRegister == 0)
 			{
-				return new BitWord(ArithmeticLogicUnit.padZeros(address.getValue()));
+				return new BitWord(ArithmeticLogicUnit.padZeros16(address.getValue()));
 			}
 			else if(indexRegister >= 1 && indexRegister <= 3)
 			{
@@ -1787,14 +1791,14 @@ public class MiniComputer extends Observable implements Runnable
 				
 				String toAdd = address.getValue();
 						
-				String ea = ArithmeticLogicUnit.add(indexValue, toAdd);
+				String ea = (String) ArithmeticLogicUnit.add(indexValue, toAdd).get(ArithmeticLogicUnit.KEY_SUM);
 						
 				return new BitWord(ea);
 			}
 			else
 			{
 				// Should never reach here, but just in case
-				return new BitWord(ArithmeticLogicUnit.padZeros(address.getValue()));	//does it make sense to return this?
+				return new BitWord(ArithmeticLogicUnit.padZeros16(address.getValue()));	//does it make sense to return this?
 			}
 		}
 		else
@@ -1803,7 +1807,7 @@ public class MiniComputer extends Observable implements Runnable
 			
 			if(indexRegister == 0)
 			{
-				addr = ArithmeticLogicUnit.padZeros(address.getValue());
+				addr = ArithmeticLogicUnit.padZeros16(address.getValue());
 			}
 			else if(indexRegister >= 1 && indexRegister <= 3)
 			{
@@ -1811,7 +1815,7 @@ public class MiniComputer extends Observable implements Runnable
 				
 				String toAdd = address.getValue();
 				
-				addr = ArithmeticLogicUnit.add(indexValue, toAdd);
+				addr = (String) ArithmeticLogicUnit.add(indexValue, toAdd).get(ArithmeticLogicUnit.KEY_SUM);
 			}
 			
 			// TODO: Check that addr is valid (not reserved, not larger than max)
@@ -1863,7 +1867,7 @@ public class MiniComputer extends Observable implements Runnable
 		if (memory.get(MemoryLocation.RESERVED_ADDRESS_FAULT) != null)
 		{
 			// Write PC+1 to reserved memory location 4
-			String pc = ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE);
+			String pc = (String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM);
 			MemoryLocation memLoc = new MemoryLocation(MemoryLocation.RESERVED_ADDRESS_FAULT_PC, pc);
 			
 			theCache.writeToCacheAndMemory(memory, MemoryLocation.RESERVED_ADDRESS_FAULT_PC, memLoc);

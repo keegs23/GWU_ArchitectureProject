@@ -22,7 +22,7 @@ public class DataConversion {
 		int outputInt = (int) inputChar;
 		String outputString = Integer.toBinaryString(outputInt);
 		
-		return ArithmeticLogicUnit.padZeros(outputString);
+		return ArithmeticLogicUnit.padZeros16(outputString);
 	}
 	
 	/**
