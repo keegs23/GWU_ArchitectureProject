@@ -135,11 +135,11 @@ public class Cache {
 		
 	}
         
-        public Register fetchFromCache(Register MAR, Map<String, MemoryLocation> memory) {
+        public String fetchFromCache(String addr, Map<String, MemoryLocation> memory) {
             MemoryLocation tempMemory = null;   
-            Register MBR = new Register(16);
+            String value;
             int count = 1;
-            String firstTwelveBits = MAR.getBitValue().getValue().substring(0, 13);
+            String firstTwelveBits = addr.substring(0, 13);
             MiniComputer.logger.println("Searching for the following 12 bit address in the cache: " + firstTwelveBits);              
             for (CacheLine cacheLine : cache) {         
                 //if first 12 bits of address tag match
@@ -161,20 +161,20 @@ public class Cache {
             }            
             if (tempMemory != null) {
                 //memory was in cache                
-                MBR.setBitValue(tempMemory.getAddress());
-                MiniComputer.logger.println("Address was found in cache. Setting MBR... Value = " + MBR.getBitValue().getValue());
+                value = tempMemory.getAddress().getValue();
+                MiniComputer.logger.println("Address was found in cache. Setting MBR... Value = " + value);
             }
             else {
                 //memory was not in cache
                 MiniComputer.logger.println("Address was not in cache... find in memory and put in cache.");
                 // Fetch the contents in memory at the address specified by MAR into the MBR
-                if(memory.containsKey(MAR.getBitValue().getValue()))
+                if(memory.containsKey(addr))
                 {
-                    MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
+                    value = memory.get(addr).getValue().getValue();
                 }
                 else
-                {			
-                    MBR.setBitValue(BitWord.VALUE_DEFAULT);
+                {	
+                    value = BitWord.VALUE_DEFAULT;
                 }
                 //put memory in cache and remove first element (fifo)
                 //first on
@@ -183,6 +183,6 @@ public class Cache {
                 if(cache.size() > 16)
                     cache.remove(0);
             }
-            return MBR;
+            return value;
         }        	
 }
