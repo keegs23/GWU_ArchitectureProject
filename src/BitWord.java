@@ -5,6 +5,7 @@ public class BitWord {
 	public static final String VALUE_NEWLINE = "1010101010101010"; //Represents value for New line character
 	public static final String VALUE_DEFAULT = VALUE_ZERO;
 	public static final String VALUE_INVALID_OPCODE = "111111"; //Unused Opcode value. Represents invalid opcode
+	public static final String VALUE_HALT = "0000000000000000"; //16 zeros
 	
 	protected final String value;
 	

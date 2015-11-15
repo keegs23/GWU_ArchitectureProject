@@ -146,7 +146,7 @@ public class MiniComputer extends Observable implements Runnable
 			IRR[i] = new Register(16);
 		}
 		
-		// Initialize trap and machine fault addresses
+		// Initialize trap and machine fault addresses               
 		initReservedAddresses();
 		
 	}
@@ -247,7 +247,9 @@ public class MiniComputer extends Observable implements Runnable
 	 */
 	public void initReservedAddresses()
 	{
-		
+            memory.put(MemoryLocation.RESERVED_ADDRESS_TRAP_FIRST,new MemoryLocation(MemoryLocation.RESERVED_ADDRESS_TRAP_FIRST, BitWord.VALUE_HALT));
+            memory.put(MemoryLocation.RESERVED_ADDRESS_TRAP,new MemoryLocation(MemoryLocation.RESERVED_ADDRESS_TRAP, MemoryLocation.RESERVED_ADDRESS_TRAP_FIRST));
+            memory.put(MemoryLocation.RESERVED_ADDRESS_FAULT, new MemoryLocation(MemoryLocation.RESERVED_ADDRESS_FAULT, BitWord.VALUE_HALT));		
 	}
 	
 	/**
