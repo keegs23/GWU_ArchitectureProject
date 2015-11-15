@@ -139,7 +139,7 @@ public class Cache {
             MemoryLocation tempMemory = null;   
             String value;
             int count = 1;
-            String firstTwelveBits = addr.substring(0, 13);
+            String firstTwelveBits = addr.substring(0, 12);
             MiniComputer.logger.println("Searching for the following 12 bit address in the cache: " + firstTwelveBits);              
             for (CacheLine cacheLine : cache) {         
                 //if first 12 bits of address tag match
