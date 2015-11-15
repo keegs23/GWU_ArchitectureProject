@@ -171,7 +171,7 @@ public class Cache {
                 }
                 //put memory in cache and remove first element (fifo)
                 //first on
-                cache.add(new CacheLine(MBR.getBitValue().getValue()));
+                addNewCacheLine(firstTwelveBits);              
                 //if cache is greater than 16, first off
                 if(cache.size() > 16)
                     cache.remove(0);
