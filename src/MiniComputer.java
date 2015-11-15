@@ -1580,7 +1580,8 @@ public class MiniComputer extends Observable implements Runnable
             else if (!register2.equals(R0) && !register2.equals(R2))
                 System.out.println("Register must be R0 or R2.");
             else {
-                String product = ArithmeticLogicUnit.multiply(register1.getBitValue().getValue(), register2.getBitValue().getValue());
+            	Map<String, Object> result = ArithmeticLogicUnit.multiply(register1.getBitValue().getValue(), register2.getBitValue().getValue());
+                String product = (String) result.get(ArithmeticLogicUnit.KEY_PRODUCT);
                 
                 //Get high and low order bits from product
                 BitWord highBits = new BitWord(product.substring(0, 16));
@@ -1591,6 +1592,9 @@ public class MiniComputer extends Observable implements Runnable
                 //rx + 1 contains low order bits
                 Register registerPlusOne = getR(rx + 1);
                 registerPlusOne.setBitValue(lowBits);
+                
+                // Set OVERFLOW bit
+                setConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW));
             }                
         } 
         

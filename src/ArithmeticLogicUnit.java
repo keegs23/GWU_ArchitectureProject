@@ -8,6 +8,7 @@ public final class ArithmeticLogicUnit {
 		
         public static final String KEY_SUM = "sum";
 		public static final String KEY_DIFFERENCE = "difference";
+		public static final String KEY_PRODUCT = "product";
         public static final String KEY_QUOTIENT = "quotient";
         public static final String KEY_REMAINDER = "remainder";
         public static final String KEY_ISDIVZERO = "isDivZero"; 
@@ -157,7 +158,8 @@ public final class ArithmeticLogicUnit {
          * @param multiplicand bit String with length <= 16
 	 * @return Up to 32 bit string
 	 */
-        public static String multiply(String multiplier, String multiplicand) {
+        public static Map<String, Object> multiply(String multiplier, String multiplicand) {
+        	Map<String, Object> result = new HashMap<String, Object>();
             String product = "0";
             String zeroSuffix = "";
             char currentBit;
@@ -169,10 +171,10 @@ public final class ArithmeticLogicUnit {
             for (int i = multiplicand.length() - 1; i >= 0; i--) {   
                 currentBit = multiplicand.charAt(i);
                 if (currentBit == '1') {
-                	Map<String, Object> result = add(product, multiplier + zeroSuffix);
-                    product = (String) result.get(KEY_SUM);
+                	Map<String, Object> sumResult = add(product, multiplier + zeroSuffix);
+                    product = (String) sumResult.get(KEY_SUM);
                     // Don't let isOverflow be changed from true back to false
-                    if((boolean) result.get(KEY_ISOVERFLOW)) {
+                    if((boolean) sumResult.get(KEY_ISOVERFLOW)) {
                     	// Shouldn't ever get here...16 bits multiplied by 16 bits will always be within 32 bits
                     	isOverflow = true;
                     }
@@ -180,7 +182,10 @@ public final class ArithmeticLogicUnit {
                 zeroSuffix += "0";
             }
             
-            return padZeros32(product);
+            result.put(KEY_PRODUCT, padZeros32(product));
+            result.put(KEY_ISOVERFLOW, isOverflow);
+            
+            return result;
         }
         
          /**
