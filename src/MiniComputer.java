@@ -17,7 +17,7 @@ public class MiniComputer extends Observable implements Runnable
 	public static final String LOG_FILE_NAME = "trace-file.txt";
 	public static final String BOOT_PROGRAM_NAME = "BootProgram.txt";
 	public static final String PROGRAM_ONE_NAME = "Project1_bin.txt";
-	public static final String PROGRAM_TWO_NAME = "Project2_bin.txt";
+	public static final String PROGRAM_TWO_NAME = "Program2_bin.txt";
 	public static final String PROGRAM_TWO_INPUT_NAME = "prgm-2-input.txt";
 	public static volatile ProgramCode currentProgram = ProgramCode.BOOTPROGRAM;
 	public static PrintWriter logger;
