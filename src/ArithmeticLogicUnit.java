@@ -6,11 +6,15 @@ import java.util.Map;
  */
 public final class ArithmeticLogicUnit {
 		
-        public static final String KEY_DIFFERENCE = "difference";
+        public static final String KEY_SUM = "sum";
+		public static final String KEY_DIFFERENCE = "difference";
+		public static final String KEY_PRODUCT = "product";
         public static final String KEY_QUOTIENT = "quotient";
         public static final String KEY_REMAINDER = "remainder";
         public static final String KEY_ISDIVZERO = "isDivZero"; 
         public static final String KEY_ISUNDERFLOW = "isUnderflow";
+        public static final String KEY_ISOVERFLOW = "isOverflow";
+        public static final String KEY_REGISTERVALUE = "RegisterValue";
 
 	/**
 	 * Adds the 2 binary bit Strings
@@ -18,15 +22,17 @@ public final class ArithmeticLogicUnit {
 	 * @param bitStr2
 	 * @return the binary sum of bitStr1 and bitStr2 as a 16-bit String
 	 */
-	public static String add(String bitStr1, String bitStr2)
+	public static Map<String, Object> add(String bitStr1, String bitStr2)
 	{
 		// How closely were we supposed to mimic how the computer actually does bit addition?
+		
+		Map<String, Object> result = new HashMap<String, Object>();
 		
 		String sum = "";
 		
 		// Make sure both are 16 bits
-		String bits1 = padZeros(bitStr1);
-		String bits2 = padZeros(bitStr2);
+		String bits1 = padZeros16(bitStr1);
+		String bits2 = padZeros16(bitStr2);
 		
 		int carryIn = 0;
 		int carryOut = 0;
@@ -46,13 +52,13 @@ public final class ArithmeticLogicUnit {
 			carryIn = carryOut;
 		}
 		
-		// Check for overflow
-		if (carryOut > 0)
-		{
-			// TODO: Handle overflow
-		}
+		result.put(KEY_SUM, sum);
 		
-		return sum;
+		// Check for overflow
+		boolean isOverflow = carryOut > 0;
+		result.put(KEY_ISOVERFLOW, isOverflow);
+		
+		return result;
 	}
 	
 	/**
@@ -92,13 +98,13 @@ public final class ArithmeticLogicUnit {
 		
 		if (isUnderflow)
 		{
-			bits1 = padZeros(bitStr2);
-			bits2 = padZeros(bitStr1);
+			bits1 = padZeros16(bitStr2);
+			bits2 = padZeros16(bitStr1);
 		}
 		else
 		{
-			bits1 = padZeros(bitStr1);
-			bits2 = padZeros(bitStr2);
+			bits1 = padZeros16(bitStr1);
+			bits2 = padZeros16(bitStr2);
 		}
 		
 		if (Integer.parseInt(bits1) == Integer.parseInt(bits2))
@@ -152,23 +158,34 @@ public final class ArithmeticLogicUnit {
          * @param multiplicand bit String with length <= 16
 	 * @return Up to 32 bit string
 	 */
-        public static String multiply(String multiplier, String multiplicand) {
+        public static Map<String, Object> multiply(String multiplier, String multiplicand) {
+        	Map<String, Object> result = new HashMap<String, Object>();
             String product = "0";
             String zeroSuffix = "";
             char currentBit;
+            boolean isOverflow = false;
             //Make sure both strings are 16 bits
-            multiplier = padZeros(multiplier);
-            multiplicand = padZeros(multiplicand);
+            multiplier = padZeros16(multiplier);
+            multiplicand = padZeros16(multiplicand);
             //Loop on the length of the second string
             for (int i = multiplicand.length() - 1; i >= 0; i--) {   
                 currentBit = multiplicand.charAt(i);
                 if (currentBit == '1') {
-                    product = add(product, multiplier + zeroSuffix);
+                	Map<String, Object> sumResult = add(product, multiplier + zeroSuffix);
+                    product = (String) sumResult.get(KEY_SUM);
+                    // Don't let isOverflow be changed from true back to false
+                    if((boolean) sumResult.get(KEY_ISOVERFLOW)) {
+                    	// Shouldn't ever get here...16 bits multiplied by 16 bits will always be within 32 bits
+                    	isOverflow = true;
+                    }
                 }                     
                 zeroSuffix += "0";
             }
             
-            return padZeros32(product);
+            result.put(KEY_PRODUCT, padZeros32(product));
+            result.put(KEY_ISOVERFLOW, isOverflow);
+            
+            return result;
         }
         
          /**
@@ -184,7 +201,7 @@ public final class ArithmeticLogicUnit {
             int isDivByZero = 0; //default to false
             
             //Check if dividing by zero
-            if (padZeros(divisor).equals(BitWord.VALUE_ZERO))
+            if (padZeros16(divisor).equals(BitWord.VALUE_ZERO))
                 isDivByZero = 1;     
             
             //Default quotient and remainder to zero
@@ -196,8 +213,8 @@ public final class ArithmeticLogicUnit {
                 remainder = Integer.toBinaryString(dividendDecimal%divisorDecimal);
             }
 
-            divisionMap.put(KEY_QUOTIENT, padZeros(quotient));
-            divisionMap.put(KEY_REMAINDER, padZeros(remainder));
+            divisionMap.put(KEY_QUOTIENT, padZeros16(quotient));
+            divisionMap.put(KEY_REMAINDER, padZeros16(remainder));
             divisionMap.put(KEY_ISDIVZERO, Integer.toString(isDivByZero));
 
             return divisionMap;
@@ -208,7 +225,7 @@ public final class ArithmeticLogicUnit {
 	 * @param value bit String with length <= 16
 	 * @return 16-bit String
 	 */
-	public static String padZeros(String value)
+	public static String padZeros16(String value)
 	{
             return String.format("%016d", Long.parseLong(value));
 	}
@@ -228,8 +245,8 @@ public final class ArithmeticLogicUnit {
 	{
             //register will be of length 16 bits
             int n = 16;
-            p = padZeros(p);
-            q = padZeros(q);
+            p = padZeros16(p);
+            q = padZeros16(q);
             String pbuild = null;
             for(int i = 0;i<n;i++)
             {
@@ -275,8 +292,8 @@ public final class ArithmeticLogicUnit {
         {
             //register will be of length 16 bits
             int n = 16;
-            p = padZeros(p);
-            q = padZeros(q);
+            p = padZeros16(p);
+            q = padZeros16(q);
             String pbuild = null;
             for(int i = 0;i<n;i++)
             {
@@ -319,7 +336,7 @@ public final class ArithmeticLogicUnit {
         {
             //register will be of length 16 bits
             int n = 16;
-            p = padZeros(p);
+            p = padZeros16(p);
             for(int i = 0;i<n;i++)
             {
                 String r = p.substring(i, i+1);
@@ -367,7 +384,7 @@ public final class ArithmeticLogicUnit {
          * @param bitword : which is a bitString
          * @return The register will shift left/right, logic/arithmetic, 1-15 units 
          */	
-        public static String src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
+        public static Map<String, Object> src(String Registervalue, String ArithmeticOrLogic, String LeftOrRight, String sCount)
         {
             //Parse bitword
             // this parse may have to occur in the main program and the Register passed in??
@@ -383,6 +400,8 @@ public final class ArithmeticLogicUnit {
             String buffer;
             String keeper;
             String shifted;
+            boolean isOverFlow = false;
+            Map<String,Object> returnMap = new HashMap<String,Object>();
 
             // please note that the mechanics of the simple machine would in fact shift one bit at a time.
             // and then loop through the ALU again to perform additional shifts to keep the real estate on 
@@ -390,7 +409,7 @@ public final class ArithmeticLogicUnit {
 
             /////we can use this same code for rotation by setting the Buffer = substring(0,1) or substring(15,16)////
             
-            Registervalue = padZeros(Registervalue);
+            Registervalue = padZeros16(Registervalue);
             for(int i = 0;i<n;i++)
                     {
                             //shift values left
@@ -401,8 +420,8 @@ public final class ArithmeticLogicUnit {
                                     shifted = keeper + buffer;  ///shifted to the left
                                     if(ArithmeticOrLogic.equals("0"))  //i.e. arithmetic shift
                                     {
-                                            String overflow = Registervalue.substring(1, 2);
-                                            if (overflow.equals("1")) {String SetOverflow = "1";}   /////////////do we have an ALU overflow flag set yet?????????????????????????
+                                            String overflow = Registervalue.substring(0, 1);
+                                            if (overflow.equals("1")) {isOverFlow = true;}
                                     }
                             }
                             else
@@ -421,8 +440,10 @@ public final class ArithmeticLogicUnit {
                             }
                             Registervalue = shifted;  // this is to get ready to loop through one more time 
                     }
+            returnMap.put(KEY_REGISTERVALUE, Registervalue);
+            returnMap.put(KEY_ISOVERFLOW, isOverFlow);
             // this is to exit with final answer
-            return Registervalue;
+            return returnMap;
         }
         /**
          * ROTATE Register Command
@@ -449,7 +470,7 @@ public final class ArithmeticLogicUnit {
             // and then loop through the ALU again to perform additional shifts to keep the real estate on 
             // the chip small.  i.e. a 'two shift' isn't build into the hardware.
 
-            Registervalue = padZeros(Registervalue);
+            Registervalue = padZeros16(Registervalue);
             for(int i = 0;i<n;i++)
                     {
                             //shift values left
