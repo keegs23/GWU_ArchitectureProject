@@ -1828,7 +1828,12 @@ public class MiniComputer extends Observable implements Runnable
 	}
 	
 	private void setConditionCode(ConditionCode conditionCode, boolean isTrue)
-	{
+	{	//example condition code return values and the respective state/condition
+		//1000 - OVERFLOW true
+		//0100 - UNDERFLOW true
+		//0010 - DIVZERO true
+		//0001 - EQUALORNOT true
+		//1001 - OVERFLOW true and EQUALORNOT true
 		String flag = isTrue ? "1" : "0";
 		String first = CC.getBitValue().getValue().substring(0, conditionCode.ordinal());
 		String last = CC.getBitValue().getValue().substring(conditionCode.ordinal()+1, CC.getBitSize());
