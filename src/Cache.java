@@ -186,6 +186,7 @@ public class Cache {
                 if(cache.size() > 16)
                     cache.remove(0);
             }
+            MiniComputer.logger.println("--------------------");
             return value;
         }        	
 }
