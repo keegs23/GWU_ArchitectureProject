@@ -425,275 +425,277 @@ public class MiniComputer extends Observable implements Runnable
 	 */
 	public void singleStep()
 	{///////////////////////////////////under CONSTRUCTION//////////////////////////
-    	int register;	//in decimal
-    	int index; 	//in decimal
-    	boolean isIndirectAddress; 
-    	BitWord address; 
-    	BitWord immediate;
-    	BitWord devId;
-    	ConditionCode conditionCode;	//in decimal
-        int rx; // in decimal
-        int ry; // in decimal
-        BitWord arithmeticOrLogic;
-        BitWord leftOrRight;
-        BitWord shiftCount;        
-        BitWord trapCode;
-		
-        System.out.println("PC: " + PC.getBitValue().getValue()); // DEBUG code
-        
-        MFR.setBitValue("1111");
-		//Update GUI status panel
-		setChanged();
-		notifyObservers(MFR);
-		
-        // Transfer PC value to MAR
-        MAR.setBitValue(ArithmeticLogicUnit.padZeros16(PC.getBitValue().getValue()));
+            int register;	//in decimal
+            int index; 	//in decimal
+            boolean isIndirectAddress; 
+            BitWord address; 
+            BitWord immediate;
+            BitWord devId;
+            ConditionCode conditionCode;	//in decimal
+            int rx; // in decimal
+            int ry; // in decimal
+            BitWord arithmeticOrLogic;
+            BitWord leftOrRight;
+            BitWord shiftCount;        
+            BitWord trapCode;
 
-        // TODO: Check if address is valid
+            System.out.println("PC: " + PC.getBitValue().getValue()); // DEBUG code
 
-        // Fetch word from memory located at address specified by MAR into MBR
-        if(memory.containsKey(MAR.getBitValue().getValue()))
-        {
-                MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
-        }
-        else
-        {			
-                MBR.setBitValue(BitWord.VALUE_DEFAULT);
-        }
+            MFR.setBitValue("1111");
+                    //Update GUI status panel
+                    setChanged();
+                    notifyObservers(MFR);
 
-        // Load instruction from MBR into IR
-        IR.setBitValue(MBR.getBitValue());
+            // Transfer PC value to MAR
+            MAR.setBitValue(ArithmeticLogicUnit.padZeros16(PC.getBitValue().getValue()));
 
-        // Parse instruction
-        BitInstruction instruction = new BitInstruction(IR.getBitValue());
-        Map<String, BitWord> instructionParse = instruction.ParseInstruction();
+            // TODO: Check if address is valid
 
-        // Switch-case on opcode to call the appropriate instruction method
-        boolean isTransferInstruction = false;
-        BitWord opcode = instructionParse.get(BitInstruction.KEY_OPCODE);
-        
-        if (opcode == null)
-        {
-        	opcode = new BitWord(BitWord.VALUE_INVALID_OPCODE);
-        }
-        
-        switch (opcode.getValue())
-        {
-            case OpCode.HLT:
-                //TODO in Part II
-                break;
-            case OpCode.TRAP:
-                trapCode = instructionParse.get(BitInstruction.KEY_TRAP_CODE);
-                trap(trapCode);
-                break;
-            case OpCode.LDR:
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	ldr(register, index, isIndirectAddress, address);
-                break;
-            case OpCode.STR:
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	str(register, index, isIndirectAddress, address);
-                break;
-            case OpCode.LDA:
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	lda(register, index, isIndirectAddress, address);
-                break;
-            case OpCode.LDX:
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	ldx(index, isIndirectAddress, address);
-                break;
-            case OpCode.STX:
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	stx(index, isIndirectAddress, address);
-                break;
-            case OpCode.AMR:
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	amr(register, index, isIndirectAddress, address);
-                break;
-            case OpCode.SMR:
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	smr(register, index, isIndirectAddress, address);
-                break;
-            case OpCode.AIR:
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE); 
-            	air(register, immediate);
-                break;
-            case OpCode.SIR:
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE); 
-            	sir(register, immediate);
-                break;
-            case OpCode.JZ:
-            	isTransferInstruction = true;
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	jz(register, index, isIndirectAddress, address);
-                break;
-            case OpCode.JNE:
-            	isTransferInstruction = true;
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	jne(register, index, isIndirectAddress, address);
-            	break;
-            case OpCode.JCC:
-            	isTransferInstruction = true;
-            	conditionCode = ConditionCode.values()[Integer.parseInt(instructionParse.get(BitInstruction.KEY_CONDITION_CODE).getValue(), 2)]; 
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	jcc(conditionCode, index, isIndirectAddress, address);
-            	break;
-            case OpCode.JMA:
-            	isTransferInstruction = true;
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	jma(index, isIndirectAddress, address);
-            	break;
-            case OpCode.JSR:
-            	isTransferInstruction = true;
-                index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2);
-                isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                address = instructionParse.get(BitInstruction.KEY_ADDRESS);
-                jsr(index, isIndirectAddress, address);            	
-            	break;
-            case OpCode.RFS:
-            	isTransferInstruction = true;
-                immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE);
-                rfs(immediate);            	
-            	break;
-            case OpCode.SOB:
-            	isTransferInstruction = true;
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	sob(register, index, isIndirectAddress, address);
-            	break;
-            case OpCode.JGE:
-            	isTransferInstruction = true;
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-            	isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-            	address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-            	jge(register, index, isIndirectAddress, address);
-            	break;
-            case OpCode.IN:
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	devId = instructionParse.get(BitInstruction.KEY_DEVID); 
-            	in(register, devId);
-                break;
-            case OpCode.OUT:
-            	register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-            	devId = instructionParse.get(BitInstruction.KEY_DEVID); 
-            	out(register, devId);
-                break;
-            case OpCode.MLT:
-                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
-                ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
-                mlt(rx, ry);
-                break;
-            case OpCode.DVD:
-                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
-                ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
-                dvd(rx, ry);
-                break;
-            case OpCode.TRR:
-                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
-                ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
-                trr(rx, ry);
-                break;     
-            case OpCode.SRC:
-                register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                arithmeticOrLogic = instructionParse.get(BitInstruction.KEY_ARITHMETIC_OR_LOGIC);
-                leftOrRight = instructionParse.get(BitInstruction.KEY_LEFT_OR_RIGHT);
-                shiftCount = instructionParse.get(BitInstruction.KEY_SHIFT_COUNT); 
-                src(register, arithmeticOrLogic, leftOrRight, shiftCount);            	
-                break;
-            case OpCode.RRC:
-                register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                arithmeticOrLogic = instructionParse.get(BitInstruction.KEY_ARITHMETIC_OR_LOGIC);
-                leftOrRight = instructionParse.get(BitInstruction.KEY_LEFT_OR_RIGHT);
-                shiftCount = instructionParse.get(BitInstruction.KEY_SHIFT_COUNT); 
-                rrc(register, arithmeticOrLogic, leftOrRight, shiftCount);            	
-                break;
-            case OpCode.AND:
-                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
-                ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
-                and(rx, ry);            	
-                break;
-            case OpCode.ORR: 
-                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
-                ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
-                orr(rx, ry);             	
-                break;
-            case OpCode.NOT: 
-                rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
-                not(rx);             	
-                break;
-            default:
-            	handleMachineFault(FaultCode.ILLEGAL_OPCODE);
-                break;                        
-        }
-		
-		// Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
-        if(!isTransferInstruction 
-        		&& !opcode.getValue().equals(OpCode.HLT)
-        		&& !opcode.getValue().equals(OpCode.TRAP))
-        {
-        	// Increment PC
-        	String pc = (String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM);
-        	// PC can only hold 12 bits, so chop off the leading zeros
-        	pc = pc.substring(4, 16);
-        	PC.setBitValue(pc);
-        }
-        // For transfer instructions, PC is set when executing that instruction
-        
-        if(isRunningTrap)
-        {
-        	// Retrieve next PC from reserved memory location 2
-    		String pc = memory.get(MemoryLocation.RESERVED_ADDRESS_TRAP_PC).getValue().getValue();
-    		// PC can only hold 12 bits, so chop off the leading zeros
-    		pc = pc.substring(4,  16);
-    		PC.setBitValue(pc);
-    		
-    		isRunningTrap = false;
-        }
-        
-        if(isRunningFault)
-        {
-        	// Retrieve next PC from reserved memory location 4
-    		String pc = memory.get(MemoryLocation.RESERVED_ADDRESS_FAULT_PC).getValue().getValue();
-    		// PC can only hold 12 bits, so chop off the leading zeros
-    		pc = pc.substring(4,  16);
-    		PC.setBitValue(pc);
-    		
-    		isRunningFault = false;
-        }
+            // Fetch word from memory located at address specified by MAR into MBR
+            /*if(memory.containsKey(MAR.getBitValue().getValue()))
+            {
+                    MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
+            }
+            else
+            {			
+                    MBR.setBitValue(BitWord.VALUE_DEFAULT);
+            }*/
+            //Read From Cache
+            readCacheHelper();
+
+            // Load instruction from MBR into IR
+            IR.setBitValue(MBR.getBitValue());
+
+            // Parse instruction
+            BitInstruction instruction = new BitInstruction(IR.getBitValue());
+            Map<String, BitWord> instructionParse = instruction.ParseInstruction();
+
+            // Switch-case on opcode to call the appropriate instruction method
+            boolean isTransferInstruction = false;
+            BitWord opcode = instructionParse.get(BitInstruction.KEY_OPCODE);
+
+            if (opcode == null)
+            {
+                    opcode = new BitWord(BitWord.VALUE_INVALID_OPCODE);
+            }
+
+            switch (opcode.getValue())
+            {
+                case OpCode.HLT:
+                    //TODO in Part II
+                    break;
+                case OpCode.TRAP:
+                    trapCode = instructionParse.get(BitInstruction.KEY_TRAP_CODE);
+                    trap(trapCode);
+                    break;
+                case OpCode.LDR:
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                    ldr(register, index, isIndirectAddress, address);
+                    break;
+                case OpCode.STR:
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                    str(register, index, isIndirectAddress, address);
+                    break;
+                case OpCode.LDA:
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                    lda(register, index, isIndirectAddress, address);
+                    break;
+                case OpCode.LDX:
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                    ldx(index, isIndirectAddress, address);
+                    break;
+                case OpCode.STX:
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                    stx(index, isIndirectAddress, address);
+                    break;
+                case OpCode.AMR:
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                    amr(register, index, isIndirectAddress, address);
+                    break;
+                case OpCode.SMR:
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                    smr(register, index, isIndirectAddress, address);
+                    break;
+                case OpCode.AIR:
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE); 
+                    air(register, immediate);
+                    break;
+                case OpCode.SIR:
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE); 
+                    sir(register, immediate);
+                    break;
+                case OpCode.JZ:
+                    isTransferInstruction = true;
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                    jz(register, index, isIndirectAddress, address);
+                    break;
+                case OpCode.JNE:
+                    isTransferInstruction = true;
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                    jne(register, index, isIndirectAddress, address);
+                    break;
+                case OpCode.JCC:
+                    isTransferInstruction = true;
+                    conditionCode = ConditionCode.values()[Integer.parseInt(instructionParse.get(BitInstruction.KEY_CONDITION_CODE).getValue(), 2)]; 
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                    jcc(conditionCode, index, isIndirectAddress, address);
+                    break;
+                case OpCode.JMA:
+                    isTransferInstruction = true;
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                    jma(index, isIndirectAddress, address);
+                    break;
+                case OpCode.JSR:
+                    isTransferInstruction = true;
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2);
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS);
+                    jsr(index, isIndirectAddress, address);            	
+                    break;
+                case OpCode.RFS:
+                    isTransferInstruction = true;
+                    immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE);
+                    rfs(immediate);            	
+                    break;
+                case OpCode.SOB:
+                    isTransferInstruction = true;
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                    sob(register, index, isIndirectAddress, address);
+                    break;
+                case OpCode.JGE:
+                    isTransferInstruction = true;
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                    isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                    address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                    jge(register, index, isIndirectAddress, address);
+                    break;
+                case OpCode.IN:
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    devId = instructionParse.get(BitInstruction.KEY_DEVID); 
+                    in(register, devId);
+                    break;
+                case OpCode.OUT:
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    devId = instructionParse.get(BitInstruction.KEY_DEVID); 
+                    out(register, devId);
+                    break;
+                case OpCode.MLT:
+                    rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                    ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
+                    mlt(rx, ry);
+                    break;
+                case OpCode.DVD:
+                    rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                    ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
+                    dvd(rx, ry);
+                    break;
+                case OpCode.TRR:
+                    rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                    ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
+                    trr(rx, ry);
+                    break;     
+                case OpCode.SRC:
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    arithmeticOrLogic = instructionParse.get(BitInstruction.KEY_ARITHMETIC_OR_LOGIC);
+                    leftOrRight = instructionParse.get(BitInstruction.KEY_LEFT_OR_RIGHT);
+                    shiftCount = instructionParse.get(BitInstruction.KEY_SHIFT_COUNT); 
+                    src(register, arithmeticOrLogic, leftOrRight, shiftCount);            	
+                    break;
+                case OpCode.RRC:
+                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                    arithmeticOrLogic = instructionParse.get(BitInstruction.KEY_ARITHMETIC_OR_LOGIC);
+                    leftOrRight = instructionParse.get(BitInstruction.KEY_LEFT_OR_RIGHT);
+                    shiftCount = instructionParse.get(BitInstruction.KEY_SHIFT_COUNT); 
+                    rrc(register, arithmeticOrLogic, leftOrRight, shiftCount);            	
+                    break;
+                case OpCode.AND:
+                    rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                    ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
+                    and(rx, ry);            	
+                    break;
+                case OpCode.ORR: 
+                    rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                    ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
+                    orr(rx, ry);             	
+                    break;
+                case OpCode.NOT: 
+                    rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
+                    not(rx);             	
+                    break;
+                default:
+                    handleMachineFault(FaultCode.ILLEGAL_OPCODE);
+                    break;                        
+            }
+
+                    // Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
+            if(!isTransferInstruction 
+                            && !opcode.getValue().equals(OpCode.HLT)
+                            && !opcode.getValue().equals(OpCode.TRAP))
+            {
+                    // Increment PC
+                    String pc = (String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM);
+                    // PC can only hold 12 bits, so chop off the leading zeros
+                    pc = pc.substring(4, 16);
+                    PC.setBitValue(pc);
+            }
+            // For transfer instructions, PC is set when executing that instruction
+
+            if(isRunningTrap)
+            {
+                    // Retrieve next PC from reserved memory location 2
+                    String pc = memory.get(MemoryLocation.RESERVED_ADDRESS_TRAP_PC).getValue().getValue();
+                    // PC can only hold 12 bits, so chop off the leading zeros
+                    pc = pc.substring(4,  16);
+                    PC.setBitValue(pc);
+
+                    isRunningTrap = false;
+            }
+
+            if(isRunningFault)
+            {
+                    // Retrieve next PC from reserved memory location 4
+                    String pc = memory.get(MemoryLocation.RESERVED_ADDRESS_FAULT_PC).getValue().getValue();
+                    // PC can only hold 12 bits, so chop off the leading zeros
+                    pc = pc.substring(4,  16);
+                    PC.setBitValue(pc);
+
+                    isRunningFault = false;
+            }
 	}
 	
 	/* Instruction methods */
@@ -764,15 +766,17 @@ public class MiniComputer extends Observable implements Runnable
 		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
 		
 		// Fetch the contents in memory at the address specified by MAR into the MBR
-		if(memory.containsKey(MAR.getBitValue().getValue()))
+		/*if(memory.containsKey(MAR.getBitValue().getValue()))
 		{
 			MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
 		}
 		else
 		{			
 			MBR.setBitValue(BitWord.VALUE_DEFAULT);
-		}
-		
+		}*/
+                //Read From Cache
+		readCacheHelper();
+                
 		// Move the data from the MBR to an Internal Result Register (IRR)
 		IRR[0].setBitValue(MBR.getBitValue());
 		
@@ -889,14 +893,16 @@ public class MiniComputer extends Observable implements Runnable
 		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
 		
 		// Fetch the contents in memory at the address specified by MAR into the MBR
-		if(memory.containsKey(MAR.getBitValue().getValue()))
+		/*if(memory.containsKey(MAR.getBitValue().getValue()))
 		{
 			MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
 		}
 		else
 		{			
 			MBR.setBitValue(BitWord.VALUE_DEFAULT);
-		}
+		}*/
+                //Read From Cache
+                readCacheHelper();
 		
 		// Move the data from the MBR to an Internal Result Register (IRR)
 		IRR[0].setBitValue(MBR.getBitValue());
@@ -980,14 +986,16 @@ public class MiniComputer extends Observable implements Runnable
 		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
 		
 		// Fetch the contents in memory at the address specified by MAR into the MBR
-		if(memory.containsKey(MAR.getBitValue().getValue()))
+		/*if(memory.containsKey(MAR.getBitValue().getValue()))
 		{
 			MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
 		}
 		else
 		{			
 			MBR.setBitValue(BitWord.VALUE_DEFAULT);
-		}
+		}*/
+                //Read From Cache
+                readCacheHelper();
 		
 		// Move the contents of the specified register to the IRR
 		if(registerSelect1 != null)
@@ -1044,14 +1052,16 @@ public class MiniComputer extends Observable implements Runnable
 		// TODO: Check that address specified by MAR is valid (not reserved, not larger than max)
 		
 		// Fetch the contents in memory at the address specified by MAR into the MBR
-		if(memory.containsKey(MAR.getBitValue().getValue()))
+		/*if(memory.containsKey(MAR.getBitValue().getValue()))
 		{
 			MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
 		}
 		else
 		{			
 			MBR.setBitValue(BitWord.VALUE_DEFAULT);
-		}
+		}*/
+                //Read From Cache
+                readCacheHelper();
 		
 		// Move the contents of the specified register to the IRR
 		if(registerSelect1 != null)
@@ -1928,55 +1938,10 @@ public class MiniComputer extends Observable implements Runnable
 		notifyObservers(MFR);
 		
 	}
-	
-        private void fetchFromCache() {
-            MemoryLocation tempMemory = null;   
-            int count = 1;
-            String firstTwelveBits = MAR.getBitValue().getValue().substring(0, 13);
-            logger.println("Searching for the following 12 bit address in the cache: " + firstTwelveBits);              
-            for (CacheLine cacheLine : cache) {         
-                //if first 12 bits of address tag match
-                if (firstTwelveBits.equals(cacheLine.addressTag.getValue())) {
-                   MemoryLocation[] tempBlock = cacheLine.getBlock();
-                   for (MemoryLocation block : tempBlock) {
-                       //get address from block 
-                       if (block.getAddress().getValue().equals(firstTwelveBits)) {
-                           tempMemory = block;
-                           break;
-                       }
-                   }
-                   logger.println(count + ". Address in cache: " + cacheLine.getAddressTag() + " is a match.");                   
-                   break; //found in cache, move on
-                }
-                else
-                    logger.println(count + ". Address in cache: " + cacheLine.getAddressTag() + " not a match.");
-                count++;
-            }            
-            if (tempMemory != null) {
-                //memory was in cache                
-                MBR.setBitValue(tempMemory.getAddress());
-                logger.println("Address was found in cache. Setting MBR... Value = " + MBR.getBitValue().getValue());
-            }
-            else {
-                //memory was not in cache
-                logger.println("Address was not in cache... find in memory and put in cache.");
-                // Fetch the contents in memory at the address specified by MAR into the MBR
-                if(memory.containsKey(MAR.getBitValue().getValue()))
-                {
-                    MBR.setBitValue(memory.get(MAR.getBitValue().getValue()).getValue());
-                }
-                else
-                {			
-                    MBR.setBitValue(BitWord.VALUE_DEFAULT);
-                }
-                //put memory in cache and remove first element (fifo)
-                //first on
-                cache.add(new CacheLine(MBR.getBitValue().getValue()));
-                //if cache is greater than 16, first off
-                if(cache.size() > 16)
-                    cache.remove(0);
-            }
+        
+        private void readCacheHelper()
+        {
+            MBR.setBitValue(theCache.fetchFromCache(MAR, memory).getBitValue());
         }
-	
 	/* End Helpers */
 }
