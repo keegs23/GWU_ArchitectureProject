@@ -1,25 +1,26 @@
-LDA 0,0,0,60			X1 stores index address 80 to help access larger addresses; PROGRAM 2 START (this instruction stored at address p=30)	
+LDA 0,0,0,30			X1 stores index address 80 to help access larger addresses; PROGRAM 2 START (this instruction stored at address p=30)	
+AIR 0,30
 AIR 0,20				X1 now holds 80
 STR 0,0,0,29			Transfer R0 contents to X1 via address 29
 LDX 1,0,29
-AIR 0,60				X2 stores index address 145 initially to help access larger addresses
-AIR 0,5					R0 now holds 145	
+AIR 0,30				X2 stores index address 134? initially to help access larger addresses
+AIR 0,24				R0 now holds 134
 STR 0,0,0,29
 LDX 2,0,29			
-AIR 0,55				X3 stores index address 240 to help access larger addresses
-AIR 0,40				R0 now holds 240			
+SRC 0,1,1,0				X3 stores index address 262 to help access larger addresses (shifting left 1 arithmetically effectively multiplies by 2)
+SIR 0,6					R0 now holds 262			
 STR 0,0,0,29
 LDX 3,0,29			
-AIR 0,54				Memory address a=294 stores the start address of the character array for the file input, 300
-STR 0,3,0,54(a)
-STR 0,3,0,55(i)			Memory address i=295 stores the address of the current array element being processed AKA File Input Character Address
-AIR 0,1					Memory address w=296 stores the address of the first character of the word to find, 500
-STR 0,3,0,56(w)
-STR 0,3,0,57(x)			Memory address x=297 stores the address of the AKA Search Word Character Address
+AIR 0,30				Memory address a=294 stores the start address of the character array for the file input, 290
+STR 0,3,0,22(a)
+STR 0,3,0,23(i)			Memory address i=295 stores the address of the current array element being processed AKA File Input Character Address
+SRC 0,2,1,0				Memory address w=296 stores the address of the first character of the word to find, 1160 (shifting left by 2 arithmetically effectively multiplies by 4)
+STR 0,3,0,24(w)
+STR 0,3,0,25(x)			Memory address x=297 stores the address of the AKA Search Word Character Address
 LDA 0,0,0,1				Memory address m=298 stores the previous char comparison result b/w the file input and search word (defaults to 1)
-STR 0,3,0,58(m)
+STR 0,3,0,26(m)
 LDA 0,0,0,0				Memory address e=299 stores whether the search word char is the Enter key (defaults to 0)
-STR 0,3,0,59(e)
+STR 0,3,0,27(e)
 LDA 0,0,0,0				R0 stores the sentence count while searching (starts at 1)
 LDA 1,0,0,1				R1 stores the word count within a sentence while searching (starts at 1)
 LDA 2,0,0,0				R2 stores the current file input character while inputting file/search word character while inputting search word/file input character while searching (defaults to value 0)
@@ -50,14 +51,14 @@ LDA 2,0,0,10			Output newline (ASCII=10)
 OUT 2,4			
 IN 2,3					Read ASCII character from file (deviceId=3) into R2; FILE INPUT LOOP START
 TRR 2,3					Test if the character (R2) is the EOF character (R3) (assumes file has exactly 6 sentences, period is only used to denote end of sentence)
-JCC 3,1,0,9(file)		If EQUALORNOT is true, character is EOF, so jump to FILE INPUT LOOP END
-STR 2,3,1,55(i)			Else, store the character in the location indirect addressed by the File Input Character Address
+JCC 3,1,0,10(file)		If EQUALORNOT is true, character is EOF, so jump to FILE INPUT LOOP END
+STR 2,3,1,23(i)			Else, store the character in the location indirect addressed by the File Input Character Address
 OUT 2,4					Output the ASCII character in R2
-LDR 1,3,0,55(i)			Increment the File Input Character Address by loading the address into R1
+LDR 1,3,0,23(i)			Increment the File Input Character Address by loading the address into R1
 AIR 1,1					Then adding 1 (Immed) to R1
-STR 1,3,0,55(i)			Then storing R1 contents into the File Input Character Address
-JMA 1,0,0(fils)			Unconditional jump to FILE INPUT LOOP START
-STR 3,3,1,55(i)			Store the EOF character (R3) into the address indirect addressed by the File Input Character Address; FILE INPUT LOOP END
+STR 1,3,0,23(i)			Then storing R1 contents into the File Input Character Address
+JMA 1,0,1(fils)			Unconditional jump to FILE INPUT LOOP START
+STR 3,3,1,23(i)			Store the EOF character (R3) into the address indirect addressed by the File Input Character Address; FILE INPUT LOOP END
 LDA 3,0,0,10			Output newline
 OUT 3,4			
 LDA 3,0,0,10			Output newline
@@ -103,87 +104,91 @@ OUT 3,4
 LDA 3,0,0,13			Set R3 to the Enter key ASCII (13)
 IN 2,4					Read ASCII character from user input into R2; SEARCH WORD INPUT LOOP START
 TRR 2,3					Test if the character (R2) is the Enter key (R3)
-JCC 3,1,0,61(swile)		If EQUALORNOT is true, character is Enter, so jump to SEARCH WORD INPUT LOOP END
-STR 2,3,1,57(x)			Else, store the character in the location indirect addressed by the Search Word Character Address
-LDR 1,3,0,57(x)			Increment the Search Word Character Address by loading the address into R1
+JCC 3,2,0,8(swile)		If EQUALORNOT is true, character is Enter, so jump to SEARCH WORD INPUT LOOP END
+STR 2,3,1,25(x)			Else, store the character in the location indirect addressed by the Search Word Character Address
+LDR 1,3,0,25(x)			Increment the Search Word Character Address by loading the address into R1
 AIR 1,1					Then adding 1 (Immed) to R1
-STR 1,3,0,57(x)			Then storing R1 contents into the Search Word Character Address
-JMA 1,0,53(swils)		Unconditional jump to SEARCH WORD INPUT LOOP START
-STR 3,3,0,57(x)			Store the Enter character (R3) into the Search Word Character Address; SEARCH WORD INPUT LOOP END
-LDR 0,3,0,54(a)			Reset contents of File Input Character Address to the start of the array (stored in a)
-STR 0,3,0,55(i)
-LDR 0,3,0,56(w)			Reset contents of Search Word Character Address to the start of the word (stored in w)
-STR 0,3,0,57(x)
-STX 1,0,29				Update X1 contents to 200 so can access more memory by storing X3 contents (240) to the transfer address t, 29; SET X1 TO 200
+STR 1,3,0,25(x)			Then storing R1 contents into the Search Word Character Address
+JMA 2,0,0(swils)		Unconditional jump to SEARCH WORD INPUT LOOP START
+STR 3,3,0,25(x)			Store the Enter character (R3) into the Search Word Character Address; SEARCH WORD INPUT LOOP END
+LDR 0,3,0,22(a)			Reset contents of File Input Character Address to the start of the array (stored in a)
+STR 0,3,0,23(i)
+LDR 0,3,0,24(w)			Reset contents of Search Word Character Address to the start of the word (stored in w)
+STR 0,3,0,25(x)
+STX 1,0,29				Update X1 contents to 155 so can access more memory by storing X2 contents (134) to the transfer address t, 29; UPDATE X1
 LDR 0,0,0,29			Then loading that value into R0
-SIR 0,40				Then subtracting 40 (Immed) from R0
+AIR 0,21				Then adding 21 (Immed) to R0
 STR 0,0,0,29			Then storing R0 contents back to the transfer address
 LDX 1,0,29				Then loading the contents into X1
+AIR 0,30				Update X2 contents to 190?; UPDATE X2
+AIR 0,5			
+STR 0,0,0,29			
+LDX 2,0,29				; UPDATE X2 END	
 LDA 0,0,0,1				Set the sentence count (R0) to 1
 LDA 1,0,0,1				Set the word count (R1) to 1
-LDR 3,3,1,57(x)			Load search word character indirect addressed by x into R3; FIND LOOP START
+LDR 3,3,1,25(x)			Load search word character indirect addressed by x into R3; FIND LOOP START
 LDA 2,0,0,13			Load the Enter key ASCII (13) into R2
 TRR 3,2					Test if the search word character is the Enter key
-JCC 3,2,0,15(sebtt)		If EQUALORNOT is true, character is Enter, so jump to SET E BIT TO TRUE
+JCC 3,1,0,10(sebtt)		If EQUALORNOT is true, character is Enter, so jump to SET E BIT TO TRUE
 LDA 2,0,0,0				Else, set e bit to false by loading 0 into R2
-STR 2,3,0,59(e)			Then storing the R2 contents into e
-JMA 2,0,17(gfic)		Unconditional jump to GET FILE INPUT CHAR
+STR 2,3,0,27(e)			Then storing the R2 contents into e
+JMA 1,0,12(gfic)		Unconditional jump to GET FILE INPUT CHAR
 LDA 2,0,0,1				Load 1 into R2; SET E BIT TO TRUE
-STR 2,0/1,0,59(e)		Then store the R2 contents into address e
-LDR 2,0/1,1,55(i)		Load the file input character indirect addressed by i into R2; GET FILE INPUT CHAR
+STR 2,0/1,0,27(e)		Then store the R2 contents into address e
+LDR 2,0/1,1,23(i)		Load the file input character indirect addressed by i into R2; GET FILE INPUT CHAR
 LDA 3,0,0,26			Load EOF character (ASCII=26) into R3
 TRR 2,3					Test if file input character (R2) is EOF (R3)
-JCC 3,1,0,58(p2e)		If EQUALORNOT is true, is EOF, so jump to PROGRAM 2 END
+JCC 3,3,0,1(p2e)		If EQUALORNOT is true, is EOF, so jump to PROGRAM 2 END
 LDA 3,0,0,32			Load a space (' ', ASCII=32) into R3
 TRR 2,3					Test if file input character (R2) is a space (R3)
-JCC 3,2,0,30(iwc)		If EQUALORNOT is true, is a space, so jump to INCREMENT WORD COUNT (assumes there is only 1 space after a period before the next sentence starts)
+JCC 3,1,0,25(iwc)		If EQUALORNOT is true, is a space, so jump to INCREMENT WORD COUNT (assumes there is only 1 space after a period before the next sentence starts)
 LDA 3,0,0,46			Load '.' (ASCII=46) into R3
 TRR 2,3					Test if file input character (R2) is a period (R3)
-JCC 3,2,0,40(isc)		If EQUALORNOT is true, is a period, so jump to INCREMENT SENTENCE COUNT
-LDR 3,3,0,58(m)			Load the previous result of the char comparison between file input and search word (stored in m) into R3
-JNE 3,2,0,45(cc)		If prev comparison result (R3) is 1 (i.e. not 0), jump to COMPARE CHARS
-JMA 2,0,56(ifica)		Else, unconditional jump to INCREMENT FILE INPUT CHAR ADDRESS
-LDR 3,3,0,59(e)			Load the e bit into R3; INCREMENT WORD COUNT
-JNE 3,1,0,5(wf)			If the e bit is also true (not 0), jump to WORD FOUND
+JCC 3,2,0,0(isc)		If EQUALORNOT is true, is a period, so jump to INCREMENT SENTENCE COUNT
+LDR 3,3,0,26(m)			Load the previous result of the char comparison between file input and search word (stored in m) into R3
+JNE 3,2,0,5(cc)		If prev comparison result (R3) is 1 (i.e. not 0), jump to COMPARE CHARS
+JMA 2,0,16(ifica)		Else, unconditional jump to INCREMENT FILE INPUT CHAR ADDRESS
+LDR 3,3,0,27(e)			Load the e bit into R3; INCREMENT WORD COUNT
+JNE 3,2,0,20(wf)			If the e bit is also true (not 0), jump to WORD FOUND
 AIR 1,1					Else, add 1 (Immed) to R1
-LDR 3,3,0,56(w)			Reset Search Word Character Address to the start (stored in w)
-STR 3,3,0,57(x)
+LDR 3,3,0,24(w)			Reset Search Word Character Address to the start (stored in w)
+STR 3,3,0,25(x)
 LDA 3,0,0,0				Reset the e bit to false by loading 0 into R3
-STR 3,3,0,59(e)			Then storing R3 contents into e
+STR 3,3,0,27(e)			Then storing R3 contents into e
 LDA 3,0,0,1				Reset "previous" char comparison result (stored in m) to 1 by loading 1 into R3
-STR 3,3,0,58(m)			Then storing R3 contents into m
-JMA 2,0,56(ifica)		Unconditional jump to INCREMENT FILE INPUT CHAR ADDRESS
-LDR 3,3,0,59(e)			Load the e bit into R3; INCREMENT SENTENCE COUNT
-JNE 3,1,0,5(wf)			If the e bit is also true (not 0), jump to WORD FOUND
+STR 3,3,0,26(m)			Then storing R3 contents into m
+JMA 2,0,16(ifica)		Unconditional jump to INCREMENT FILE INPUT CHAR ADDRESS
+LDR 3,3,0,27(e)			Load the e bit into R3; INCREMENT SENTENCE COUNT
+JNE 3,2,0,20(wf)			If the e bit is also true (not 0), jump to WORD FOUND
 AIR 0,1					Else, add 1 (Immed) to R0
 LDA 1,0,0,0				Reset word count in R1 to 0 (next char will be a space, so word count will be incremented to 1)
-JMA 2,0,56(ifica)		Unconditional jump to INCREMENT FILE INPUT CHAR ADDRESS
-LDR 3,3,1,57(x)			Load the search word char indirect addressed by x into R3; COMPARE CHARS
+JMA 2,0,16(ifica)		Unconditional jump to INCREMENT FILE INPUT CHAR ADDRESS
+LDR 3,3,1,25(x)			Load the search word char indirect addressed by x into R3; COMPARE CHARS
 TRR 2,3					Test if the file input char (R2) and the search word char (R3) are equal (case sensitive)
-JCC 3,2,0,51(iswca)		If EQUALORNOT, they match, so jump to INCREMENT SEARCH WORD CHAR ADDRESS
+JCC 3,2,0,11(iswca)		If EQUALORNOT, they match, so jump to INCREMENT SEARCH WORD CHAR ADDRESS
 LDA 3,0,0,0				Else, store EQUALORNOT result (0) to m (via R3)
-STR 3,3,0,58(m)
-JMA 2,0,56(ifica)		Unconditional jump to INCREMENT FILE INPUT CHAR ADDRESS
-LDR 3,3,0,57(x)			Load the contents of x into R3; INCREMENT SEARCH WORD CHAR ADDRESS
+STR 3,3,0,26(m)
+JMA 2,0,16(ifica)		Unconditional jump to INCREMENT FILE INPUT CHAR ADDRESS
+LDR 3,3,0,25(x)			Load the contents of x into R3; INCREMENT SEARCH WORD CHAR ADDRESS
 AIR 3,1					Then add 1 (Immed) to R3
-STR 3,3,0,57(x)			Then store R3 contents back into x
+STR 3,3,0,25(x)			Then store R3 contents back into x
 LDA 3,0,0,1				Store char match EQUALORNOT result (1) to m (via R3)
-STR 3,3,0,58(m)
-LDR 3,3,0,55(i)			Load the contents of i into R3; INCREMENT FILE INPUT CHAR ADDRESS
+STR 3,3,0,26(m)
+LDR 3,3,0,23(i)			Load the contents of i into R3; INCREMENT FILE INPUT CHAR ADDRESS
 AIR 3,1					Then add 1 (Immed) to R3
-STR 3,3,0,55(i)			Then store R3 contents back into i
-JMA 2,0,8(fls)			Unconditional jump to FIND LOOP START
-LDR 2,3,0,56(w)			Reset contents of x to the start of the search word (stored in w) via R2; WORD FOUND
-STR 2,3,0,57(x)
-LDR 2,3,1,57(x)			Load the search word char indirect addressed by x into R2; PRINT SEARCH WORD LOOP START
+STR 3,3,0,23(i)			Then store R3 contents back into i
+JMA 1,0,3(fls)			Unconditional jump to FIND LOOP START
+LDR 2,3,0,24(w)			Reset contents of x to the start of the search word (stored in w) via R2; WORD FOUND
+STR 2,3,0,25(x)
+LDR 2,3,1,25(x)			Load the search word char indirect addressed by x into R2; PRINT SEARCH WORD LOOP START
 LDA 3,0,0,13			Load the Enter key ASCII (13) into R3
 TRR 2,3					Test if the search word char (R2) is the Enter key (R3)
-JCC 3,1,0,16(psn)		If EQUALORNOT, jump to PRINT SENTENCE NUMBER
-OUT 2,4					Else, output R2 contents; PRINT SEARCH WORD CHAR
-LDR 3,3,0,57(x)			Increment the address in x by loading the contents of x into R3
+JCC 3,2,0,31(psn)		If EQUALORNOT, jump to PRINT SENTENCE NUMBER
+OUT 2,4					Else, output search word char (R2)
+LDR 3,3,0,25(x)			Increment the address in x by loading the contents of x into R3
 AIR 3,1					Then adding 1 (Immed) to R3
-STR 3,3,0,57(x)			Then storing the R3 contents back into x
-JMA 1,0,7(pswls)		Unconditional jump to PRINT SEARCH WORD LOOP START
+STR 3,3,0,25(x)			Then storing the R3 contents back into x
+JMA 2,0,22(pswls)		Unconditional jump to PRINT SEARCH WORD LOOP START
 LDA 3,0,0,10			Output newline; PRINT SENTENCE NUMBER
 OUT 3,4			
 LDA 3,0,0,83			Output S
@@ -219,11 +224,11 @@ LDA 3,0,0,68			Output D
 OUT 3,4			
 LDA 3,0,0,32			Output space
 OUT 3,4			
-STR 1,3,0,58(m)			Copy the word number (stored in R1) to R2 to prep for division (transfer through repurposed address m); PRINT WORD NUMBER
-LDR 2,3,0,58(m)
+STR 1,3,0,26(m)			Copy the word number (stored in R1) to R2 to prep for division (transfer through repurposed address m); PRINT WORD NUMBER
+LDR 2,3,0,26(m)
 LDA 0,0,0,10			Load 10 (decimal) into R0 as the divisor (assumes a sentence will have no more than 99 words)
 DVD 2,0					Divide the word count (R2) by 10 (decimal, R0)
-JZ 2,1,0,57(pod)		If the quotient (in R2) = 0, jump to PRINT ONES DIGIT
+JZ 2,3,0,0(pod)			If the quotient (in R2) = 0, jump to PRINT ONES DIGIT
 OUT 2,2					Else, output the tens digit (R2)--NOT ASCII
 OUT 3,2					Output the remainder/ones digit (in R3)--NOT ASCII; PRINT ONES DIGIT
 HLT						Halt; PROGRAM 2 END

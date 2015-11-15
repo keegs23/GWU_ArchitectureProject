@@ -1880,14 +1880,7 @@ public class MiniComputer extends Observable implements Runnable
 			
 			// Valid address checking is done after this method
 			
-			if(memory.containsKey(addr))	//MemoryLocation
-			{
-				return memory.get(addr).getValue();
-			}
-			else
-			{
-				return new BitWord();	//value is 0000000000000000 (16 zero bits)
-			}
+			return new BitWord(theCache.fetchFromCache(addr, memory));
 		}
 	}
 	
@@ -1976,7 +1969,7 @@ public class MiniComputer extends Observable implements Runnable
         
         private void readCacheHelper()
         {
-            MBR.setBitValue(theCache.fetchFromCache(MAR, memory).getBitValue());
+            MBR.setBitValue(theCache.fetchFromCache(MAR.getBitValue().getValue(), memory));
         }
 	/* End Helpers */
 }
