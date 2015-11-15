@@ -49,7 +49,7 @@ AIR 2,5					Output U (ASCII=85)
 OUT 2,4			
 SIR 2,1					Output T (ASCII=84)
 OUT 2,4			
-SIR 26					Output : (ASCII=58)
+SIR 2,26					Output : (ASCII=58)
 OUT 2,4			
 LDA 2,0,0,10			Output newline (ASCII=10)
 OUT 2,4			
