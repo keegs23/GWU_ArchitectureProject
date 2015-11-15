@@ -1846,7 +1846,7 @@ public class MiniComputer extends Observable implements Runnable
 		
 		if (Integer.parseInt(bitAddress.getValue(), 2) > 2047)
 		{
-			handleMachineFault(FaultCode.ILLEGAL_MEMORY_ADDRESS_BEYOND_2048);
+			handleMachineFault(FaultCode.ILLEGAL_MEMORY_ADDRESS_BEYOND_2047);
 			return true;
 		}
 		
@@ -1891,7 +1891,7 @@ public class MiniComputer extends Observable implements Runnable
 			System.out.println("Error: Illegal OpCode");
 			fault = "0010"; // 2
 		}
-		if (faultCode == FaultCode.ILLEGAL_MEMORY_ADDRESS_BEYOND_2048)
+		if (faultCode == FaultCode.ILLEGAL_MEMORY_ADDRESS_BEYOND_2047)
 		{
 			System.out.println("Error: Illegal Memory Address Beyond 2048");
 			fault = "0011"; // 3

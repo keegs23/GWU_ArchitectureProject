@@ -55,6 +55,7 @@ public class Cache {
 		memory.put(address, writeBuffer.poll());
 		
 		MiniComputer.logger.println("Done");
+		MiniComputer.logger.println("--------------------");
 	}
 	
 	private void writeToWriteBuffer(MemoryLocation memLoc) {
