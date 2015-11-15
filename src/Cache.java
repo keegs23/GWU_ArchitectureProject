@@ -105,12 +105,11 @@ public class Cache {
 				cache.remove(0);
 			}
 			 
-			addNewCacheLine(firstTwelveBits);
 		}
 	}
 	
 	// Creates a new CacheLine object with block initialized with 16 MemoryLocations and adds it to cache
-	private void addNewCacheLine(String firstTwelveBits) {
+	private void addNewCacheLine(String firstTwelveBits, Map<String, MemoryLocation> memory) {
 		
 		MiniComputer.logger.print("Adding new cacheline to cache with addressTag " + firstTwelveBits + "... ");
 		
@@ -120,7 +119,15 @@ public class Cache {
 		for (int i = 0; i < newCacheLine.getBlock().length; i++) {
 			
 			lastFourBits = DataConversion.intToFourBitString(i);
-			newCacheLine.getBlock()[i] = new MemoryLocation(firstTwelveBits + lastFourBits, BitWord.VALUE_ZERO); // initialize each block
+			
+			String address = firstTwelveBits + lastFourBits;
+			String value = BitWord.VALUE_ZERO;
+			
+			if (memory.get(address) != null) {
+				value = memory.get(address).getValue().getValue();
+			}
+			
+			newCacheLine.getBlock()[i] = new MemoryLocation(address, value); // initialize each block
 		}
 		
 		MiniComputer.logger.println("Done");
@@ -171,7 +178,7 @@ public class Cache {
                 }
                 //put memory in cache and remove first element (fifo)
                 //first on
-                addNewCacheLine(firstTwelveBits);              
+                addNewCacheLine(firstTwelveBits, memory);              
                 //if cache is greater than 16, first off
                 if(cache.size() > 16)
                     cache.remove(0);
