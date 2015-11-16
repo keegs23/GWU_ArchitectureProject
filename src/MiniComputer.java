@@ -409,7 +409,7 @@ public class MiniComputer extends Observable implements Runnable
 			}
 		}
 		
-		else if (currentProgram == ProgramCode.PROGRAMTWO || currentProgram == ProgramCode.PROGRAMTWO)
+		else if (currentProgram == ProgramCode.PROGRAMONE || currentProgram == ProgramCode.PROGRAMTWO)
 		{
 			while (MiniComputerGui.haltButtonClicked == false)
 			{
