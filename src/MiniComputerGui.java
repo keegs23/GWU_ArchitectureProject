@@ -263,6 +263,8 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     }
     
     private void addToMemoryPanel() {
+    	
+    	memoryTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         memoryPanel.add(new JScrollPane(memoryTable));
     }
     
@@ -326,7 +328,9 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	memoryModel.setRowCount(0);
     	memoryModel.addColumn("Address (base-2)");
         memoryModel.addColumn("Value (base-2)");
-        memoryModel.addRow(new Object[]{"", ""});
+        memoryModel.addColumn("Address (base-10");
+        memoryModel.addColumn("Value (vase-10");
+        memoryModel.addRow(new Object[]{"", "", "", ""});
     }
     
     private void initCacheTable() {
@@ -445,10 +449,12 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
         
     	for (Map.Entry<String, MemoryLocation> m : cpu.getMemory().entrySet()) {
     		
-    		String address = m.getValue().getAddress().getValue();
-    		String value = m.getValue().getValue().getValue();
+    		String address2 = m.getValue().getAddress().getValue();
+    		String value2 = m.getValue().getValue().getValue();
+    		String address10 = String.valueOf(Integer.parseInt(address2, 2));
+    		String value10 = String.valueOf(Integer.parseInt(value2, 2));
     		
-    		memoryModel.addRow(new Object[]{address, value});
+    		memoryModel.addRow(new Object[]{address2, value2, address10, value10});
     	}
     }
     
