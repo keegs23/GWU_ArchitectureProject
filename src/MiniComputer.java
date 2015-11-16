@@ -1238,7 +1238,8 @@ public class MiniComputer extends Observable implements Runnable
 			
 			value = br.read(); // read in next character
 			
-			System.out.println((char) value); // DEBUG code
+			System.out.println("THE CHAR: " + (char) value); // DEBUG code
+			System.out.println("THE VALUE: " + value); // DEBUG code
 			
 			if (value == -1) // if EOF
 			{
@@ -1259,7 +1260,7 @@ public class MiniComputer extends Observable implements Runnable
 			System.out.println(ex.getMessage());
 		}
 		
-		return (char) value;
+		return Character.toUpperCase((char) value);
 	}
 	
 	/**

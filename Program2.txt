@@ -119,7 +119,7 @@ LDR 1,3,0,25(x)			Increment the Search Word Character Address by loading the add
 AIR 1,1					Then adding 1 (Immed) to R1
 STR 1,3,0,25(x)			Then storing R1 contents into the Search Word Character Address
 JMA 2,0,0(swils)		Unconditional jump to SEARCH WORD INPUT LOOP START
-STR 3,3,0,25(x)			Store the Enter character (R3) into the Search Word Character Address; SEARCH WORD INPUT LOOP END
+STR 3,3,1,25(x)			Store the Enter character (R3) into address indirect addressed by the Search Word Character Address; SEARCH WORD INPUT LOOP END
 LDR 0,3,0,22(a)			Reset contents of File Input Character Address to the start of the array (stored in a)
 STR 0,3,0,23(i)
 LDR 0,3,0,24(w)			Reset contents of Search Word Character Address to the start of the word (stored in w)
@@ -143,8 +143,8 @@ LDA 2,0,0,0				Else, set e bit to false by loading 0 into R2
 STR 2,3,0,27(e)			Then storing the R2 contents into e
 JMA 1,0,12(gfic)		Unconditional jump to GET FILE INPUT CHAR
 LDA 2,0,0,1				Load 1 into R2; SET E BIT TO TRUE
-STR 2,2,0,27(e)		Then store the R2 contents into address e
-LDR 2,2,1,23(i)		Load the file input character indirect addressed by i into R2; GET FILE INPUT CHAR
+STR 2,3,0,27(e)		Then store the R2 contents into address e
+LDR 2,3,1,23(i)		Load the file input character indirect addressed by i into R2; GET FILE INPUT CHAR
 LDA 3,0,0,26			Load EOF character (ASCII=26) into R3
 TRR 2,3					Test if file input character (R2) is EOF (R3)
 JCC 3,3,0,14(p2e)		If EQUALORNOT is true, is EOF, so jump to PROGRAM 2 END
@@ -220,12 +220,12 @@ OUT 3,4
 LDA 3,0,0,30			Output space (ASCII=32)
 AIR 3,2
 OUT 3,4			
-OUT 0,2					Output sentence number of search word (1-6, stored in R0)--NOT ASCII			
+OUT 0,1					Output sentence number of search word (1-6, stored in R0)--NOT ASCII			
 AIR 3,12				Output comma (ASCII=44)
 OUT 3,4			
 SIR 3,12				Output space (ASCII=32)
 OUT 3,4			
-SRC 3,0,1,2				Output W (ASCII=87)
+SRC 3,0,1,1				Output W (ASCII=87)
 AIR 3,23
 OUT 3,4			
 SIR 3,8					Output O (ASCII=79)
@@ -242,6 +242,6 @@ LDR 2,3,0,26(m)
 LDA 0,0,0,10			Load 10 (decimal) into R0 as the divisor (assumes a sentence will have no more than 99 words)
 DVD 2,0					Divide the word count (R2) by 10 (decimal, R0)
 JZ 2,3,0,13(pod)			If the quotient (in R2) = 0, jump to PRINT ONES DIGIT
-OUT 2,2					Else, output the tens digit (R2)--NOT ASCII
-OUT 3,2					Output the remainder/ones digit (in R3)--NOT ASCII; PRINT ONES DIGIT
+OUT 2,1				Else, output the tens digit (R2)--NOT ASCII
+OUT 3,1				Output the remainder/ones digit (in R3)--NOT ASCII; PRINT ONES DIGIT
 HLT						Halt; PROGRAM 2 END
