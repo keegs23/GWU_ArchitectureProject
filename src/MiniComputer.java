@@ -384,24 +384,52 @@ public class MiniComputer extends Observable implements Runnable
 		// Execute boot program (mostly load/store)
 		// PC can only hold 12 bits, so chop off the leading zeros
 		PC.setBitValue(prgmStart12Bits);
-		for(int k = 1; k <= prgmLength; k++)
+		
+		if (currentProgram == ProgramCode.BOOTPROGRAM)
 		{
-			int machineFaultCode = Integer.parseInt(MFR.getBitValue().getValue(), 2);
-			
-			if (MiniComputerGui.haltButtonClicked)
+			for(int k = 1; k <= prgmLength; k++)
 			{
-				System.out.println("TERMINATED: Halt has been clicked");
-				break;
+				int machineFaultCode = Integer.parseInt(MFR.getBitValue().getValue(), 2);
+				
+				if (MiniComputerGui.haltButtonClicked)
+				{
+					System.out.println("TERMINATED: Halt has been clicked");
+					break;
+				}
+				else if (machineFaultCode < 15)
+				{
+					System.out.println("TERMINATED: Machine fault, code " + machineFaultCode);
+					break;
+				}
+				else
+				{
+					// continue running program
+					singleStep();
+				}
 			}
-			else if (machineFaultCode < 15)
+		}
+		
+		else if (currentProgram == ProgramCode.PROGRAMTWO || currentProgram == ProgramCode.PROGRAMTWO)
+		{
+			while (MiniComputerGui.haltButtonClicked == false)
 			{
-				System.out.println("TERMINATED: Machine fault, code " + machineFaultCode);
-				break;
-			}
-			else
-			{
-				// continue running program
-				singleStep();
+				int machineFaultCode = Integer.parseInt(MFR.getBitValue().getValue(), 2);
+				
+				if (MiniComputerGui.haltButtonClicked)
+				{
+					System.out.println("TERMINATED: Halt has been clicked");
+					break;
+				}
+				else if (machineFaultCode < 15)
+				{
+					System.out.println("TERMINATED: Machine fault, code " + machineFaultCode);
+					break;
+				}
+				else
+				{
+					// continue running program
+					singleStep();
+				}
 			}
 		}
 		
@@ -478,7 +506,8 @@ public class MiniComputer extends Observable implements Runnable
             switch (opcode.getValue())
             {
                 case OpCode.HLT:
-                	// Skip to end
+                	// Raise HALT flag true
+                	MiniComputerGui.haltButtonClicked = true;
                     break;
                 case OpCode.TRAP:
                     trapCode = instructionParse.get(BitInstruction.KEY_TRAP_CODE);
