@@ -11,10 +11,10 @@ SRC 0,0,1,1				X3 stores index address 262 to help access larger addresses (shif
 SIR 0,6					R0 now holds 262			
 STR 0,0,0,29
 LDX 3,0,29			
-AIR 0,30				Memory address a=284 stores the start address of the character array for the file input, 290
+AIR 0,28				Memory address a=284 stores the start address of the character array for the file input, 290
 STR 0,3,0,22(a)
 STR 0,3,0,23(i)			Memory address i=285 stores the address of the current array element being processed AKA File Input Character Address
-SRC 0,0,1,2				Memory address w=286 stores the address of the first character of the word to find, 1160 (shifting left by 2 arithmetically effectively multiplies by 4)
+SRC 0,0,1,2				Memory address w=286 stores the address of the first character of the word to find, 1130 (shifting left by 2 arithmetically effectively multiplies by 4)
 STR 0,3,0,24(w)
 STR 0,3,0,25(x)			Memory address x=287 stores the address of the AKA Search Word Character Address
 LDA 0,0,0,1				Memory address m=288 stores the previous char comparison result b/w the file input and search word (defaults to 1)
