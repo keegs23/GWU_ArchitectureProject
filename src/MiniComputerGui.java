@@ -711,7 +711,16 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	    		System.out.println("Enter button pressed");
 	    		
 	    		if (!consoleKeyboardInput.getText().equals("")) {
-	    			int inputInt = Integer.parseInt(BitWord.VALUE_ENTER, 2);
+	    			
+	    			int inputInt = 0;
+	    			
+	    			if (MiniComputer.currentProgram == ProgramCode.PROGRAMONE) {
+	    				inputInt = Integer.parseInt(BitWord.VALUE_ENTER, 2);
+		    		}
+	    			else if (MiniComputer.currentProgram == ProgramCode.PROGRAMTWO){
+	    				inputInt = 13; // ASCII for Carriage Return
+	    			}
+	    			
 	    			processKeyClick(inputInt);
 		    		clearConsoleKeyboard();
 		    		consoleKeyboardInputHolder = "";
