@@ -143,8 +143,8 @@ LDA 2,0,0,0				Else, set e bit to false by loading 0 into R2
 STR 2,3,0,27(e)			Then storing the R2 contents into e
 JMA 1,0,12(gfic)		Unconditional jump to GET FILE INPUT CHAR
 LDA 2,0,0,1				Load 1 into R2; SET E BIT TO TRUE
-STR 2,2,0,27(e)		Then store the R2 contents into address e
-LDR 2,2,1,23(i)		Load the file input character indirect addressed by i into R2; GET FILE INPUT CHAR
+STR 2,3,0,27(e)		Then store the R2 contents into address e
+LDR 2,3,1,23(i)		Load the file input character indirect addressed by i into R2; GET FILE INPUT CHAR
 LDA 3,0,0,26			Load EOF character (ASCII=26) into R3
 TRR 2,3					Test if file input character (R2) is EOF (R3)
 JCC 3,3,0,14(p2e)		If EQUALORNOT is true, is EOF, so jump to PROGRAM 2 END
