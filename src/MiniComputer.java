@@ -1259,7 +1259,7 @@ public class MiniComputer extends Observable implements Runnable
 			System.out.println(ex.getMessage());
 		}
 		
-		return (char) value;
+		return Character.toUpperCase((char) value);
 	}
 	
 	/**
