@@ -8,7 +8,7 @@ AIR 0,29				R0 now holds 143
 STR 0,0,0,29
 LDX 2,0,29			
 SRC 0,0,1,1				X3 stores index address 262 to help access larger addresses (shifting left 1 arithmetically effectively multiplies by 2)
-SIR 0,6					R0 now holds 262			
+SIR 0,24					R0 now holds 262			
 STR 0,0,0,29
 LDX 3,0,29			
 AIR 0,28				Memory address a=284 stores the start address of the character array for the file input, 290
@@ -36,7 +36,7 @@ OUT 2,4
 SIR 2,7					Output E (ASCII=69)
 OUT 2,4			
 LDA 2,0,0,30			Output space (ASCII=32)
-SIR 2,2
+AIR 2,2
 OUT 2,4			
 SRC 2,0,1,1				Output I (ASCII=73)
 AIR 2,9
