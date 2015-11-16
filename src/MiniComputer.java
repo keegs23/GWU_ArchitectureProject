@@ -1209,7 +1209,7 @@ public class MiniComputer extends Observable implements Runnable
 			
 			value = br.read(); // read in next character
 			
-			System.out.println(value); // DEBUG code
+			System.out.println((char) value); // DEBUG code
 			
 			if (value == -1) // if EOF
 			{
