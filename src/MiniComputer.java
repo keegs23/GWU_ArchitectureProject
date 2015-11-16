@@ -1163,12 +1163,12 @@ public class MiniComputer extends Observable implements Runnable
 		inputObject.setRegisterId(register);
 		inputObject.setDevId(devId.getValue());
 		
-		if (devId.getValue() == DeviceId.FILE_READER_ASCII)
+		if (devId.getValue().equals(DeviceId.FILE_READER_ASCII))
 		{
 			char inputChar = loadPrgm2Input();
 			inProcessing(DataConversion.textToBinary(inputChar), register);
 		}
-		else if (devId.getValue() == DeviceId.CONSOLE_KEYBOARD)
+		else if (devId.getValue().equals(DeviceId.CONSOLE_KEYBOARD))
 		{
 			// update GUI to allow typing into console keyboard
 			setChanged();
