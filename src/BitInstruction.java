@@ -37,7 +37,7 @@ public class BitInstruction extends BitWord
         switch (opCode)
         {
             case OpCode.HLT:
-                //BEN TODO
+            	instructionParts.put(KEY_OPCODE, new BitWord(opCode));
                 break;
             case OpCode.TRAP:
                 instructionParts = parseTrap();
