@@ -78,6 +78,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * Size 16
 	 */
 	private Cache theCache; // this will replace cache once all cache methods are moved to Cache class
+        private Map<String, Integer> branchPredictionBuffer;
 	
 	private IOObject inputObject;
 	private IOObject outputObject;
