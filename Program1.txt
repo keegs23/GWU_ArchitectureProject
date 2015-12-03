@@ -4,31 +4,31 @@ AIR 3,0 					Yes, this does nothing now since the value of x changed from what I
 STR 3,0,0,29				Move x from R3 to X1 (passes through address 29)
 LDX 1,0,29
 LDA 3,0,0,30				Set X2 to y=69 to aid with jumping to addresses
-AIR 3,0,0,30
-AIR 3,0,0,9
+AIR 3,30
+AIR 3,9
 STR 3,0,0,29				Move y from R3 to X2 (passes through address 29)
 LDX 2,0,29
-AIR 3,0,0,30				Set X3 to z=108 to aid with jumping to later addresses
-AIR 3,0,0,9
+AIR 3,30					Set X3 to z=108 to aid with jumping to later addresses
+AIR 3,9
 STR 3,0,0,29				Move z from R3 to X3 (passes through address 29)
-LDX 3,0,0,29
+LDX 3,0,29
 LDA 3,0,0,binary 11111		Memory address e=184 stores the bit string that represents the Enter key, 1111111111111111(16 ones) (don't use ASCII code since that could be mistaken for a number)
 SRC 3,1,1,5					Get 16 ones by logically shifting left 5 bits and adding binary 11111
-AIR 3,0,0,binary 11111		Result should be 1111111111 (10 ones) at this point
+AIR 3,binary 11111			Result should be 1111111111 (10 ones) at this point
 SRC 3,1,1,5
-AIR 3,0,0,binary 11111		Result should be 15 ones at this point
+AIR 3,binary 11111			Result should be 15 ones at this point
 SRC 3,1,1,1
-AIR 3,0,0,1 				R3 now has 16 ones
+AIR 3,1 					R3 now has 16 ones
 STR 3,1,0,24(e)				Store the 16 ones in the Enter address e
-LDA 3,0,0,binary 10101				Memory address n=185 stores the bit string that represents a newline character, 1010101010101010? (don't use ASCII code since that could be mistaken for a number)
+LDA 3,0,0,binary 10101		Memory address n=185 stores the bit string that represents a newline character, 1010101010101010? (don't use ASCII code since that could be mistaken for a number)
 SRC 3,1,1,5					Get newline bit string by logically shifting left 5 bits and adding the ones and zeros
-AIR 3,0,0,binary 01010	
+AIR 3,binary 01010	
 SRC 3,1,1,5
-AIR 3,0,0,binary 10101
+AIR 3,binary 10101
 SRC 3,1,1,1					Result should be 1010101010101010
 STR 3,1,0,25(n)				Store bit string in Newline address n
 LDA 3,1,0,30(a)				Array starts at address a=190
-SIR 3,0,0,1
+SIR 3,1
 STR 3,1,0,26(i)				Memory address i=186 (decimal) stores the current array address being working on AKA Array Element Address (starts at 1 behind the first element of the array since increment is done first in the loop)
 LDA 1,0,0,20				R1 stores the for loop counter (starts at 20 in decimal and decreases)/whether there are leading zeros while printing
 STR 1,1,0,27(b)				Memory address b=187 is the backup for a register (starts at 20 in decimal to match R1)
@@ -72,12 +72,12 @@ LDR 3,1,0,25(n)				Output newline
 OUT 3,1
 LDA 1,0,0,20				Set R1 back to 20 (decimal) to prep for next loop through array
 LDA 3,1,0,30(a)				Set Array Element Address back to 1 behind the first element of the array (a-1)
-SIR 3,0,0,1
+SIR 3,1
 STR 3,1,0,26(i)
 LDR 2,1,0,30(a)				Set R2 to the value of the first element of the array (at address a)
 LDR 0,1,0,28(m)				Load the value of the Num To Match Address into R0
 LDR 3,1,0,26(i)				Add 1 to Array Element Address by loading the Array Element Address contents into R3; CLOSEST MATCH FOR LOOP START
-AIR 3,0,0,1					Then adding 1 (Immed) to R3
+AIR 3,1						Then adding 1 (Immed) to R3
 STR 3,1,0,26(i)				Then storing the R3 contents back into the Array Element Address
 LDR 3,1,0,28(m)				Load R3 with the value from the Num To Match Address
 SMR 3,1,1,26(i)				Subtract the value indirect addressed by the Array Element Address from R3
@@ -92,8 +92,8 @@ STR 3,1,0,29(d)				Store R3 contents to the Min Diff Address; NEW CLOSEST MATCH 
 LDR 2,1,1,26(i)				Load the value indirect addressed by the Array Element Address into R2
 SOB 1,3,0,0(cmfls)			Subtract 1 from R1 and if > 0, branch to CLOSEST MATCH FOR LOOP START; NEXT ELEMENT
 LDA 3,0,0,29				Address 29 should still have z stored in it; PRINT CLOSEST MATCH START
-AIR 3,0,0,30				z = z + 40 = 148 (decimal) so can reach even later addresses
-AIR 3,0,0,10
+AIR 3,30					z = z + 40 = 148 (decimal) so can reach even later addresses
+AIR 3,10
 STR 3,0,0,29				Set X3 to z (passes through address 29)
 LDX 3,0,29			
 STR 2,1,0,27(b)				Backup R2 in address b since will need R2 for MLT
