@@ -69,8 +69,8 @@ public final class ArithmeticLogicUnit {
 	 */
 	public static boolean checkUnderflow(String bitStr1, String bitStr2)
 	{
-		int firstString = Integer.parseInt(bitStr1);
-		int secondString = Integer.parseInt(bitStr2);
+		long firstString = Long.parseLong(bitStr1);
+		long secondString = Long.parseLong(bitStr2);
 		
 		return secondString > firstString;
 	}
@@ -107,11 +107,11 @@ public final class ArithmeticLogicUnit {
 			bits2 = padZeros16(bitStr2);
 		}
 		
-		if (Integer.parseInt(bits1) == Integer.parseInt(bits2))
+		if (Long.parseLong(bits1) == Long.parseLong(bits2))
 		{
 			difference = BitWord.VALUE_ZERO;
 		}
-		else if (Integer.parseInt(bits2) == 0)
+		else if (Long.parseLong(bits2) == 0)
 		{
 			difference = bits1;
 		}
