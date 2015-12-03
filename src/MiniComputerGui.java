@@ -740,6 +740,16 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	    	case KeyEvent.VK_7:
 	    	case KeyEvent.VK_8:
 	    	case KeyEvent.VK_9:
+	    	case KeyEvent.VK_NUMPAD0:
+	    	case KeyEvent.VK_NUMPAD1:
+	    	case KeyEvent.VK_NUMPAD2:
+	    	case KeyEvent.VK_NUMPAD3:
+	    	case KeyEvent.VK_NUMPAD4:
+	    	case KeyEvent.VK_NUMPAD5:
+	    	case KeyEvent.VK_NUMPAD6:
+	    	case KeyEvent.VK_NUMPAD7:
+	    	case KeyEvent.VK_NUMPAD8:
+	    	case KeyEvent.VK_NUMPAD9:
 	    		System.out.println("A number was pressed");
 	    		consoleKeyboardInputHolder = consoleKeyboardInput.getText();
 	    		
