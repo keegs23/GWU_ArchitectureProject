@@ -541,6 +541,8 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	
     	if (devId.equals(DeviceId.CONSOLE_PRINTER)) {
     		
+    		clearConsolePrinter();
+    		
     		if (registerValue.equals(BitWord.VALUE_ENTER)) {
     			// Print nothing for Enter key
     		} else if (registerValue.equals(BitWord.VALUE_NEWLINE)) {
@@ -548,6 +550,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     		} else {
     			consolePrinterOutput.append(Integer.parseInt(registerValue, 2) + "");
     		}
+    		
     	} else if (devId.equals(DeviceId.CONSOLE_PRINTER_ASCII)){
     		consolePrinterOutput.append(DataConversion.binaryToText(registerValue));
     	} else {

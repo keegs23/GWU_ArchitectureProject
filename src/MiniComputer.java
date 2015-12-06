@@ -1397,7 +1397,7 @@ public class MiniComputer extends Observable implements Runnable
 
 		// If IRR contents is zero, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
-		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
+		long irr = Long.parseLong(IRR[0].getBitValue().getValue());
 		if(irr == 0) {
 			IAR.setBitValue(ea);
 		} else {
