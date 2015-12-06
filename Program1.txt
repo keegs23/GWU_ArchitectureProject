@@ -137,7 +137,7 @@ STR 3,1,0,23(t)				Move the remainder (in R3) to R2 (via Transfer Address)
 LDR 2,1,0,23(t)
 DVD 2,0						Divide the remainder (in R2) by 10 (in R0)		
 JZ 1,3,0,22(p10p)			If R1 = 0 (no more leading zeros), jump to PRINT TENS PLACE
-JZ 2,3,23(g1p)				If the quotient (in R2) = 0, jump to PRINT ONES PLACE
+JZ 2,3,0,23(g1p)			If the quotient (in R2) = 0, jump to PRINT ONES PLACE
 OUT 2,1						Output R2 contents; PRINT TENS PLACE
 OUT 3,1						Output R3 contents; PRINT ONES PLACE
 LDR 3,1,0,25(n)				Output newline
