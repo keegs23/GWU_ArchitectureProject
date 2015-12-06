@@ -645,121 +645,121 @@ public class MiniComputer extends Observable implements Runnable
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        jz(register, index, isIndirectAddress, address);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            jz(register, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.JNE:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        jne(register, index, isIndirectAddress, address);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            jne(register, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.JCC:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		conditionCode = ConditionCode.values()[Integer.parseInt(instructionParse.get(BitInstruction.KEY_CONDITION_CODE).getValue(), 2)]; 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        jcc(conditionCode, index, isIndirectAddress, address);
+                            conditionCode = ConditionCode.values()[Integer.parseInt(instructionParse.get(BitInstruction.KEY_CONDITION_CODE).getValue(), 2)]; 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            jcc(conditionCode, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.JMA:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        jma(index, isIndirectAddress, address);
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            jma(index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.JSR:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2);
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS);
-                        jsr(index, isIndirectAddress, address);  
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2);
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS);
+                            jsr(index, isIndirectAddress, address);  
                 	}         	
                     break;
                 case OpCode.RFS:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE);
-                        rfs(immediate); 
+                            immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE);
+                            rfs(immediate); 
                 	}          	
                     break;
                 case OpCode.SOB:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        sob(register, index, isIndirectAddress, address);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            sob(register, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.JGE:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        jge(register, index, isIndirectAddress, address);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            jge(register, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.IN:
                 	if (isResultFromROB)
                 	{
-                		isResultFromROB = false;
+                            isResultFromROB = false;
                 	}
                     register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
                     devId = instructionParse.get(BitInstruction.KEY_DEVID); 
@@ -1288,7 +1288,7 @@ public class MiniComputer extends Observable implements Runnable
 				registerSelect1.setBitValue((String) result.get(ArithmeticLogicUnit.KEY_SUM));
 				
 				// Set the OVERFLOW bit
-				setConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW));
+				CC.setBitValue(getNewConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW)));
 			}
 		}
 	}
@@ -1364,7 +1364,7 @@ public class MiniComputer extends Observable implements Runnable
 				}
 				
 				// Set the UNDERFLOW bit
-				setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW));
+				CC.setBitValue(getNewConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW)));
 			}
 		}
 	}
@@ -1410,7 +1410,7 @@ public class MiniComputer extends Observable implements Runnable
 				registerSelect1.setBitValue((String) result.get(ArithmeticLogicUnit.KEY_SUM));
 				
 				// Set the OVERFLOW bit
-				setConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW));
+				CC.setBitValue(getNewConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW)));
 			}
 		}
 	}
@@ -1460,7 +1460,7 @@ public class MiniComputer extends Observable implements Runnable
 				}
 				
 				// Set the UNDERFLOW bit
-				setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW));
+				CC.setBitValue(getNewConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW)));
 			}
 		}
 	}
@@ -1932,13 +1932,6 @@ public class MiniComputer extends Observable implements Runnable
 		// Subtract one from the register contents
 		Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE);
 		boolean isUnderflow = (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW);
-		// If underflow, leave the register contents alone instead of setting it to gibberish
-		if(!isUnderflow) {
-			registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
-		}
-		
-		// Set Underflow bit
-		setConditionCode(ConditionCode.UNDERFLOW, isUnderflow);
 		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
@@ -1950,7 +1943,7 @@ public class MiniComputer extends Observable implements Runnable
 		}
 				
 		// Move the register contents into the Internal Result Register (IRR)?
-		IRR[0].setBitValue(registerSelect1.getBitValue());
+		IRR[0].setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
 
 		// If IRR contents is > 0, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
@@ -1966,14 +1959,22 @@ public class MiniComputer extends Observable implements Runnable
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
 		
-		if (isSpecExec) 
+		// If underflow, leave the register contents alone instead of setting it to gibberish
+		if (!isUnderflow)
 		{
-			// Speculative execution and store into ROB
-			reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
-		}
-		else // Commit normally
-		{
-			PC.setBitValue(pc);
+			if (isSpecExec) 
+			{
+				// Speculative execution and store into ROB
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, IRR[0].getBitValue().getValue(), registerSelect1, true));
+			}
+			else // Commit normally
+			{
+				PC.setBitValue(pc);
+				
+				// Set Underflow bit
+				CC.setBitValue(getNewConditionCode(ConditionCode.UNDERFLOW, isUnderflow));
+			}
 		}
 	}
 	
@@ -2063,7 +2064,7 @@ public class MiniComputer extends Observable implements Runnable
                     registerPlusOne.setBitValue(lowBits);
                     
                     // Set OVERFLOW bit
-                    setConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW));
+                    CC.setBitValue(getNewConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW)));
         		}
             }                
         } 
@@ -2085,7 +2086,7 @@ public class MiniComputer extends Observable implements Runnable
             else {
                 Map<String, String> divisionMap = ArithmeticLogicUnit.divide(register1.getBitValue().getValue(), register2.getBitValue().getValue());
                 if (Integer.parseInt(divisionMap.get(ArithmeticLogicUnit.KEY_ISDIVZERO)) == 1) {
-                    setConditionCode(ConditionCode.DIVZERO, true);
+                	CC.setBitValue(getNewConditionCode(ConditionCode.DIVZERO, true));
                 }
                 else {
                 	
@@ -2105,7 +2106,7 @@ public class MiniComputer extends Observable implements Runnable
                         registerPlusOne.setBitValue(divisionMap.get(ArithmeticLogicUnit.KEY_REMAINDER));
                         
                         // Set DIVZERO bit
-                        setConditionCode(ConditionCode.DIVZERO, false);
+                        CC.setBitValue(getNewConditionCode(ConditionCode.DIVZERO, false));
             		}
                 }
             }              
@@ -2121,9 +2122,9 @@ public class MiniComputer extends Observable implements Runnable
             Register register2 = getR(ry);
             
             if (register1.getBitValue().equals(register2.getBitValue()))
-                setConditionCode(ConditionCode.EQUALORNOT, true);
+            	CC.setBitValue(getNewConditionCode(ConditionCode.EQUALORNOT, true));
             else
-                setConditionCode(ConditionCode.EQUALORNOT, false);
+            	CC.setBitValue(getNewConditionCode(ConditionCode.EQUALORNOT, false));
         }        
         
          /**
@@ -2159,7 +2160,7 @@ public class MiniComputer extends Observable implements Runnable
         				// Store IRR contents into the specified register
         				registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_REGISTERVALUE)));
         			}
-        			setConditionCode(ConditionCode.OVERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISOVERFLOW));
+        			CC.setBitValue(getNewConditionCode(ConditionCode.OVERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISOVERFLOW)));
         		}
     		}
     	}
@@ -2351,7 +2352,7 @@ public class MiniComputer extends Observable implements Runnable
 		}
 	}
 	
-	private void setConditionCode(ConditionCode conditionCode, boolean isTrue)
+	private String getNewConditionCode(ConditionCode conditionCode, boolean isTrue)
 	{	//example condition code return values and the respective state/condition
 		//1000 - OVERFLOW true
 		//0100 - UNDERFLOW true
@@ -2362,7 +2363,7 @@ public class MiniComputer extends Observable implements Runnable
 		String first = CC.getBitValue().getValue().substring(0, conditionCode.ordinal());
 		String last = CC.getBitValue().getValue().substring(conditionCode.ordinal()+1, CC.getBitSize());
 			
-		CC.setBitValue(first + flag + last);
+		return first + flag + last;
 	}        
         
 	private boolean isIllegalMemoryAddress(BitWord bitAddress)
