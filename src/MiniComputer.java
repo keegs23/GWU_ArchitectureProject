@@ -1975,6 +1975,8 @@ public class MiniComputer extends Observable implements Runnable
 			}
 			else // Commit normally
 			{
+				registerSelect1.setBitValue((String) differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE));
+				
 				PC.setBitValue(pc);
 				
 				// Set Underflow bit
