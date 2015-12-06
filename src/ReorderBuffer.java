@@ -3,14 +3,14 @@ public class ReorderBuffer {
 	
 	private InstructionType instructionType;
 	private String value;
-	private String destinationAddress;
+	private BitWord destinationAddress;
 	private Register destinationRegister;
 	private boolean ready;
 	
 	public ReorderBuffer() {}
 	
-	// For branch and store instructions
-	public ReorderBuffer(InstructionType instructionType, String value, String destinationAddress, boolean ready) {
+	// For store instructions
+	public ReorderBuffer(InstructionType instructionType, String value, BitWord destinationAddress, boolean ready) {
 		
 		this.setInstructionType(instructionType);
 		this.setValue(value);
@@ -19,7 +19,7 @@ public class ReorderBuffer {
 		this.setReady(ready);
 	}
 	
-	// For register instructions
+	// For branch and register instructions
 	public ReorderBuffer(InstructionType instructionType, String value, Register destinationRegister, boolean ready) {
 		
 		this.setInstructionType(instructionType);
@@ -45,11 +45,11 @@ public class ReorderBuffer {
 		this.value = value;
 	}
 
-	public String getDestinationAddress() {
+	public BitWord getDestinationAddress() {
 		return destinationAddress;
 	}
 
-	public void setDestinationAddress(String destinationAddress) {
+	public void setDestinationAddress(BitWord destinationAddress) {
 		this.destinationAddress = destinationAddress;
 	}
 

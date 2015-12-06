@@ -541,7 +541,9 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	
     	if (devId.equals(DeviceId.CONSOLE_PRINTER)) {
     		
-    		clearConsolePrinter();
+    		if (MiniComputer.currentProgram == ProgramCode.PROGRAMONE) {
+    			clearConsolePrinter();
+    		}
     		
     		if (registerValue.equals(BitWord.VALUE_ENTER)) {
     			// Print nothing for Enter key
