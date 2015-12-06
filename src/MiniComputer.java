@@ -593,6 +593,7 @@ public class MiniComputer extends Observable implements Runnable
                 	if (isResultFromROB)
                 	{
                 		commitFromROB();
+                		commitFromROB();
                 	}
                 	else
                 	{
@@ -606,6 +607,7 @@ public class MiniComputer extends Observable implements Runnable
                 case OpCode.SMR:
                 	if (isResultFromROB)
                 	{
+                		commitFromROB();
                 		commitFromROB();
                 	}
                 	else
@@ -621,6 +623,7 @@ public class MiniComputer extends Observable implements Runnable
                 	if (isResultFromROB)
                 	{
                 		commitFromROB();
+                		commitFromROB();
                 	}
                 	else
                 	{
@@ -632,6 +635,7 @@ public class MiniComputer extends Observable implements Runnable
                 case OpCode.SIR:
                 	if (isResultFromROB)
                 	{
+                		commitFromROB();
                 		commitFromROB();
                 	}
                 	else
@@ -731,6 +735,8 @@ public class MiniComputer extends Observable implements Runnable
                     if (isResultFromROB)
                 	{
                             commitFromROB();
+                            commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
@@ -777,15 +783,19 @@ public class MiniComputer extends Observable implements Runnable
                 case OpCode.CHK:
                 	if (isResultFromROB)
                 	{
-                		isResultFromROB = false;
+                		commitFromROB();
                 	}
-                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2);
-                    devId = instructionParse.get(BitInstruction.KEY_DEVID);
-                    chk(register, devId);
+                	else
+                	{
+                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2);
+                        devId = instructionParse.get(BitInstruction.KEY_DEVID);
+                        chk(register, devId);
+                	}
                     break;
                 case OpCode.MLT:
                 	if (isResultFromROB)
                 	{
+                		commitFromROB();
                 		commitFromROB();
                 		commitFromROB();
                 	}
@@ -799,6 +809,7 @@ public class MiniComputer extends Observable implements Runnable
                 case OpCode.DVD:
                 	if (isResultFromROB)
                 	{
+                		commitFromROB();
                 		commitFromROB();
                 		commitFromROB();
                 	}
@@ -824,6 +835,7 @@ public class MiniComputer extends Observable implements Runnable
                 case OpCode.SRC:
                 	if (isResultFromROB)
                 	{
+                		commitFromROB();
                 		commitFromROB();
                 	}
                 	else
@@ -1620,17 +1632,13 @@ public class MiniComputer extends Observable implements Runnable
          */
         public void chk(int register, BitWord devId)
         {
-        	if (isSpecExec) 
-    		{
-    			// do nothing
-    			return;
-    		}
         	
             Register selectedRegister = getR(register);
+            
             if (devId.getValue() == DeviceId.CARD_READER || devId.getValue() == DeviceId.CONSOLE_KEYBOARD 
                     || devId.getValue() == DeviceId.CONSOLE_PRINTER || devId.getValue() == DeviceId.CONSOLE_PRINTER_ASCII)
             {
-                selectedRegister.setBitValue(BitWord.VALUE_ONE);
+                IRR[0].setBitValue(BitWord.VALUE_ONE);
             }
             else if (devId.getValue() == DeviceId.FILE_READER_ASCII)
             {
@@ -1662,17 +1670,27 @@ public class MiniComputer extends Observable implements Runnable
 			fileIn.close();
 			br.close();
                         //set to true if no errors
-                        selectedRegister.setBitValue(BitWord.VALUE_ONE);
+                        IRR[0].setBitValue(BitWord.VALUE_ONE);
 		}
 		catch(Exception ex)
 		{
                     //set to false if error is thrown when opening file
-                    selectedRegister.setBitValue(BitWord.VALUE_ZERO);
+                    IRR[0].setBitValue(BitWord.VALUE_ZERO);
 		}
             }
             else
             {
-                selectedRegister.setBitValue(BitWord.VALUE_ZERO);
+                IRR[0].setBitValue(BitWord.VALUE_ZERO);
+            }
+            
+            if (isSpecExec)
+            {
+            	// Speculative execution and store into ROB
+    			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), selectedRegister, true));
+            }
+            else // Commit Normally
+            {
+            	selectedRegister.setBitValue(IRR[0].getBitValue());
             }
         }
         
