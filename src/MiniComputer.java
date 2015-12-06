@@ -645,121 +645,121 @@ public class MiniComputer extends Observable implements Runnable
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        jz(register, index, isIndirectAddress, address);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            jz(register, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.JNE:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        jne(register, index, isIndirectAddress, address);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            jne(register, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.JCC:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		conditionCode = ConditionCode.values()[Integer.parseInt(instructionParse.get(BitInstruction.KEY_CONDITION_CODE).getValue(), 2)]; 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        jcc(conditionCode, index, isIndirectAddress, address);
+                            conditionCode = ConditionCode.values()[Integer.parseInt(instructionParse.get(BitInstruction.KEY_CONDITION_CODE).getValue(), 2)]; 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            jcc(conditionCode, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.JMA:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        jma(index, isIndirectAddress, address);
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            jma(index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.JSR:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2);
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS);
-                        jsr(index, isIndirectAddress, address);  
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2);
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS);
+                            jsr(index, isIndirectAddress, address);  
                 	}         	
                     break;
                 case OpCode.RFS:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE);
-                        rfs(immediate); 
+                            immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE);
+                            rfs(immediate); 
                 	}          	
                     break;
                 case OpCode.SOB:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        sob(register, index, isIndirectAddress, address);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            sob(register, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.JGE:
                     isTransferInstruction = true;
                     if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        jge(register, index, isIndirectAddress, address);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            jge(register, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.IN:
                 	if (isResultFromROB)
                 	{
-                		isResultFromROB = false;
+                            isResultFromROB = false;
                 	}
                     register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
                     devId = instructionParse.get(BitInstruction.KEY_DEVID); 
