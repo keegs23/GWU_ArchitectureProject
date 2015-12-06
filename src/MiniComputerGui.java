@@ -541,10 +541,6 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
     	
     	if (devId.equals(DeviceId.CONSOLE_PRINTER)) {
     		
-    		if (MiniComputer.currentProgram == ProgramCode.PROGRAMONE) {
-    			clearConsolePrinter();
-    		}
-    		
     		if (registerValue.equals(BitWord.VALUE_ENTER)) {
     			// Print nothing for Enter key
     		} else if (registerValue.equals(BitWord.VALUE_NEWLINE)) {
@@ -736,35 +732,64 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 	    		break;
 	    		
 	    	case KeyEvent.VK_0:
-	    	case KeyEvent.VK_1:
-	    	case KeyEvent.VK_2:
-	    	case KeyEvent.VK_3:
-	    	case KeyEvent.VK_4:
-	    	case KeyEvent.VK_5:
-	    	case KeyEvent.VK_6:
-	    	case KeyEvent.VK_7:
-	    	case KeyEvent.VK_8:
-	    	case KeyEvent.VK_9:
 	    	case KeyEvent.VK_NUMPAD0:
-	    	case KeyEvent.VK_NUMPAD1:
-	    	case KeyEvent.VK_NUMPAD2:
-	    	case KeyEvent.VK_NUMPAD3:
-	    	case KeyEvent.VK_NUMPAD4:
-	    	case KeyEvent.VK_NUMPAD5:
-	    	case KeyEvent.VK_NUMPAD6:
-	    	case KeyEvent.VK_NUMPAD7:
-	    	case KeyEvent.VK_NUMPAD8:
-	    	case KeyEvent.VK_NUMPAD9:
-	    		System.out.println("A number was pressed");
+	    		System.out.println("Input received: 0");
 	    		consoleKeyboardInputHolder = consoleKeyboardInput.getText();
-	    		
-	    		try {
-	    			int inputInt = Integer.parseInt(consoleKeyboardInputHolder);
-	    			processKeyClick(inputInt);
-	    			
-	    		} catch (NumberFormatException nfe) {
-	    			System.err.println("NumberFormatException: " + nfe.getMessage());
-	    		}
+	    		processKeyClick(0);
+	    		break;
+	    	case KeyEvent.VK_1:
+	    	case KeyEvent.VK_NUMPAD1:
+	    		System.out.println("Input received: 1");
+	    		consoleKeyboardInputHolder = consoleKeyboardInput.getText();
+	    		processKeyClick(1);
+	    		break;
+	    	case KeyEvent.VK_2:
+	    	case KeyEvent.VK_NUMPAD2:
+	    		System.out.println("Input received: 2");
+	    		consoleKeyboardInputHolder = consoleKeyboardInput.getText();
+	    		processKeyClick(2);
+	    		break;
+	    	case KeyEvent.VK_3:
+	    	case KeyEvent.VK_NUMPAD3:
+	    		System.out.println("Input received: 3");
+	    		consoleKeyboardInputHolder = consoleKeyboardInput.getText();
+	    		processKeyClick(3);
+	    		break;
+	    	case KeyEvent.VK_4:
+	    	case KeyEvent.VK_NUMPAD4:
+	    		System.out.println("Input received: 4");
+	    		consoleKeyboardInputHolder = consoleKeyboardInput.getText();
+	    		processKeyClick(4);
+	    		break;
+	    	case KeyEvent.VK_5:
+	    	case KeyEvent.VK_NUMPAD5:
+	    		System.out.println("Input received: 5");
+	    		consoleKeyboardInputHolder = consoleKeyboardInput.getText();
+	    		processKeyClick(5);
+	    		break;
+	    	case KeyEvent.VK_6:
+	    	case KeyEvent.VK_NUMPAD6:
+	    		System.out.println("Input received: 6");
+	    		consoleKeyboardInputHolder = consoleKeyboardInput.getText();
+	    		processKeyClick(6);
+	    		break;
+	    	case KeyEvent.VK_7:
+	    	case KeyEvent.VK_NUMPAD7:
+	    		System.out.println("Input received: 7");
+	    		consoleKeyboardInputHolder = consoleKeyboardInput.getText();
+	    		processKeyClick(7);
+	    		break;
+	    	case KeyEvent.VK_8:
+	    	case KeyEvent.VK_NUMPAD8:
+	    		System.out.println("Input received: 8");
+	    		consoleKeyboardInputHolder = consoleKeyboardInput.getText();
+	    		processKeyClick(8);
+	    		break;
+	    	case KeyEvent.VK_9:
+	    	case KeyEvent.VK_NUMPAD9:
+	    		System.out.println("Input received: 9");
+	    		consoleKeyboardInputHolder = consoleKeyboardInput.getText();
+	    		processKeyClick(9);
 	    		break;
 	    		
 	    	default:
