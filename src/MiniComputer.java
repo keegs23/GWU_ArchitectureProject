@@ -1932,13 +1932,6 @@ public class MiniComputer extends Observable implements Runnable
 		// Subtract one from the register contents
 		Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE);
 		boolean isUnderflow = (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW);
-		// If underflow, leave the register contents alone instead of setting it to gibberish
-		if(!isUnderflow) {
-			registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
-		}
-		
-		// Set Underflow bit
-		CC.setBitValue(getNewConditionCode(ConditionCode.UNDERFLOW, isUnderflow));
 		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
@@ -1950,7 +1943,7 @@ public class MiniComputer extends Observable implements Runnable
 		}
 				
 		// Move the register contents into the Internal Result Register (IRR)?
-		IRR[0].setBitValue(registerSelect1.getBitValue());
+		IRR[0].setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
 
 		// If IRR contents is > 0, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
@@ -1966,14 +1959,22 @@ public class MiniComputer extends Observable implements Runnable
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
 		
-		if (isSpecExec) 
+		// If underflow, leave the register contents alone instead of setting it to gibberish
+		if (!isUnderflow)
 		{
-			// Speculative execution and store into ROB
-			reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
-		}
-		else // Commit normally
-		{
-			PC.setBitValue(pc);
+			if (isSpecExec) 
+			{
+				// Speculative execution and store into ROB
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, IRR[0].getBitValue().getValue(), registerSelect1, true));
+			}
+			else // Commit normally
+			{
+				PC.setBitValue(pc);
+				
+				// Set Underflow bit
+				CC.setBitValue(getNewConditionCode(ConditionCode.UNDERFLOW, isUnderflow));
+			}
 		}
 	}
 	
