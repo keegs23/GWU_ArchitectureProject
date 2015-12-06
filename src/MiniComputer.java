@@ -1288,7 +1288,7 @@ public class MiniComputer extends Observable implements Runnable
 				registerSelect1.setBitValue((String) result.get(ArithmeticLogicUnit.KEY_SUM));
 				
 				// Set the OVERFLOW bit
-				setConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW));
+				CC.setBitValue(getNewConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW)));
 			}
 		}
 	}
@@ -1364,7 +1364,7 @@ public class MiniComputer extends Observable implements Runnable
 				}
 				
 				// Set the UNDERFLOW bit
-				setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW));
+				CC.setBitValue(getNewConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW)));
 			}
 		}
 	}
@@ -1410,7 +1410,7 @@ public class MiniComputer extends Observable implements Runnable
 				registerSelect1.setBitValue((String) result.get(ArithmeticLogicUnit.KEY_SUM));
 				
 				// Set the OVERFLOW bit
-				setConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW));
+				CC.setBitValue(getNewConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW)));
 			}
 		}
 	}
@@ -1460,7 +1460,7 @@ public class MiniComputer extends Observable implements Runnable
 				}
 				
 				// Set the UNDERFLOW bit
-				setConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW));
+				CC.setBitValue(getNewConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW)));
 			}
 		}
 	}
@@ -1938,7 +1938,7 @@ public class MiniComputer extends Observable implements Runnable
 		}
 		
 		// Set Underflow bit
-		setConditionCode(ConditionCode.UNDERFLOW, isUnderflow);
+		CC.setBitValue(getNewConditionCode(ConditionCode.UNDERFLOW, isUnderflow));
 		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
@@ -2063,7 +2063,7 @@ public class MiniComputer extends Observable implements Runnable
                     registerPlusOne.setBitValue(lowBits);
                     
                     // Set OVERFLOW bit
-                    setConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW));
+                    CC.setBitValue(getNewConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW)));
         		}
             }                
         } 
@@ -2085,7 +2085,7 @@ public class MiniComputer extends Observable implements Runnable
             else {
                 Map<String, String> divisionMap = ArithmeticLogicUnit.divide(register1.getBitValue().getValue(), register2.getBitValue().getValue());
                 if (Integer.parseInt(divisionMap.get(ArithmeticLogicUnit.KEY_ISDIVZERO)) == 1) {
-                    setConditionCode(ConditionCode.DIVZERO, true);
+                	CC.setBitValue(getNewConditionCode(ConditionCode.DIVZERO, true));
                 }
                 else {
                 	
@@ -2105,7 +2105,7 @@ public class MiniComputer extends Observable implements Runnable
                         registerPlusOne.setBitValue(divisionMap.get(ArithmeticLogicUnit.KEY_REMAINDER));
                         
                         // Set DIVZERO bit
-                        setConditionCode(ConditionCode.DIVZERO, false);
+                        CC.setBitValue(getNewConditionCode(ConditionCode.DIVZERO, false));
             		}
                 }
             }              
@@ -2121,9 +2121,9 @@ public class MiniComputer extends Observable implements Runnable
             Register register2 = getR(ry);
             
             if (register1.getBitValue().equals(register2.getBitValue()))
-                setConditionCode(ConditionCode.EQUALORNOT, true);
+            	CC.setBitValue(getNewConditionCode(ConditionCode.EQUALORNOT, true));
             else
-                setConditionCode(ConditionCode.EQUALORNOT, false);
+            	CC.setBitValue(getNewConditionCode(ConditionCode.EQUALORNOT, false));
         }        
         
          /**
@@ -2159,7 +2159,7 @@ public class MiniComputer extends Observable implements Runnable
         				// Store IRR contents into the specified register
         				registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_REGISTERVALUE)));
         			}
-        			setConditionCode(ConditionCode.OVERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISOVERFLOW));
+        			CC.setBitValue(getNewConditionCode(ConditionCode.OVERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISOVERFLOW)));
         		}
     		}
     	}
@@ -2351,7 +2351,7 @@ public class MiniComputer extends Observable implements Runnable
 		}
 	}
 	
-	private void setConditionCode(ConditionCode conditionCode, boolean isTrue)
+	private String getNewConditionCode(ConditionCode conditionCode, boolean isTrue)
 	{	//example condition code return values and the respective state/condition
 		//1000 - OVERFLOW true
 		//0100 - UNDERFLOW true
@@ -2362,7 +2362,7 @@ public class MiniComputer extends Observable implements Runnable
 		String first = CC.getBitValue().getValue().substring(0, conditionCode.ordinal());
 		String last = CC.getBitValue().getValue().substring(conditionCode.ordinal()+1, CC.getBitSize());
 			
-		CC.setBitValue(first + flag + last);
+		return first + flag + last;
 	}        
         
 	private boolean isIllegalMemoryAddress(BitWord bitAddress)
