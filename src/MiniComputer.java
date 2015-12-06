@@ -1282,6 +1282,7 @@ public class MiniComputer extends Observable implements Runnable
 			{
 				// Speculative execution and store into ROB
 				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, (String) result.get(ArithmeticLogicUnit.KEY_SUM), registerSelect1, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, getNewConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW)), CC, true));
 			}
 			else // Commit normally
 			{
@@ -2445,6 +2446,11 @@ public class MiniComputer extends Observable implements Runnable
         	// retrieve top rob from stack
         	ReorderBufferEntry rob = reorderBuffer.pollLast();
         	InstructionType type = rob.getInstructionType();
+        	
+        	if (!rob.isReady())
+        	{
+        		return;
+        	}
         	
         	if (type == InstructionType.BRANCH || type == InstructionType.REGISTER)
         	{
