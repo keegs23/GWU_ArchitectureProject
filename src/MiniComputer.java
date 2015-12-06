@@ -80,7 +80,7 @@ public class MiniComputer extends Observable implements Runnable
 	 */
 	private Cache theCache; // this will replace cache once all cache methods are moved to Cache class
         private Map<String, Integer> branchPredictionBuffer;
-        private LinkedList<ReorderBuffer> reorderBuffer;
+        private LinkedList<ReorderBufferEntry> reorderBuffer;
 	
 	private IOObject inputObject;
 	private IOObject outputObject;
@@ -127,7 +127,7 @@ public class MiniComputer extends Observable implements Runnable
 		// Initialize Memory and Cache
 		memory = new TreeMap<String, MemoryLocation>();
 		theCache = new Cache();
-		reorderBuffer = new LinkedList<ReorderBuffer>();
+		reorderBuffer = new LinkedList<ReorderBufferEntry>();
 		
 		// Initialize I/O transfer objects
 		inputObject = new IOObject();
@@ -1018,7 +1018,7 @@ public class MiniComputer extends Observable implements Runnable
 			if (isSpecExec) 
 			{
 				// Speculative execution and store into ROB
-				reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
 			}
 			else // Commit normally
 			{
@@ -1067,7 +1067,7 @@ public class MiniComputer extends Observable implements Runnable
 		if (isSpecExec) 
 		{
 			// Speculative execution and store into ROB
-			reorderBuffer.add(new ReorderBuffer(InstructionType.STORE, IRR[0].getBitValue().getValue(), IAR.getBitValue(), true));
+			reorderBuffer.add(new ReorderBufferEntry(InstructionType.STORE, IRR[0].getBitValue().getValue(), IAR.getBitValue(), true));
 		}
 		else // Commit normally
 		{
@@ -1107,7 +1107,7 @@ public class MiniComputer extends Observable implements Runnable
 			if (isSpecExec) 
 			{
 				// Speculative execution and store into ROB
-				reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
 			}
 			else // Commit normally
 			{
@@ -1163,7 +1163,7 @@ public class MiniComputer extends Observable implements Runnable
 			if (isSpecExec) 
 			{
 				// Speculative execution and store into ROB
-				reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
 			}
 			else // Commit normally
 			{
@@ -1209,7 +1209,7 @@ public class MiniComputer extends Observable implements Runnable
 		if (isSpecExec) 
 		{
 			// Speculative execution and store into ROB
-			reorderBuffer.add(new ReorderBuffer(InstructionType.STORE, IRR[0].getBitValue().getValue(), IAR.getBitValue(), true));
+			reorderBuffer.add(new ReorderBufferEntry(InstructionType.STORE, IRR[0].getBitValue().getValue(), IAR.getBitValue(), true));
 		}
 		else // Commit normally
 		{
@@ -1281,7 +1281,7 @@ public class MiniComputer extends Observable implements Runnable
 			if (isSpecExec) 
 			{
 				// Speculative execution and store into ROB
-				reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, (String) result.get(ArithmeticLogicUnit.KEY_SUM), registerSelect1, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, (String) result.get(ArithmeticLogicUnit.KEY_SUM), registerSelect1, true));
 			}
 			else // Commit normally
 			{
@@ -1354,7 +1354,7 @@ public class MiniComputer extends Observable implements Runnable
 			if (isSpecExec) 
 			{
 				// Speculative execution and store into ROB
-				reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)), registerSelect1, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)), registerSelect1, true));
 			}
 			else // Commit normally
 			{
@@ -1403,7 +1403,7 @@ public class MiniComputer extends Observable implements Runnable
 			if (isSpecExec) 
 			{
 				// Speculative execution and store into ROB
-				reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, (String) result.get(ArithmeticLogicUnit.KEY_SUM), registerSelect1, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, (String) result.get(ArithmeticLogicUnit.KEY_SUM), registerSelect1, true));
 			}
 			else // Commit normally
 			{
@@ -1450,7 +1450,7 @@ public class MiniComputer extends Observable implements Runnable
 			if (isSpecExec) 
 			{
 				// Speculative execution and store into ROB
-				reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)), registerSelect1, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)), registerSelect1, true));
 			}
 			else // Commit normally
 			{
@@ -1713,7 +1713,7 @@ public class MiniComputer extends Observable implements Runnable
 		if (isSpecExec) 
 		{
 			// Speculative execution and store into ROB
-			reorderBuffer.add(new ReorderBuffer(InstructionType.BRANCH, pc, PC, true));
+			reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
 		}
 		else // Commit normally
 		{
@@ -1762,7 +1762,7 @@ public class MiniComputer extends Observable implements Runnable
 		if (isSpecExec) 
 		{
 			// Speculative execution and store into ROB
-			reorderBuffer.add(new ReorderBuffer(InstructionType.BRANCH, pc, PC, true));
+			reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
 		}
 		else // Commit normally
 		{
@@ -1807,7 +1807,7 @@ public class MiniComputer extends Observable implements Runnable
 		if (isSpecExec) 
 		{
 			// Speculative execution and store into ROB
-			reorderBuffer.add(new ReorderBuffer(InstructionType.BRANCH, pc, PC, true));
+			reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
 		}
 		else // Commit normally
 		{
@@ -1842,7 +1842,7 @@ public class MiniComputer extends Observable implements Runnable
 		if (isSpecExec) 
 		{
 			// Speculative execution and store into ROB
-			reorderBuffer.add(new ReorderBuffer(InstructionType.BRANCH, pc, PC, true));
+			reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
 		}
 		else // Commit normally
 		{
@@ -1885,7 +1885,7 @@ public class MiniComputer extends Observable implements Runnable
             if (isSpecExec) 
     		{
     			// Speculative execution and store into ROB
-    			reorderBuffer.add(new ReorderBuffer(InstructionType.BRANCH, pc, PC, true));
+    			reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
     		}
     		else // Commit normally
     		{
@@ -1909,7 +1909,7 @@ public class MiniComputer extends Observable implements Runnable
             if (isSpecExec) 
     		{
     			// Speculative execution and store into ROB
-    			reorderBuffer.add(new ReorderBuffer(InstructionType.BRANCH, pc, PC, true));
+    			reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
     		}
     		else // Commit normally
     		{
@@ -1969,7 +1969,7 @@ public class MiniComputer extends Observable implements Runnable
 		if (isSpecExec) 
 		{
 			// Speculative execution and store into ROB
-			reorderBuffer.add(new ReorderBuffer(InstructionType.BRANCH, pc, PC, true));
+			reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
 		}
 		else // Commit normally
 		{
@@ -2018,7 +2018,7 @@ public class MiniComputer extends Observable implements Runnable
 		if (isSpecExec) 
 		{
 			// Speculative execution and store into ROB
-			reorderBuffer.add(new ReorderBuffer(InstructionType.BRANCH, pc, PC, true));
+			reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
 		}
 		else // Commit normally
 		{
@@ -2052,8 +2052,8 @@ public class MiniComputer extends Observable implements Runnable
                 if (isSpecExec) 
         		{
         			// Speculative execution and store into ROB
-        			reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, highBits.getValue(), register1, true));
-        			reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, lowBits.getValue(), registerPlusOne, true));
+        			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, highBits.getValue(), register1, true));
+        			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, lowBits.getValue(), registerPlusOne, true));
         		}
         		else // Commit normally
         		{
@@ -2094,8 +2094,8 @@ public class MiniComputer extends Observable implements Runnable
                 	if (isSpecExec) 
             		{
             			// Speculative execution and store into ROB
-            			reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, divisionMap.get(ArithmeticLogicUnit.KEY_QUOTIENT), register1, true));
-            			reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, divisionMap.get(ArithmeticLogicUnit.KEY_REMAINDER), registerPlusOne, true));
+            			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, divisionMap.get(ArithmeticLogicUnit.KEY_QUOTIENT), register1, true));
+            			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, divisionMap.get(ArithmeticLogicUnit.KEY_REMAINDER), registerPlusOne, true));
             		}
             		else // Commit normally
             		{
@@ -2149,7 +2149,7 @@ public class MiniComputer extends Observable implements Runnable
     			if (isSpecExec) 
         		{
         			// Speculative execution and store into ROB
-        			reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_REGISTERVALUE)), registerSelect1, true));
+        			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_REGISTERVALUE)), registerSelect1, true));
         		}
         		else // Commit normally
         		{
@@ -2185,7 +2185,7 @@ public class MiniComputer extends Observable implements Runnable
     			if (isSpecExec) 
         		{
         			// Speculative execution and store into ROB
-        			reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
+        			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
         		}
         		else // Commit normally
         		{
@@ -2220,7 +2220,7 @@ public class MiniComputer extends Observable implements Runnable
     			if (isSpecExec) 
         		{
         			// Speculative execution and store into ROB
-        			reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
+        			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
         		}
         		else // Commit normally
         		{
@@ -2255,7 +2255,7 @@ public class MiniComputer extends Observable implements Runnable
     			if (isSpecExec) 
         		{
         			// Speculative execution and store into ROB
-        			reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
+        			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
         		}
         		else // Commit normally
         		{
@@ -2288,7 +2288,7 @@ public class MiniComputer extends Observable implements Runnable
             	if (isSpecExec) 
         		{
         			// Speculative execution and store into ROB
-        			reorderBuffer.add(new ReorderBuffer(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
+        			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
         		}
         		else // Commit normally
         		{
@@ -2442,7 +2442,7 @@ public class MiniComputer extends Observable implements Runnable
         private void commitFromROB() 
         {
         	// retrieve top rob from stack
-        	ReorderBuffer rob = reorderBuffer.pollLast();
+        	ReorderBufferEntry rob = reorderBuffer.pollLast();
         	InstructionType type = rob.getInstructionType();
         	
         	if (type == InstructionType.BRANCH || type == InstructionType.REGISTER)
