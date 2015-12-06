@@ -20,6 +20,7 @@ AIR 3,binary 11111			Result should be 15 ones at this point
 SRC 3,1,1,1
 AIR 3,1 					R3 now has 16 ones
 STR 3,1,0,24(e)				Store the 16 ones in the Enter address e
+STR 3,1,0,29(d)				Memory address d=189 (decimal) stores the minimum difference between the number to try to match and the closest array value AKA Min Diff Address (defaults to 16 ones)
 LDA 3,0,0,binary 10101		Memory address n=185 stores the bit string that represents a newline character, 1010101010101010 (don't use ASCII code since that could be mistaken for a number)
 SRC 3,1,1,5					Get newline bit string by logically shifting left 5 bits and adding the ones and zeros
 AIR 3,binary 01010	
@@ -28,7 +29,7 @@ AIR 3,binary 10101
 SRC 3,1,1,1					Result should be 1010101010101010
 STR 3,1,0,25(n)				Store bit string in Newline address n
 LDA 3,1,0,30(a)				Array starts at address a=190
-SIR 3,1
+SIR 3,0						x changed from what I thought, but leaving an instruction here so addresses won't be off
 STR 3,1,0,26(i)				Memory address i=186 (decimal) stores the current array address being working on AKA Array Element Address (starts at 1 behind the first element of the array since increment is done first in the loop)
 LDA 1,0,0,20				R1 stores the for loop counter (starts at 20 in decimal and decreases)/whether there are leading zeros while printing
 STR 1,1,0,27(b)				Memory address b=187 is the backup for a register (starts at 20 in decimal to match R1)
@@ -36,7 +37,6 @@ LDA 2,0,0,10				R2 stores the number 10 (decimal) while getting the array input/
 LDA 0,0,0,0					R0 stores the number to be added to the array so far (starts at 0)/the divisor to parsing the separate digits to print
 LDA 3,0,0,0
 STR 3,1,0,28(m)				Memory address m=188 (decimal) stores the number to try to match AKA Num To Match Address (defaults to 0)
-STR 3,1,0,29(d)				Memory address d=189 (decimal) stores the minimum difference between the number to try to match and the closest array value AKA Min Diff Address (defaults to 0)
 LDR 3,1,1,26(i)				Add 1 to Array Element Address by loading the Array Element Address contents into R3; ARRAY INPUT FOR LOOP START
 AIR 3,1						Then adding 1 (Immed) to R3
 STR 3,1,1,26(i)				Then storing the R3 contents back into the Array Element Address
