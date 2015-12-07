@@ -744,6 +744,8 @@ public class MiniComputer extends Observable implements Runnable
                     if (isResultFromROB)
                 	{
                             commitFromROB();
+                            commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
@@ -796,15 +798,19 @@ public class MiniComputer extends Observable implements Runnable
                 case OpCode.CHK:
                 	if (isResultFromROB)
                 	{
-                		isResultFromROB = false;
+                		commitFromROB();
                 	}
-                    register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2);
-                    devId = instructionParse.get(BitInstruction.KEY_DEVID);
-                    chk(register, devId);
+                	else
+                	{
+                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2);
+                        devId = instructionParse.get(BitInstruction.KEY_DEVID);
+                        chk(register, devId);
+                	}
                     break;
                 case OpCode.MLT:
                 	if (isResultFromROB)
                 	{
+                		commitFromROB();
                 		commitFromROB();
                 		commitFromROB();
                 	}
@@ -818,6 +824,7 @@ public class MiniComputer extends Observable implements Runnable
                 case OpCode.DVD:
                 	if (isResultFromROB)
                 	{
+                		commitFromROB();
                 		commitFromROB();
                 		commitFromROB();
                 	}
@@ -843,6 +850,7 @@ public class MiniComputer extends Observable implements Runnable
                 case OpCode.SRC:
                 	if (isResultFromROB)
                 	{
+                		commitFromROB();
                 		commitFromROB();
                 	}
                 	else
@@ -1301,6 +1309,7 @@ public class MiniComputer extends Observable implements Runnable
 			{
 				// Speculative execution and store into ROB
 				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, (String) result.get(ArithmeticLogicUnit.KEY_SUM), registerSelect1, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, getNewConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW)), CC, true));
 			}
 			else // Commit normally
 			{
@@ -1374,6 +1383,7 @@ public class MiniComputer extends Observable implements Runnable
 			{
 				// Speculative execution and store into ROB
 				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)), registerSelect1, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, getNewConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW)), CC, true));
 			}
 			else // Commit normally
 			{
@@ -1423,6 +1433,7 @@ public class MiniComputer extends Observable implements Runnable
 			{
 				// Speculative execution and store into ROB
 				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, (String) result.get(ArithmeticLogicUnit.KEY_SUM), registerSelect1, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, getNewConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW)), CC, true));
 			}
 			else // Commit normally
 			{
@@ -1470,6 +1481,7 @@ public class MiniComputer extends Observable implements Runnable
 			{
 				// Speculative execution and store into ROB
 				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)), registerSelect1, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, getNewConditionCode(ConditionCode.UNDERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW)), CC, true));
 			}
 			else // Commit normally
 			{
@@ -1635,17 +1647,13 @@ public class MiniComputer extends Observable implements Runnable
          */
         public void chk(int register, BitWord devId)
         {
-        	if (isSpecExec) 
-    		{
-    			// do nothing
-    			return;
-    		}
         	
             Register selectedRegister = getR(register);
+            
             if (devId.getValue() == DeviceId.CARD_READER || devId.getValue() == DeviceId.CONSOLE_KEYBOARD 
                     || devId.getValue() == DeviceId.CONSOLE_PRINTER || devId.getValue() == DeviceId.CONSOLE_PRINTER_ASCII)
             {
-                selectedRegister.setBitValue(BitWord.VALUE_ONE);
+                IRR[0].setBitValue(BitWord.VALUE_ONE);
             }
             else if (devId.getValue() == DeviceId.FILE_READER_ASCII)
             {
@@ -1677,17 +1685,27 @@ public class MiniComputer extends Observable implements Runnable
 			fileIn.close();
 			br.close();
                         //set to true if no errors
-                        selectedRegister.setBitValue(BitWord.VALUE_ONE);
+                        IRR[0].setBitValue(BitWord.VALUE_ONE);
 		}
 		catch(Exception ex)
 		{
                     //set to false if error is thrown when opening file
-                    selectedRegister.setBitValue(BitWord.VALUE_ZERO);
+                    IRR[0].setBitValue(BitWord.VALUE_ZERO);
 		}
             }
             else
             {
-                selectedRegister.setBitValue(BitWord.VALUE_ZERO);
+                IRR[0].setBitValue(BitWord.VALUE_ZERO);
+            }
+            
+            if (isSpecExec)
+            {
+            	// Speculative execution and store into ROB
+    			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), selectedRegister, true));
+            }
+            else // Commit Normally
+            {
+            	selectedRegister.setBitValue(IRR[0].getBitValue());
             }
         }
         
@@ -1978,13 +1996,6 @@ public class MiniComputer extends Observable implements Runnable
 		// Subtract one from the register contents
 		Map<String, Object> differenceMap = ArithmeticLogicUnit.subtract(registerSelect1.getBitValue().getValue(), BitWord.VALUE_ONE);
 		boolean isUnderflow = (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISUNDERFLOW);
-		// If underflow, leave the register contents alone instead of setting it to gibberish
-		if(!isUnderflow) {
-			registerSelect1.setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
-		}
-		
-		// Set Underflow bit
-		CC.setBitValue(getNewConditionCode(ConditionCode.UNDERFLOW, isUnderflow));
 		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
@@ -1996,7 +2007,7 @@ public class MiniComputer extends Observable implements Runnable
 		}
 				
 		// Move the register contents into the Internal Result Register (IRR)?
-		IRR[0].setBitValue(registerSelect1.getBitValue());
+		IRR[0].setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
 
 		// If IRR contents is > 0, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
@@ -2012,14 +2023,25 @@ public class MiniComputer extends Observable implements Runnable
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
 		
-		if (isSpecExec) 
+		// If underflow, leave the register contents alone instead of setting it to gibberish
+		if (!isUnderflow)
 		{
-			// Speculative execution and store into ROB
-			reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
-		}
-		else // Commit normally
-		{
-			PC.setBitValue(pc);
+			if (isSpecExec) 
+			{
+				// Speculative execution and store into ROB
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, IRR[0].getBitValue().getValue(), registerSelect1, true));
+				reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, getNewConditionCode(ConditionCode.UNDERFLOW, isUnderflow), CC, true));
+			}
+			else // Commit normally
+			{
+				registerSelect1.setBitValue((String) differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE));
+				
+				PC.setBitValue(pc);
+				
+				// Set Underflow bit
+				CC.setBitValue(getNewConditionCode(ConditionCode.UNDERFLOW, isUnderflow));
+			}
 		}
 	}
 	
@@ -2100,6 +2122,7 @@ public class MiniComputer extends Observable implements Runnable
         			// Speculative execution and store into ROB
         			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, highBits.getValue(), register1, true));
         			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, lowBits.getValue(), registerPlusOne, true));
+        			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, getNewConditionCode(ConditionCode.OVERFLOW, (boolean) result.get(ArithmeticLogicUnit.KEY_ISOVERFLOW)), CC, true));
         		}
         		else // Commit normally
         		{
@@ -2142,6 +2165,7 @@ public class MiniComputer extends Observable implements Runnable
             			// Speculative execution and store into ROB
             			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, divisionMap.get(ArithmeticLogicUnit.KEY_QUOTIENT), register1, true));
             			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, divisionMap.get(ArithmeticLogicUnit.KEY_REMAINDER), registerPlusOne, true));
+            			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, getNewConditionCode(ConditionCode.DIVZERO, false), CC, true));
             		}
             		else // Commit normally
             		{
@@ -2165,11 +2189,18 @@ public class MiniComputer extends Observable implements Runnable
         public void trr(int rx, int ry) {
             Register register1 = getR(rx);
             Register register2 = getR(ry);
+            boolean isEqual = register1.getBitValue().equals(register2.getBitValue());
             
-            if (register1.getBitValue().equals(register2.getBitValue()))
-            	CC.setBitValue(getNewConditionCode(ConditionCode.EQUALORNOT, true));
-            else
-            	CC.setBitValue(getNewConditionCode(ConditionCode.EQUALORNOT, false));
+            if (isSpecExec)
+            {
+            	// Speculative execution and store into ROB
+            	reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, getNewConditionCode(ConditionCode.EQUALORNOT, isEqual), CC, true));
+            }
+            else // Commit Normally
+            {
+            	CC.setBitValue(getNewConditionCode(ConditionCode.EQUALORNOT, isEqual));
+            }
+            
         }        
         
          /**
@@ -2196,6 +2227,7 @@ public class MiniComputer extends Observable implements Runnable
         		{
         			// Speculative execution and store into ROB
         			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_REGISTERVALUE)), registerSelect1, true));
+        			reorderBuffer.add(new ReorderBufferEntry(InstructionType.REGISTER, getNewConditionCode(ConditionCode.OVERFLOW, (Boolean) differenceMap.get(ArithmeticLogicUnit.KEY_ISOVERFLOW)), CC, true));
         		}
         		else // Commit normally
         		{
@@ -2490,6 +2522,11 @@ public class MiniComputer extends Observable implements Runnable
         	// retrieve top rob from stack
         	ReorderBufferEntry rob = reorderBuffer.pollLast();
         	InstructionType type = rob.getInstructionType();
+        	
+        	if (!rob.isReady())
+        	{
+        		return;
+        	}
         	
         	if (type == InstructionType.BRANCH || type == InstructionType.REGISTER)
         	{
