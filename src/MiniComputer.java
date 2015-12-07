@@ -1822,6 +1822,31 @@ public class MiniComputer extends Observable implements Runnable
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
+                
+                String indexStr = Integer.toString(index);
+                String bpbTag = ((String.valueOf(indexStr).length() == 1) ? ('0' + indexStr) : indexStr) + Boolean.toString(isIndirectAddress) + address.getValue();
+                if (PC.getBitValue() == ea)
+                {
+                    if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
+                    {                        
+                        correctPrediction();
+                    }
+                    else //we were incorrect
+                    {
+                        incorrectPrediction(bpbTag);
+                    }                  
+                }
+                else
+                {
+                    if (!branchPredictionBuffer.get(IAR.getBitValue().getValue())) //if false we were correct
+                    {
+                        correctPrediction();
+                    }
+                    else //we were incorrect
+                    {
+                        incorrectPrediction(bpbTag);
+                    }              
+                }                  
 		
 		if (isSpecExec) 
 		{
@@ -1867,6 +1892,31 @@ public class MiniComputer extends Observable implements Runnable
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
+                
+                String indexStr = Integer.toString(index);
+                String bpbTag = ((String.valueOf(indexStr).length() == 1) ? ('0' + indexStr) : indexStr) + Boolean.toString(isIndirectAddress) + address.getValue();
+                if (PC.getBitValue() == ea)
+                {
+                    if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
+                    {                        
+                        correctPrediction();
+                    }
+                    else //we were incorrect
+                    {
+                        incorrectPrediction(bpbTag);
+                    }                  
+                }
+                else
+                {
+                    if (!branchPredictionBuffer.get(IAR.getBitValue().getValue())) //if false we were correct
+                    {
+                        correctPrediction();
+                    }
+                    else //we were incorrect
+                    {
+                        incorrectPrediction(bpbTag);
+                    }              
+                }                  
 		
 		if (isSpecExec) 
 		{
@@ -2026,6 +2076,30 @@ public class MiniComputer extends Observable implements Runnable
 		// If underflow, leave the register contents alone instead of setting it to gibberish
 		if (!isUnderflow)
 		{
+                        String indexStr = Integer.toString(index);
+                        String bpbTag = ((String.valueOf(indexStr).length() == 1) ? ('0' + indexStr) : indexStr) + Boolean.toString(isIndirectAddress) + address.getValue();
+                        if (PC.getBitValue() == ea)
+                        {
+                            if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
+                            {                        
+                                correctPrediction();
+                            }
+                            else //we were incorrect
+                            {
+                                incorrectPrediction(bpbTag);
+                            }                  
+                        }
+                        else
+                        {
+                            if (!branchPredictionBuffer.get(IAR.getBitValue().getValue())) //if false we were correct
+                            {
+                                correctPrediction();
+                            }
+                            else //we were incorrect
+                            {
+                                incorrectPrediction(bpbTag);
+                            }              
+                        }                      
 			if (isSpecExec) 
 			{
 				// Speculative execution and store into ROB
@@ -2082,6 +2156,31 @@ public class MiniComputer extends Observable implements Runnable
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
+                
+                String indexStr = Integer.toString(index);
+                String bpbTag = ((String.valueOf(indexStr).length() == 1) ? ('0' + indexStr) : indexStr) + Boolean.toString(isIndirectAddress) + address.getValue();
+                if (PC.getBitValue() == ea)
+                {
+                    if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
+                    {                        
+                        correctPrediction();
+                    }
+                    else //we were incorrect
+                    {
+                        incorrectPrediction(bpbTag);
+                    }                  
+                }
+                else
+                {
+                    if (!branchPredictionBuffer.get(IAR.getBitValue().getValue())) //if false we were correct
+                    {
+                        correctPrediction();
+                    }
+                    else //we were incorrect
+                    {
+                        incorrectPrediction(bpbTag);
+                    }              
+                }                  
 		
 		if (isSpecExec) 
 		{
