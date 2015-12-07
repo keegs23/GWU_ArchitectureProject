@@ -597,6 +597,7 @@ public class MiniComputer extends Observable implements Runnable
                 	if (isResultFromROB)
                 	{
                             commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
@@ -610,6 +611,7 @@ public class MiniComputer extends Observable implements Runnable
                 case OpCode.SMR:
                 	if (isResultFromROB)
                 	{
+                            commitFromROB();
                             commitFromROB();
                 	}
                 	else
@@ -625,6 +627,7 @@ public class MiniComputer extends Observable implements Runnable
                 	if (isResultFromROB)
                 	{
                             commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
@@ -636,6 +639,7 @@ public class MiniComputer extends Observable implements Runnable
                 case OpCode.SIR:
                 	if (isResultFromROB)
                 	{
+                            commitFromROB();
                             commitFromROB();
                 	}
                 	else
@@ -1735,9 +1739,11 @@ public class MiniComputer extends Observable implements Runnable
 
 		// If IRR contents is zero, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
+		boolean branchTaken = false;
 		long irr = Long.parseLong(IRR[0].getBitValue().getValue());
 		if(irr == 0) {
 			IAR.setBitValue(ea);
+			branchTaken = true;
 		} 
                 else 
                 {
@@ -1750,8 +1756,8 @@ public class MiniComputer extends Observable implements Runnable
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
                 
                 String indexStr = Integer.toString(index);
-                String bpbTag = ((String.valueOf(indexStr).length() == 1) ? ('0' + indexStr) : indexStr) + Boolean.toString(isIndirectAddress) + address.getValue();
-                if (PC.getBitValue() == ea)
+                String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
+                if (branchTaken)
                 {
                     if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
                     {                        
@@ -1811,9 +1817,11 @@ public class MiniComputer extends Observable implements Runnable
 
 		// If IRR contents is NOT zero, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
+		boolean branchTaken = false;
 		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
 		if(irr != 0) {
 			IAR.setBitValue(ea);
+			branchTaken = true;
 		} else {
 			// Else set IAR value to PC contents + 1
 			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
@@ -1824,8 +1832,8 @@ public class MiniComputer extends Observable implements Runnable
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
                 
                 String indexStr = Integer.toString(index);
-                String bpbTag = ((String.valueOf(indexStr).length() == 1) ? ('0' + indexStr) : indexStr) + Boolean.toString(isIndirectAddress) + address.getValue();
-                if (PC.getBitValue() == ea)
+                String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
+                if (branchTaken)
                 {
                     if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
                     {                        
@@ -1881,9 +1889,11 @@ public class MiniComputer extends Observable implements Runnable
 		IRR[0].setBitValue(ArithmeticLogicUnit.padZeros16(CC.getBitValue().getValue().substring(conditionCode.ordinal(), conditionCode.ordinal()+1)));
 
 		// If the specified CC bit is 1, move the EA to the Internal Address Register (IAR)
+		boolean branchTaken = false;
 		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
 		if(irr == 1) {
 			IAR.setBitValue(ea);
+			branchTaken = true;
 		} else {
 			// Else set IAR value to PC contents + 1
 			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
@@ -1894,8 +1904,8 @@ public class MiniComputer extends Observable implements Runnable
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
                 
                 String indexStr = Integer.toString(index);
-                String bpbTag = ((String.valueOf(indexStr).length() == 1) ? ('0' + indexStr) : indexStr) + (isIndirectAddress == true ? '1' : '0') + address.getValue();
-                if (PC.getBitValue() == ea)
+                String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
+                if (branchTaken)
                 {
                     if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
                     {                        
@@ -2061,9 +2071,11 @@ public class MiniComputer extends Observable implements Runnable
 
 		// If IRR contents is > 0, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
+		boolean branchTaken = false;
 		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
 		if(!isUnderflow && irr > 0) {
 			IAR.setBitValue(ea);
+			branchTaken = true;
 		} else {
 			// Else set IAR value to PC contents + 1
 			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
@@ -2077,8 +2089,8 @@ public class MiniComputer extends Observable implements Runnable
 		if (!isUnderflow)
 		{
                         String indexStr = Integer.toString(index);
-                        String bpbTag = ((String.valueOf(indexStr).length() == 1) ? ('0' + indexStr) : indexStr) + Boolean.toString(isIndirectAddress) + address.getValue();
-                        if (PC.getBitValue() == ea)
+                        String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
+                        if (branchTaken)
                         {
                             if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
                             {                        
@@ -2145,9 +2157,11 @@ public class MiniComputer extends Observable implements Runnable
 
 		// If IRR contents is >= 0, move the EA to the Internal Address Register (IAR)
 		// Should I be calling the TRR instruction or setting the EQUALORNOT CC register bit when testing if zero??
+		boolean branchTaken = false;
 		int irr = Integer.parseInt(IRR[0].getBitValue().getValue());
 		if(irr >= 0) {
 			IAR.setBitValue(ea);
+			branchTaken = true;
 		} else {
 			// Else set IAR value to PC contents + 1
 			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
@@ -2158,8 +2172,8 @@ public class MiniComputer extends Observable implements Runnable
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
                 
                 String indexStr = Integer.toString(index);
-                String bpbTag = ((String.valueOf(indexStr).length() == 1) ? ('0' + indexStr) : indexStr) + Boolean.toString(isIndirectAddress) + address.getValue();
-                if (PC.getBitValue() == ea)
+                String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
+                if (branchTaken)
                 {
                     if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
                     {                        
@@ -2640,9 +2654,19 @@ public class MiniComputer extends Observable implements Runnable
         	isResultFromROB = false;
         }
         
-        private void addToBranchPredictionBuffer (BitWord address, boolean predictionBit) 
+        private String calculateBPBTag(int index, boolean isIndirectAddress, BitWord address) 
         {
-            branchPredictionBuffer.put(address.getValue(), predictionBit);
+        	String indexBits = Integer.toBinaryString(index);
+        	String isIndirectBit = isIndirectAddress ? "1" : "0";
+        	String addressBits = address.getValue();
+        	return indexBits + isIndirectBit + addressBits;
+        }
+        
+        private void addToBranchPredictionBuffer (BitWord tag, boolean predictionBit) 
+        {
+            // Don't overwrite existing predictions
+        	if(!branchPredictionBuffer.containsKey(tag))
+            	branchPredictionBuffer.put(tag.getValue(), predictionBit);
         }        
         
         private void correctPrediction()
@@ -2658,8 +2682,9 @@ public class MiniComputer extends Observable implements Runnable
             else
                 branchPredictionBuffer.put(bpbTag, true);
             
-            //get the opcode for the current PC value
-            BitInstruction instruction = new BitInstruction(PC.getBitValue());
+            //get the opcode for the instruction referenced by the current PC value
+            String instructionAddress = ArithmeticLogicUnit.padZeros16(PC.getBitValue().getValue());
+            BitInstruction instruction = new BitInstruction(theCache.fetchFromCache(instructionAddress, memory));
             Map<String, BitWord> instructionParse = instruction.ParseInstruction();
             BitWord opcode = instructionParse.get(BitInstruction.KEY_OPCODE);
             
