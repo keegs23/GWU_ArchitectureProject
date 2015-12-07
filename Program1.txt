@@ -94,7 +94,7 @@ JMA 3,0,23(ne)				Else, jump to NEXT ELEMENT
 STR 3,1,0,29(d)				Store R3 contents to the Min Diff Address; NEW CLOSEST MATCH FOUND
 LDR 2,1,1,26(i)				Load the value indirect addressed by the Array Element Address into R2
 SOB 1,3,0,9(cmfls)			Subtract 1 from R1 and if > 0, branch to CLOSEST MATCH FOR LOOP START; NEXT ELEMENT
-LDA 3,0,0,29				Address 29 should still have z stored in it; PRINT CLOSEST MATCH START
+LDR 3,0,0,29				Address 29 should still have z stored in it; PRINT CLOSEST MATCH START
 AIR 3,30					z = z + 46 = 148 (decimal) so can reach even later addresses
 AIR 3,16
 STR 3,0,0,29				Set X3 to z (passes through address 29)
@@ -103,11 +103,11 @@ STR 2,1,0,27(b)				Backup R2 in address b since will need R2 for MLT
 LDA 2,0,0,10				Set R2 to 10 to prep for MLT
 LDA 0,0,0,10				Load R0 with 10000 (decimal) since largest possible number is 5 digits, by multiplying 10*10*10*10
 MLT 0,2						Result should be 0 in R0, 100 in R1
-LDR 1,1,0,26(i)				Re-purpose address i to store the value 100 to use for later
+STR 1,1,0,26(i)				Re-purpose address i to store the value 100 to use for later
 STR 1,1,0,23(t)				Move R1 contents to R0 (via Transfer Address) to prep for next MLT
 LDR 0,1,0,23(t)
 MLT 0,2						Result should be 0 in R0, 1000 in R1
-LDR 1,1,0,29(d)				Re-purpose address d to store 1000 to use for later
+STR 1,1,0,29(d)				Re-purpose address d to store 1000 to use for later
 STR 1,1,0,23(t)				Move R1 contents to R0 (via Transfer Address) to prep for next MLT
 LDR 0,1,0,23(t)
 MLT 0,2						Result should be 0 in R0, 10000 in R1
@@ -119,7 +119,7 @@ DVD 2,0						Divide the closest match (in R2) by 10000 (decimal, in R0) to get t
 JZ 2,3,0,3(g1kp)			If the quotient (in R2) = 0, jump to GET THOUSANDS PLACE
 OUT 2,1						Output the ten thousands place of the closest match (stored in R2)
 LDA 1,0,0,0					Load R1 with 0, to indicate there are no more leading zeros
-LDA 0,1,0,29(d)				Load R0 with 1000 (decimal, stored in address d); GET THOUSANDS PLACE
+LDR 0,1,0,29(d)				Load R0 with 1000 (decimal, stored in address d); GET THOUSANDS PLACE
 STR 3,1,0,23(t)				Move the remainder (in R3) to R2 (via Transfer Address)
 LDR 2,1,0,23(t)
 DVD 2,0						Divide the remainder (in R2) by 1000 (in R0)	
@@ -139,7 +139,7 @@ LDA 2,0,0,10				Load R2 with 10 (decimal); GET TENS PLACE
 STR 3,1,0,23(t)				Move the remainder (in R3) to R2 (via Transfer Address)
 LDR 2,1,0,23(t)
 DVD 2,0						Divide the remainder (in R2) by 10 (in R0)		
-JZ 1,3,0,25(p10p)			If R1 = 0 (no more leading zeros), jump to PRINT TENS PLACE
+JZ 2,3,0,25(p10p)			If R1 = 0 (no more leading zeros), jump to PRINT TENS PLACE
 JZ 2,3,0,26(g1p)			If the quotient (in R2) = 0, jump to PRINT ONES PLACE
 OUT 2,1						Output R2 contents; PRINT TENS PLACE
 OUT 3,1						Output R3 contents; PRINT ONES PLACE
