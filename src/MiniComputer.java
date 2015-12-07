@@ -7,6 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Observable;
@@ -79,7 +81,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * Size 16
 	 */
 	private Cache theCache; // this will replace cache once all cache methods are moved to Cache class
-        private Map<String, Integer> branchPredictionBuffer;
+        private Map<String, Boolean> branchPredictionBuffer;
         private LinkedList<ReorderBufferEntry> reorderBuffer;
 	
 	private IOObject inputObject;
@@ -128,6 +130,7 @@ public class MiniComputer extends Observable implements Runnable
 		memory = new TreeMap<String, MemoryLocation>();
 		theCache = new Cache();
 		reorderBuffer = new LinkedList<ReorderBufferEntry>();
+                branchPredictionBuffer = new HashMap<String, Boolean>();
 		
 		// Initialize I/O transfer objects
 		inputObject = new IOObject();
@@ -472,6 +475,7 @@ public class MiniComputer extends Observable implements Runnable
             BitWord leftOrRight;
             BitWord shiftCount;        
             BitWord trapCode;
+            BitWord bpbTag;
 
             System.out.println("PC: " + PC.getBitValue().getValue()); // DEBUG code
 
@@ -528,117 +532,117 @@ public class MiniComputer extends Observable implements Runnable
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        ldr(register, index, isIndirectAddress, address);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            ldr(register, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.STR:
                 	if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        str(register, index, isIndirectAddress, address);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            str(register, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.LDA:
                 	if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        lda(register, index, isIndirectAddress, address);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            lda(register, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.LDX:
                 	if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        ldx(index, isIndirectAddress, address);
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            ldx(index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.STX:
                 	if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        stx(index, isIndirectAddress, address);
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            stx(index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.AMR:
                 	if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        amr(register, index, isIndirectAddress, address);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            amr(register, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.SMR:
                 	if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
-                        isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                        address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                        smr(register, index, isIndirectAddress, address);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
+                            isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            smr(register, index, isIndirectAddress, address);
                 	}
                     break;
                 case OpCode.AIR:
                 	if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE); 
-                        air(register, immediate);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE); 
+                            air(register, immediate);
                 	}
                     break;
                 case OpCode.SIR:
                 	if (isResultFromROB)
                 	{
-                		commitFromROB();
+                            commitFromROB();
                 	}
                 	else
                 	{
-                		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
-                        immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE); 
-                        sir(register, immediate);
+                            register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
+                            immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE); 
+                            sir(register, immediate);
                 	}
                     break;
                 case OpCode.JZ:
@@ -653,7 +657,10 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                            jz(register, index, isIndirectAddress, address);
+                            isSpecExec = true;
+                            bpbTag = new BitWord(instructionParse.get(BitInstruction.KEY_INDEX).getValue() + instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue() + address.getValue());
+                            addToBranchPredictionBuffer(bpbTag, false); //initially predict false
+                            jz(register, index, isIndirectAddress, address);                           
                 	}
                     break;
                 case OpCode.JNE:
@@ -667,7 +674,10 @@ public class MiniComputer extends Observable implements Runnable
                             register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS);
+                            isSpecExec = true;
+                            bpbTag = new BitWord(instructionParse.get(BitInstruction.KEY_INDEX).getValue() + instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue() + address.getValue());
+                            addToBranchPredictionBuffer(bpbTag, false); //initially predict false                          
                             jne(register, index, isIndirectAddress, address);
                 	}
                     break;
@@ -683,6 +693,9 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            isSpecExec = true;
+                            bpbTag = new BitWord(instructionParse.get(BitInstruction.KEY_INDEX).getValue() + instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue() + address.getValue());
+                            addToBranchPredictionBuffer(bpbTag, false); //initially predict false                          
                             jcc(conditionCode, index, isIndirectAddress, address);
                 	}
                     break;
@@ -737,7 +750,10 @@ public class MiniComputer extends Observable implements Runnable
                             register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS);
+                            isSpecExec = true;
+                            bpbTag = new BitWord(instructionParse.get(BitInstruction.KEY_INDEX).getValue() + instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue() + address.getValue());
+                            addToBranchPredictionBuffer(bpbTag, false); //initially predict false                           
                             sob(register, index, isIndirectAddress, address);
                 	}
                     break;
@@ -752,7 +768,10 @@ public class MiniComputer extends Observable implements Runnable
                             register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
-                            address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
+                            address = instructionParse.get(BitInstruction.KEY_ADDRESS);
+                            isSpecExec = true;
+                            bpbTag = new BitWord(instructionParse.get(BitInstruction.KEY_INDEX).getValue() + instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue() + address.getValue());
+                            addToBranchPredictionBuffer(bpbTag, false); //initially predict false                           
                             jge(register, index, isIndirectAddress, address);
                 	}
                     break;
@@ -1701,23 +1720,50 @@ public class MiniComputer extends Observable implements Runnable
 		long irr = Long.parseLong(IRR[0].getBitValue().getValue());
 		if(irr == 0) {
 			IAR.setBitValue(ea);
-		} else {
-			// Else set IAR value to PC contents + 1
-			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
+		} 
+                else 
+                {
+                    // Else set IAR value to PC contents + 1
+                    IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));                     
 		}
 		
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
-					
+                
+                String indexStr = Integer.toString(index);
+                String bpbTag = ((String.valueOf(indexStr).length() == 1) ? ('0' + indexStr) : indexStr) + Boolean.toString(isIndirectAddress) + address.getValue();
+                if (PC.getBitValue() == ea)
+                {
+                    if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
+                    {                        
+                        correctPrediction();
+                    }
+                    else //we were incorrect
+                    {
+                        incorrectPrediction(bpbTag);
+                    }                  
+                }
+                else
+                {
+                    if (!branchPredictionBuffer.get(IAR.getBitValue().getValue())) //if false we were correct
+                    {
+                        correctPrediction();
+                    }
+                    else //we were incorrect
+                    {
+                        incorrectPrediction(bpbTag);
+                    }              
+                }                
+                
 		if (isSpecExec) 
 		{
-			// Speculative execution and store into ROB
-			reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
+                    // Speculative execution and store into ROB
+                    reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
 		}
 		else // Commit normally
 		{
-			PC.setBitValue(pc);
+                    PC.setBitValue(pc);
 		}
 	}
 	
@@ -1761,12 +1807,12 @@ public class MiniComputer extends Observable implements Runnable
 		
 		if (isSpecExec) 
 		{
-			// Speculative execution and store into ROB
-			reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
+                    // Speculative execution and store into ROB
+                    reorderBuffer.add(new ReorderBufferEntry(InstructionType.BRANCH, pc, PC, true));
 		}
 		else // Commit normally
 		{
-			PC.setBitValue(pc);
+                    PC.setBitValue(pc);
 		}
 	}
 	
@@ -2456,6 +2502,81 @@ public class MiniComputer extends Observable implements Runnable
         	}
         	
         	isResultFromROB = false;
+        }
+        
+        private void addToBranchPredictionBuffer (BitWord address, boolean predictionBit) 
+        {
+            branchPredictionBuffer.put(address.getValue(), predictionBit);
+        }        
+        
+        private void correctPrediction()
+        {
+            isResultFromROB = true;
+        }
+        
+        private void incorrectPrediction(String bpbTag)
+        {
+            //flip prediction bit for inccorect prediction
+            if (branchPredictionBuffer.get(bpbTag) == true)    
+                branchPredictionBuffer.put(bpbTag, false);
+            else
+                branchPredictionBuffer.put(bpbTag, true);
+            
+            //get the opcode for the current PC value
+            BitInstruction instruction = new BitInstruction(PC.getBitValue());
+            Map<String, BitWord> instructionParse = instruction.ParseInstruction();
+            BitWord opcode = instructionParse.get(BitInstruction.KEY_OPCODE);
+            
+            //remove 'x' number of entries from ROB based on opCode
+            switch (opcode.getValue())
+            {
+                case OpCode.LDR:
+                case OpCode.STR:
+                case OpCode.LDA:
+                case OpCode.LDX:
+                case OpCode.STX:
+                case OpCode.CHK:
+                case OpCode.JZ:
+                case OpCode.JNE:
+                case OpCode.JCC:
+                case OpCode.JMA:
+                case OpCode.JSR:
+                case OpCode.RFS:
+                case OpCode.JGE:
+                case OpCode.TRR:
+                case OpCode.RRC:
+                case OpCode.AND:
+                case OpCode.ORR:
+                case OpCode.NOT:
+                {                    
+                    //remove 1 entry from ROB
+                    break;
+                }
+                case OpCode.AMR:
+                case OpCode.SMR:
+                case OpCode.AIR:
+                case OpCode.SIR:
+                case OpCode.SRC:
+                {
+                    //remove 2 entries from ROB
+                    break;
+                }
+                case OpCode.SOB:
+                case OpCode.MLT:
+                case OpCode.DVD:
+                {
+                    //remove 3 entries from ROB
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+        
+        private void removeFromROB(int numToRemove)
+        {
+            for (int i = 0; i < numToRemove; i++)
+                reorderBuffer.removeLast();
         }
 	/* End Helpers */
 }
