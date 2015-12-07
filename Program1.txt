@@ -28,7 +28,7 @@ SRC 3,1,1,5
 AIR 3,binary 10101
 SRC 3,1,1,1					Result should be 1010101010101010
 STR 3,1,0,25(n)				Store bit string in Newline address n
-LDA 3,1,0,30(a)				Array starts at address a=190
+LDA 3,1,0,29(a)				Array starts at address a=190 (but loop increments first so store 189 initially)
 SIR 3,0						x changed from what I thought, but leaving an instruction here so addresses won't be off
 STR 3,1,0,26(i)				Memory address i=186 (decimal) stores the current array address being working on AKA Array Element Address (starts at 1 behind the first element of the array since increment is done first in the loop)
 LDA 1,0,0,20				R1 stores the for loop counter (starts at 20 in decimal and decreases)/whether there are leading zeros while printing
@@ -37,9 +37,9 @@ LDA 2,0,0,10				R2 stores the number 10 (decimal) while getting the array input/
 LDA 0,0,0,0					R0 stores the number to be added to the array so far (starts at 0)/the divisor to parsing the separate digits to print
 LDA 3,0,0,0
 STR 3,1,0,28(m)				Memory address m=188 (decimal) stores the number to try to match AKA Num To Match Address (defaults to 0)
-LDR 3,1,1,26(i)				Add 1 to Array Element Address by loading the Array Element Address contents into R3; ARRAY INPUT FOR LOOP START
+LDR 3,1,0,26(i)				Add 1 to Array Element Address by loading the Array Element Address contents into R3; ARRAY INPUT FOR LOOP START
 AIR 3,1						Then adding 1 (Immed) to R3
-STR 3,1,1,26(i)				Then storing the R3 contents back into the Array Element Address
+STR 3,1,0,26(i)				Then storing the R3 contents back into the Array Element Address
 IN 3,0						Read in the character into R3; READ NEXT CHAR OF NUM
 SMR 3,1,0,24(e)				Subtract the Enter key/carriage return bit string (stored in e) from R3 (if UNDERFLOW, R3 contents will be left alone)
 JCC 1,2,0,7(paid)			If UNDERFLOW, character is not Enter, so jump to PROCESS ARRAY INPUT DIGIT
@@ -57,7 +57,7 @@ STR 0,1,1,26(i)				Store number from R0 into memory by indirect addressing the A
 LDR 3,1,0,25(n)				Output newline (represented by 1010101010101010 in memory address n--don't use ASCII code since that could be mistaken for a number)
 OUT 3,1
 LDA 0,0,0,0					Set R0 contents back to 0
-SOB 1,2,0,1(aifls)			Subtract 1 from R1 and if > 0, branch back to ARRAY INPUT FOR LOOP START
+SOB 1,2,0,0(aifls)			Subtract 1 from R1 and if > 0, branch back to ARRAY INPUT FOR LOOP START
 IN 3,0						Read in the character of the number to try to match into R3; MATCH INPUT START
 SMR 3,1,0,24(e)				Subtract the Enter key/carriage return bit string from R3 (if UNDERFLOW, R3 contents will be left alone)
 JCC 1,2,0,25(pmid)			If UNDERFLOW, character is not Enter, so jump to PROCESS MATCH INPUT DIGIT
@@ -91,7 +91,7 @@ SMR 3,1,0,28(m)				Subtract the value from the Num To Match Address from R3
 SMR 3,1,0,29(d)				Subtract the value of the Min Diff Address from R3; COMPARE DIFFS
 JCC 1,3,0,14(ncmf)			If UNDERFLOW is true, found the next closest match (when UNDERFLOW, register contents is left unchanged), so jump to NEW CLOSEST MATCH FOUND
 JMA 3,0,16(ne)				Else, jump to NEXT ELEMENT
-STR 3,1,0,21(d)				Store R3 contents to the Min Diff Address; NEW CLOSEST MATCH FOUND
+STR 3,1,0,29(d)				Store R3 contents to the Min Diff Address; NEW CLOSEST MATCH FOUND
 LDR 2,1,1,26(i)				Load the value indirect addressed by the Array Element Address into R2
 SOB 1,3,0,9(cmfls)			Subtract 1 from R1 and if > 0, branch to CLOSEST MATCH FOR LOOP START; NEXT ELEMENT
 LDA 3,0,0,29				Address 29 should still have z stored in it; PRINT CLOSEST MATCH START
