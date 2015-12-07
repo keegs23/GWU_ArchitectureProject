@@ -1721,7 +1721,9 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param address
 	 */
 	public void jz(int register, int index, boolean isIndirectAddress, BitWord address)
-	{
+	{		
+        String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
+		
 		// Retrieve the specified register
 		Register registerSelect1 = getR(register);
 		
@@ -1733,6 +1735,19 @@ public class MiniComputer extends Observable implements Runnable
 		{
 			return;
 		}
+		
+		String pcPlusOne = (String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM);
+		
+		// Before executing the jump instruction, speculatively execute the predicted instruction
+		if(branchPredictionBuffer.get(bpbTag)) 
+		{
+			PC.setBitValue(ea);
+		}
+		else
+		{
+			PC.setBitValue(pcPlusOne);
+		}
+		singleStep();
 				
 		// Move the register contents into the Internal Result Register (IRR)?
 		IRR[0].setBitValue(registerSelect1.getBitValue());
@@ -1748,15 +1763,12 @@ public class MiniComputer extends Observable implements Runnable
                 else 
                 {
                     // Else set IAR value to PC contents + 1
-                    IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));                     
+                    IAR.setBitValue(pcPlusOne);                     
 		}
 		
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
-                
-                String indexStr = Integer.toString(index);
-                String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
                 if (branchTaken)
                 {
                     if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
@@ -1803,6 +1815,8 @@ public class MiniComputer extends Observable implements Runnable
 		// Retrieve the specified register
 		Register registerSelect1 = getR(register);
 		
+		String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
+		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
@@ -1811,6 +1825,19 @@ public class MiniComputer extends Observable implements Runnable
 		{
 			return;
 		}
+		
+		String pcPlusOne = (String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM);
+		
+		// Before executing the jump instruction, speculatively execute the predicted instruction
+		if(branchPredictionBuffer.get(bpbTag)) 
+		{
+			PC.setBitValue(ea);
+		}
+		else
+		{
+			PC.setBitValue(pcPlusOne);
+		}
+		singleStep();
 				
 		// Move the register contents into the Internal Result Register (IRR)?
 		IRR[0].setBitValue(registerSelect1.getBitValue());
@@ -1824,15 +1851,12 @@ public class MiniComputer extends Observable implements Runnable
 			branchTaken = true;
 		} else {
 			// Else set IAR value to PC contents + 1
-			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
+			IAR.setBitValue(pcPlusOne);
 		}
 		
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
-                
-                String indexStr = Integer.toString(index);
-                String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
                 if (branchTaken)
                 {
                     if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
@@ -1876,6 +1900,8 @@ public class MiniComputer extends Observable implements Runnable
 	 */
 	public void jcc(ConditionCode conditionCode, int index, boolean isIndirectAddress, BitWord address)
 	{		
+		String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
+		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
 		
@@ -1884,6 +1910,19 @@ public class MiniComputer extends Observable implements Runnable
 		{
 			return;
 		}
+		
+		String pcPlusOne = (String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM);
+		
+		// Before executing the jump instruction, speculatively execute the predicted instruction
+		if(branchPredictionBuffer.get(bpbTag)) 
+		{
+			PC.setBitValue(ea);
+		}
+		else
+		{
+			PC.setBitValue(pcPlusOne);
+		}
+		singleStep();
 				
 		// Copy the specified bit from the CC register into the Internal Result Register (IRR)
 		IRR[0].setBitValue(ArithmeticLogicUnit.padZeros16(CC.getBitValue().getValue().substring(conditionCode.ordinal(), conditionCode.ordinal()+1)));
@@ -1896,15 +1935,12 @@ public class MiniComputer extends Observable implements Runnable
 			branchTaken = true;
 		} else {
 			// Else set IAR value to PC contents + 1
-			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
+			IAR.setBitValue(pcPlusOne);
 		}
 		
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
-                
-                String indexStr = Integer.toString(index);
-                String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
                 if (branchTaken)
                 {
                     if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
@@ -2050,6 +2086,8 @@ public class MiniComputer extends Observable implements Runnable
 	 */
 	public void sob(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
+		String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
+		
 		// Retrieve the specified register
 		Register registerSelect1 = getR(register);
 		
@@ -2065,6 +2103,19 @@ public class MiniComputer extends Observable implements Runnable
 		{
 			return;
 		}
+		
+		String pcPlusOne = (String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM);
+		
+		// Before executing the jump instruction, speculatively execute the predicted instruction
+		if(branchPredictionBuffer.get(bpbTag)) 
+		{
+			PC.setBitValue(ea);
+		}
+		else
+		{
+			PC.setBitValue(pcPlusOne);
+		}
+		singleStep();
 				
 		// Move the register contents into the Internal Result Register (IRR)?
 		IRR[0].setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
@@ -2078,7 +2129,7 @@ public class MiniComputer extends Observable implements Runnable
 			branchTaken = true;
 		} else {
 			// Else set IAR value to PC contents + 1
-			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
+			IAR.setBitValue(pcPlusOne);
 		}
 		
 		// Store IAR contents into the PC
@@ -2088,8 +2139,6 @@ public class MiniComputer extends Observable implements Runnable
 		// If underflow, leave the register contents alone instead of setting it to gibberish
 		if (!isUnderflow)
 		{
-                        String indexStr = Integer.toString(index);
-                        String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
                         if (branchTaken)
                         {
                             if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
@@ -2140,6 +2189,8 @@ public class MiniComputer extends Observable implements Runnable
 	 */
 	public void jge(int register, int index, boolean isIndirectAddress, BitWord address)
 	{
+		String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
+		
 		// Retrieve the specified register
 		Register registerSelect1 = getR(register);
 		
@@ -2151,6 +2202,19 @@ public class MiniComputer extends Observable implements Runnable
 		{
 			return;
 		}
+		
+		String pcPlusOne = (String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM);
+		
+		// Before executing the jump instruction, speculatively execute the predicted instruction
+		if(branchPredictionBuffer.get(bpbTag)) 
+		{
+			PC.setBitValue(ea);
+		}
+		else
+		{
+			PC.setBitValue(pcPlusOne);
+		}
+		singleStep();
 				
 		// Move the register contents into the Internal Result Register (IRR)?
 		IRR[0].setBitValue(registerSelect1.getBitValue());
@@ -2164,15 +2228,12 @@ public class MiniComputer extends Observable implements Runnable
 			branchTaken = true;
 		} else {
 			// Else set IAR value to PC contents + 1
-			IAR.setBitValue((String) ArithmeticLogicUnit.add(PC.getBitValue().getValue(), BitWord.VALUE_ONE).get(ArithmeticLogicUnit.KEY_SUM));
+			IAR.setBitValue(pcPlusOne);
 		}
 		
 		// Store IAR contents into the PC
 		// PC can only hold 12 bits so chop off the leading zeros
 		String pc = IAR.getBitValue().getValue().substring(4, 16);
-                
-                String indexStr = Integer.toString(index);
-                String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
                 if (branchTaken)
                 {
                     if (branchPredictionBuffer.get(bpbTag)) //if true we were correct
@@ -2633,7 +2694,9 @@ public class MiniComputer extends Observable implements Runnable
         private void commitFromROB() 
         {
         	// retrieve top rob from stack
-        	ReorderBufferEntry rob = reorderBuffer.pollLast();
+        	// must remove it so can access the other entries for an instruction
+        	// rob only contains the results from instruction at a time
+        	ReorderBufferEntry rob = reorderBuffer.removeLast();
         	InstructionType type = rob.getInstructionType();
         	
         	if (!rob.isReady())
