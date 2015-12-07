@@ -1741,11 +1741,11 @@ public class MiniComputer extends Observable implements Runnable
 		// Before executing the jump instruction, speculatively execute the predicted instruction
 		if(branchPredictionBuffer.get(bpbTag)) 
 		{
-			PC.setBitValue(ea);
+			PC.setBitValue(ea.getValue().substring(4, 16));
 		}
 		else
 		{
-			PC.setBitValue(pcPlusOne);
+			PC.setBitValue(pcPlusOne.substring(4, 16));
 		}
 		singleStep();
 				
@@ -1831,11 +1831,11 @@ public class MiniComputer extends Observable implements Runnable
 		// Before executing the jump instruction, speculatively execute the predicted instruction
 		if(branchPredictionBuffer.get(bpbTag)) 
 		{
-			PC.setBitValue(ea);
+			PC.setBitValue(ea.getValue().substring(4, 16));
 		}
 		else
 		{
-			PC.setBitValue(pcPlusOne);
+			PC.setBitValue(pcPlusOne.substring(4, 16));
 		}
 		singleStep();
 				
@@ -1916,11 +1916,11 @@ public class MiniComputer extends Observable implements Runnable
 		// Before executing the jump instruction, speculatively execute the predicted instruction
 		if(branchPredictionBuffer.get(bpbTag)) 
 		{
-			PC.setBitValue(ea);
+			PC.setBitValue(ea.getValue().substring(4, 16));
 		}
 		else
 		{
-			PC.setBitValue(pcPlusOne);
+			PC.setBitValue(pcPlusOne.substring(4, 16));
 		}
 		singleStep();
 				
@@ -2109,11 +2109,11 @@ public class MiniComputer extends Observable implements Runnable
 		// Before executing the jump instruction, speculatively execute the predicted instruction
 		if(branchPredictionBuffer.get(bpbTag)) 
 		{
-			PC.setBitValue(ea);
+			PC.setBitValue(ea.getValue().substring(4, 16));
 		}
 		else
 		{
-			PC.setBitValue(pcPlusOne);
+			PC.setBitValue(pcPlusOne.substring(4, 16));
 		}
 		singleStep();
 				
@@ -2208,11 +2208,11 @@ public class MiniComputer extends Observable implements Runnable
 		// Before executing the jump instruction, speculatively execute the predicted instruction
 		if(branchPredictionBuffer.get(bpbTag)) 
 		{
-			PC.setBitValue(ea);
+			PC.setBitValue(ea.getValue().substring(4, 16));
 		}
 		else
 		{
-			PC.setBitValue(pcPlusOne);
+			PC.setBitValue(pcPlusOne.substring(4, 16));
 		}
 		singleStep();
 				
