@@ -662,7 +662,7 @@ public class MiniComputer extends Observable implements Runnable
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
                             isSpecExec = true;
-                            bpbTag = new BitWord(instructionParse.get(BitInstruction.KEY_INDEX).getValue() + instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue() + address.getValue());
+                            bpbTag = new BitWord(calculateBPBTag(index, isIndirectAddress, address));
                             addToBranchPredictionBuffer(bpbTag, false); //initially predict false
                             jz(register, index, isIndirectAddress, address);                           
                 	}
@@ -680,7 +680,7 @@ public class MiniComputer extends Observable implements Runnable
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS);
                             isSpecExec = true;
-                            bpbTag = new BitWord(instructionParse.get(BitInstruction.KEY_INDEX).getValue() + instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue() + address.getValue());
+                            bpbTag = new BitWord(calculateBPBTag(index, isIndirectAddress, address));
                             addToBranchPredictionBuffer(bpbTag, false); //initially predict false                          
                             jne(register, index, isIndirectAddress, address);
                 	}
@@ -698,7 +698,7 @@ public class MiniComputer extends Observable implements Runnable
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
                             isSpecExec = true;
-                            bpbTag = new BitWord(instructionParse.get(BitInstruction.KEY_INDEX).getValue() + instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue() + address.getValue());
+                            bpbTag = new BitWord(calculateBPBTag(index, isIndirectAddress, address));
                             addToBranchPredictionBuffer(bpbTag, false); //initially predict false                          
                             jcc(conditionCode, index, isIndirectAddress, address);
                 	}
@@ -758,7 +758,7 @@ public class MiniComputer extends Observable implements Runnable
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS);
                             isSpecExec = true;
-                            bpbTag = new BitWord(instructionParse.get(BitInstruction.KEY_INDEX).getValue() + instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue() + address.getValue());
+                            bpbTag = new BitWord(calculateBPBTag(index, isIndirectAddress, address));
                             addToBranchPredictionBuffer(bpbTag, false); //initially predict false                           
                             sob(register, index, isIndirectAddress, address);
                 	}
@@ -776,7 +776,7 @@ public class MiniComputer extends Observable implements Runnable
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS);
                             isSpecExec = true;
-                            bpbTag = new BitWord(instructionParse.get(BitInstruction.KEY_INDEX).getValue() + instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue() + address.getValue());
+                            bpbTag = new BitWord(calculateBPBTag(index, isIndirectAddress, address));
                             addToBranchPredictionBuffer(bpbTag, false); //initially predict false                           
                             jge(register, index, isIndirectAddress, address);
                 	}

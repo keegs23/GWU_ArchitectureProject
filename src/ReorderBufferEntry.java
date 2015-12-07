@@ -10,8 +10,7 @@ public class ReorderBufferEntry {
 	public ReorderBufferEntry() {}
 	
 	// For store instructions
-	public ReorderBufferEntry(InstructionType instructionType, String value, BitWord destinationAddress, boolean ready) {
-		
+	public ReorderBufferEntry(InstructionType instructionType, String value, BitWord destinationAddress, boolean ready) {		
 		this.setInstructionType(instructionType);
 		this.setValue(value);
 		this.setDestinationAddress(destinationAddress);
@@ -20,8 +19,7 @@ public class ReorderBufferEntry {
 	}
 	
 	// For branch and register instructions
-	public ReorderBufferEntry(InstructionType instructionType, String value, Register destinationRegister, boolean ready) {
-		
+	public ReorderBufferEntry(InstructionType instructionType, String value, Register destinationRegister, boolean ready) {		
 		this.setInstructionType(instructionType);
 		this.setValue(value);
 		this.setDestinationAddress(null);
