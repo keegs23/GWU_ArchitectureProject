@@ -146,6 +146,17 @@ Searching for the following 12 bit address in the cache: 000000000011
 1. Address in cache: 000000000001 not a match.
 2. Address in cache: 000000000010 not a match.
 3. Address in cache: 000000000011 is a match.
+Address was found in cache. Setting MBR... Value = 0000101101011101
+--------------------
+Writing to Cache... 
+Write miss
+Writing to Write Buffer... Success
+Writing to memory address 0000000010111101... Done
+--------------------
+Searching for the following 12 bit address in the cache: 000000000011
+1. Address in cache: 000000000001 not a match.
+2. Address in cache: 000000000010 not a match.
+3. Address in cache: 000000000011 is a match.
 Address was found in cache. Setting MBR... Value = 0000111100010101
 --------------------
 Searching for the following 12 bit address in the cache: 000000000011
@@ -193,13 +204,13 @@ Searching for the following 12 bit address in the cache: 000000000011
 1. Address in cache: 000000000001 not a match.
 2. Address in cache: 000000000010 not a match.
 3. Address in cache: 000000000011 is a match.
-Address was found in cache. Setting MBR... Value = 0000111101011110
+Address was found in cache. Setting MBR... Value = 0000111101011101
 --------------------
 Searching for the following 12 bit address in the cache: 000000000011
 1. Address in cache: 000000000001 not a match.
 2. Address in cache: 000000000010 not a match.
 3. Address in cache: 000000000011 is a match.
-Address was found in cache. Setting MBR... Value = 0001111100000001
+Address was found in cache. Setting MBR... Value = 0001111100000000
 --------------------
 Searching for the following 12 bit address in the cache: 000000000011
 1. Address in cache: 000000000001 not a match.
@@ -218,11 +229,12 @@ Searching for the following 12 bit address in the cache: 000000000011
 3. Address in cache: 000000000011 is a match.
 Address was found in cache. Setting MBR... Value = 0000110100010100
 --------------------
-Searching for the following 12 bit address in the cache: 000000000011
+Searching for the following 12 bit address in the cache: 000000000100
 1. Address in cache: 000000000001 not a match.
 2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 is a match.
-Address was found in cache. Setting MBR... Value = 0000100101011011
+3. Address in cache: 000000000011 not a match.
+Address was not in cache... find in memory and put in cache.
+Adding new cacheline to cache with addressTag 000000000100... Done
 --------------------
 Writing to Cache... 
 Write miss
@@ -233,8 +245,8 @@ Searching for the following 12 bit address in the cache: 000000000100
 1. Address in cache: 000000000001 not a match.
 2. Address in cache: 000000000010 not a match.
 3. Address in cache: 000000000011 not a match.
-Address was not in cache... find in memory and put in cache.
-Adding new cacheline to cache with addressTag 000000000100... Done
+4. Address in cache: 000000000100 is a match.
+Address was found in cache. Setting MBR... Value = 0000111000001010
 --------------------
 Searching for the following 12 bit address in the cache: 000000000100
 1. Address in cache: 000000000001 not a match.
@@ -267,19 +279,7 @@ Searching for the following 12 bit address in the cache: 000000000100
 2. Address in cache: 000000000010 not a match.
 3. Address in cache: 000000000011 not a match.
 4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000101101011101
---------------------
-Writing to Cache... 
-Write miss
-Writing to Write Buffer... Success
-Writing to memory address 0000000010111101... Done
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000011101111010
+Address was found in cache. Setting MBR... Value = 0000011101011010
 --------------------
 Searching for the following 12 bit address in the cache: 000000001011
 1. Address in cache: 000000000001 not a match.
@@ -289,14 +289,6 @@ Searching for the following 12 bit address in the cache: 000000001011
 Address was not in cache... find in memory and put in cache.
 Adding new cacheline to cache with addressTag 000000001011... Done
 --------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000000000000
---------------------
 Searching for the following 12 bit address in the cache: 000000000100
 1. Address in cache: 000000000001 not a match.
 2. Address in cache: 000000000010 not a match.
@@ -309,20 +301,12 @@ Searching for the following 12 bit address in the cache: 000000000100
 2. Address in cache: 000000000010 not a match.
 3. Address in cache: 000000000011 not a match.
 4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000101101111010
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000010111101
+Address was found in cache. Setting MBR... Value = 0000101101011010
 --------------------
 Writing to Cache... 
-Write hit in vector 4, block 13 for address 0000000010111101
+Write hit in vector 4, block 10 for address 0000000010111010
 Writing to Write Buffer... Success
-Writing to memory address 0000000010111101... Done
+Writing to memory address 0000000010111010... Done
 --------------------
 Searching for the following 12 bit address in the cache: 000000000100
 1. Address in cache: 000000000001 not a match.
@@ -358,551 +342,5 @@ Searching for the following 12 bit address in the cache: 000000000100
 2. Address in cache: 000000000010 not a match.
 3. Address in cache: 000000000011 not a match.
 4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000100101011011
---------------------
-Writing to Cache... 
-Write hit in vector 4, block 11 for address 0000000010111011
-Writing to Write Buffer... Success
-Writing to memory address 0000000010111011... Done
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0100000010000000
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000100101010111
---------------------
-Writing to Cache... 
-Write hit in vector 4, block 7 for address 0000000010110111
-Writing to Write Buffer... Success
-Writing to memory address 0000000010110111... Done
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000010001010111
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000000000000
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-Address was not in cache... find in memory and put in cache.
-Adding new cacheline to cache with addressTag 000000000101... Done
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000000010100
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0000101101010111
---------------------
-Writing to Cache... 
-Write hit in vector 4, block 7 for address 0000000010110111
-Writing to Write Buffer... Success
-Writing to memory address 0000000010110111... Done
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0001000001010111
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000000000001
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 1100101100000001
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0010110010000011
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 1100011100000000
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0001011101011000
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 1111111111111111
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
 Address was found in cache. Setting MBR... Value = 0010100110000111
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000100101011011
---------------------
-Writing to Cache... 
-Write hit in vector 4, block 11 for address 0000000010111011
-Writing to Write Buffer... Success
-Writing to memory address 0000000010111011... Done
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0100000010000000
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000100101010111
---------------------
-Writing to Cache... 
-Write hit in vector 4, block 7 for address 0000000010110111
-Writing to Write Buffer... Success
-Writing to memory address 0000000010110111... Done
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000010001010111
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000000001010
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0000010101011011
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000000010100
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0000101101010111
---------------------
-Writing to Cache... 
-Write hit in vector 4, block 7 for address 0000000010110111
-Writing to Write Buffer... Success
-Writing to memory address 0000000010110111... Done
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0001000001010111
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000000000000
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 1100101100000001
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0010110010000011
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 1100011100000000
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0001011101011000
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 1111111111111111
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0010100110000111
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000100101011011
---------------------
-Writing to Cache... 
-Write hit in vector 4, block 11 for address 0000000010111011
-Writing to Write Buffer... Success
-Writing to memory address 0000000010111011... Done
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0100000010000000
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000100101010111
---------------------
-Writing to Cache... 
-Write hit in vector 4, block 7 for address 0000000010110111
-Writing to Write Buffer... Success
-Writing to memory address 0000000010110111... Done
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000010001010111
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000001100100
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0000010101011011
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000000010100
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0000101101010111
---------------------
-Writing to Cache... 
-Write hit in vector 4, block 7 for address 0000000010110111
-Writing to Write Buffer... Success
-Writing to memory address 0000000010110111... Done
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0001000001010111
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000000000010
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 1100101100000001
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0010110010000011
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 1100011100000000
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0001011101011000
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 1111111111111111
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0010100110000111
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0010110010010000
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0000100001111010
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000010111101
---------------------
-Writing to Cache... 
-Write hit in vector 4, block 13 for address 0000000010111101
-Writing to Write Buffer... Success
-Writing to memory address 0000000010111101... Done
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0000011101011001
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 1010101010101010
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 1100101100000001
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0000110000000000
---------------------
-Searching for the following 12 bit address in the cache: 000000000101
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 not a match.
-6. Address in cache: 000000000101 is a match.
-Address was found in cache. Setting MBR... Value = 0011100110000000
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000011101111010
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000010111101
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000001100110
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0001101100000001
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 0000101101111010
---------------------
-Searching for the following 12 bit address in the cache: 000000001011
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 not a match.
-5. Address in cache: 000000001011 is a match.
-Address was found in cache. Setting MBR... Value = 0000000010111101
---------------------
-Writing to Cache... 
-Write hit in vector 4, block 13 for address 0000000010111101
-Writing to Write Buffer... Success
-Writing to memory address 0000000010111101... Done
---------------------
-Searching for the following 12 bit address in the cache: 000000000100
-1. Address in cache: 000000000001 not a match.
-2. Address in cache: 000000000010 not a match.
-3. Address in cache: 000000000011 not a match.
-4. Address in cache: 000000000100 is a match.
-Address was found in cache. Setting MBR... Value = 1100011100000000
 --------------------

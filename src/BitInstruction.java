@@ -28,6 +28,11 @@ public class BitInstruction extends BitWord
     	super(instruction.getValue());
     }
     
+    public BitInstruction(String instruction)
+    {
+    	super(instruction);
+    }
+    
     public Map<String, BitWord> ParseInstruction()
     {         
     	//Key = Instruction Name (ex. OpCode), Value = Instruction Bits (ex. "0001")
