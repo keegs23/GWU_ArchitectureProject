@@ -96,7 +96,6 @@ public class MiniComputer extends Observable implements Runnable
 	private int prgmTwoInputPointer;
 	private boolean isRunningTrap;
 	private boolean isRunningFault;
-	private boolean isSpecExec;
 	private boolean isResultFromROB;
 	
 	
@@ -147,7 +146,6 @@ public class MiniComputer extends Observable implements Runnable
 		prgmTwoInputPointer = 0;
 		isRunningTrap = false;
 		isRunningFault = false;
-		isSpecExec = false;
 		isResultFromROB = false;
 		
 		// Initialize IRR
@@ -415,7 +413,7 @@ public class MiniComputer extends Observable implements Runnable
 				else
 				{
 					// continue running program
-					singleStep();
+					singleStep(false);
 				}
 			}
 		}
@@ -439,7 +437,7 @@ public class MiniComputer extends Observable implements Runnable
 				else
 				{
 					// continue running program
-					singleStep();
+					singleStep(false);
 				}
 			}
 		}
@@ -460,7 +458,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * Executes the instruction located at the address indicated by the PC
 	 * Assumes GUI has already stored the instruction address in PC
 	 */
-	public void singleStep()
+	public void singleStep(boolean isSpecExec)
 	{///////////////////////////////////under CONSTRUCTION//////////////////////////
             int register;	//in decimal
             int index; 	//in decimal
@@ -536,7 +534,7 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                            ldr(register, index, isIndirectAddress, address);
+                            ldr(register, index, isIndirectAddress, address, isSpecExec);
                 	}
                     break;
                 case OpCode.STR:
@@ -550,7 +548,7 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                            str(register, index, isIndirectAddress, address);
+                            str(register, index, isIndirectAddress, address, isSpecExec);
                 	}
                     break;
                 case OpCode.LDA:
@@ -564,7 +562,7 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                            lda(register, index, isIndirectAddress, address);
+                            lda(register, index, isIndirectAddress, address, isSpecExec);
                 	}
                     break;
                 case OpCode.LDX:
@@ -577,7 +575,7 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                            ldx(index, isIndirectAddress, address);
+                            ldx(index, isIndirectAddress, address, isSpecExec);
                 	}
                     break;
                 case OpCode.STX:
@@ -590,7 +588,7 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                            stx(index, isIndirectAddress, address);
+                            stx(index, isIndirectAddress, address, isSpecExec);
                 	}
                     break;
                 case OpCode.AMR:
@@ -605,7 +603,7 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                            amr(register, index, isIndirectAddress, address);
+                            amr(register, index, isIndirectAddress, address, isSpecExec);
                 	}
                     break;
                 case OpCode.SMR:
@@ -620,7 +618,7 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                            smr(register, index, isIndirectAddress, address);
+                            smr(register, index, isIndirectAddress, address, isSpecExec);
                 	}
                     break;
                 case OpCode.AIR:
@@ -633,7 +631,7 @@ public class MiniComputer extends Observable implements Runnable
                 	{
                             register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
                             immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE); 
-                            air(register, immediate);
+                            air(register, immediate, isSpecExec);
                 	}
                     break;
                 case OpCode.SIR:
@@ -646,7 +644,7 @@ public class MiniComputer extends Observable implements Runnable
                 	{
                             register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
                             immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE); 
-                            sir(register, immediate);
+                            sir(register, immediate, isSpecExec);
                 	}
                     break;
                 case OpCode.JZ:
@@ -661,10 +659,9 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                            isSpecExec = true;
                             bpbTag = new BitWord(calculateBPBTag(index, isIndirectAddress, address));
                             addToBranchPredictionBuffer(bpbTag, false); //initially predict false
-                            jz(register, index, isIndirectAddress, address);                           
+                            jz(register, index, isIndirectAddress, address, isSpecExec);                           
                 	}
                     break;
                 case OpCode.JNE:
@@ -679,10 +676,9 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS);
-                            isSpecExec = true;
                             bpbTag = new BitWord(calculateBPBTag(index, isIndirectAddress, address));
                             addToBranchPredictionBuffer(bpbTag, false); //initially predict false                          
-                            jne(register, index, isIndirectAddress, address);
+                            jne(register, index, isIndirectAddress, address, isSpecExec);
                 	}
                     break;
                 case OpCode.JCC:
@@ -697,10 +693,9 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                            isSpecExec = true;
                             bpbTag = new BitWord(calculateBPBTag(index, isIndirectAddress, address));
                             addToBranchPredictionBuffer(bpbTag, false); //initially predict false                          
-                            jcc(conditionCode, index, isIndirectAddress, address);
+                            jcc(conditionCode, index, isIndirectAddress, address, isSpecExec);
                 	}
                     break;
                 case OpCode.JMA:
@@ -714,7 +709,7 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS); 
-                            jma(index, isIndirectAddress, address);
+                            jma(index, isIndirectAddress, address, isSpecExec);
                 	}
                     break;
                 case OpCode.JSR:
@@ -728,7 +723,7 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2);
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS);
-                            jsr(index, isIndirectAddress, address);  
+                            jsr(index, isIndirectAddress, address, isSpecExec);  
                 	}         	
                     break;
                 case OpCode.RFS:
@@ -740,7 +735,7 @@ public class MiniComputer extends Observable implements Runnable
                 	else
                 	{
                             immediate = instructionParse.get(BitInstruction.KEY_IMMEDIATE);
-                            rfs(immediate); 
+                            rfs(immediate, isSpecExec); 
                 	}          	
                     break;
                 case OpCode.SOB:
@@ -757,10 +752,9 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS);
-                            isSpecExec = true;
                             bpbTag = new BitWord(calculateBPBTag(index, isIndirectAddress, address));
                             addToBranchPredictionBuffer(bpbTag, false); //initially predict false                           
-                            sob(register, index, isIndirectAddress, address);
+                            sob(register, index, isIndirectAddress, address, isSpecExec);
                 	}
                     break;
                 case OpCode.JGE:
@@ -775,10 +769,9 @@ public class MiniComputer extends Observable implements Runnable
                             index = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDEX).getValue(), 2); 
                             isIndirectAddress = Integer.parseInt(instructionParse.get(BitInstruction.KEY_INDIRECT_ADDR).getValue()) == 1; 
                             address = instructionParse.get(BitInstruction.KEY_ADDRESS);
-                            isSpecExec = true;
                             bpbTag = new BitWord(calculateBPBTag(index, isIndirectAddress, address));
                             addToBranchPredictionBuffer(bpbTag, false); //initially predict false                           
-                            jge(register, index, isIndirectAddress, address);
+                            jge(register, index, isIndirectAddress, address, isSpecExec);
                 	}
                     break;
                 case OpCode.IN:
@@ -788,7 +781,7 @@ public class MiniComputer extends Observable implements Runnable
                 	}
                     register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
                     devId = instructionParse.get(BitInstruction.KEY_DEVID); 
-                    in(register, devId);
+                    in(register, devId, isSpecExec);
                     break;
                 case OpCode.OUT:
                 	if (isResultFromROB)
@@ -797,7 +790,7 @@ public class MiniComputer extends Observable implements Runnable
                 	}
                     register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2); 
                     devId = instructionParse.get(BitInstruction.KEY_DEVID); 
-                    out(register, devId);
+                    out(register, devId, isSpecExec);
                     break;
                 case OpCode.CHK:
                 	if (isResultFromROB)
@@ -808,7 +801,7 @@ public class MiniComputer extends Observable implements Runnable
                 	{
                 		register = Integer.parseInt(instructionParse.get(BitInstruction.KEY_REGISTER).getValue(), 2);
                         devId = instructionParse.get(BitInstruction.KEY_DEVID);
-                        chk(register, devId);
+                        chk(register, devId, isSpecExec);
                 	}
                     break;
                 case OpCode.MLT:
@@ -822,7 +815,7 @@ public class MiniComputer extends Observable implements Runnable
                 	{
                 		rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
                         ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
-                        mlt(rx, ry);
+                        mlt(rx, ry, isSpecExec);
                 	}
                     break;
                 case OpCode.DVD:
@@ -836,7 +829,7 @@ public class MiniComputer extends Observable implements Runnable
                 	{
                 		rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
                         ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
-                        dvd(rx, ry);
+                        dvd(rx, ry, isSpecExec);
                 	}
                     break;
                 case OpCode.TRR:
@@ -848,7 +841,7 @@ public class MiniComputer extends Observable implements Runnable
                 	{
                 		rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
                         ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
-                        trr(rx, ry);
+                        trr(rx, ry, isSpecExec);
                 	}
                     break;     
                 case OpCode.SRC:
@@ -863,7 +856,7 @@ public class MiniComputer extends Observable implements Runnable
                         arithmeticOrLogic = instructionParse.get(BitInstruction.KEY_ARITHMETIC_OR_LOGIC);
                         leftOrRight = instructionParse.get(BitInstruction.KEY_LEFT_OR_RIGHT);
                         shiftCount = instructionParse.get(BitInstruction.KEY_SHIFT_COUNT); 
-                        src(register, arithmeticOrLogic, leftOrRight, shiftCount);  
+                        src(register, arithmeticOrLogic, leftOrRight, shiftCount, isSpecExec);  
                 	}           	
                     break;
                 case OpCode.RRC:
@@ -877,7 +870,7 @@ public class MiniComputer extends Observable implements Runnable
                         arithmeticOrLogic = instructionParse.get(BitInstruction.KEY_ARITHMETIC_OR_LOGIC);
                         leftOrRight = instructionParse.get(BitInstruction.KEY_LEFT_OR_RIGHT);
                         shiftCount = instructionParse.get(BitInstruction.KEY_SHIFT_COUNT); 
-                        rrc(register, arithmeticOrLogic, leftOrRight, shiftCount); 
+                        rrc(register, arithmeticOrLogic, leftOrRight, shiftCount, isSpecExec); 
                 	}          	
                     break;
                 case OpCode.AND:
@@ -889,7 +882,7 @@ public class MiniComputer extends Observable implements Runnable
                 	{
                 		rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
                         ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
-                        and(rx, ry);
+                        and(rx, ry, isSpecExec);
                 	}        	
                     break;
                 case OpCode.ORR: 
@@ -901,7 +894,7 @@ public class MiniComputer extends Observable implements Runnable
                 	{
                 		rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
                         ry = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RY).getValue(), 2);
-                        orr(rx, ry); 
+                        orr(rx, ry, isSpecExec); 
                 	}           	
                     break;
                 case OpCode.NOT: 
@@ -912,7 +905,7 @@ public class MiniComputer extends Observable implements Runnable
                 	else
                 	{
                 		rx = Integer.parseInt(instructionParse.get(BitInstruction.KEY_RX).getValue(), 2);
-                        not(rx); 
+                        not(rx, isSpecExec); 
                 	}            	
                     break;
                 default:
@@ -920,11 +913,7 @@ public class MiniComputer extends Observable implements Runnable
                     break;                        
             }
 
-            if (isSpecExec)
-            {
-            	isSpecExec = false;
-            }
-            else
+            if (!isSpecExec)
             {
                 // Update PC with address of next instruction (GUI will call getPC().getBitValue() when updating the text box
                 if(!isTransferInstruction 
@@ -996,7 +985,7 @@ public class MiniComputer extends Observable implements Runnable
 			isRunningTrap = true;
 			
 			// Run trap instruction
-			singleStep();
+			singleStep(false);
 		}
 	}
 	
@@ -1008,7 +997,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void ldr(int register, int index, boolean isIndirectAddress, BitWord address)
+	public void ldr(int register, int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{
 		// Retrieve the specified register
 		Register registerSelect1 = getR(register);
@@ -1065,7 +1054,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void str(int register, int index, boolean isIndirectAddress, BitWord address)
+	public void str(int register, int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{
 		// Retrieve the specified register
 		Register registerSelect1 = getR(register);
@@ -1116,7 +1105,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void lda(int register, int index, boolean isIndirectAddress, BitWord address)
+	public void lda(int register, int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{
 		// Retrieve the specified Index Register (IR a.k.a X)
 		Register registerSelect1 = getR(register);
@@ -1153,7 +1142,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void ldx(int index, boolean isIndirectAddress, BitWord address)
+	public void ldx(int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{
 		// Retrieve the specified Index Register (IR a.k.a X)
 		Register registerSelect1 = getX(index);
@@ -1209,7 +1198,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void stx(int index, boolean isIndirectAddress, BitWord address)
+	public void stx(int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{
 		// Retrieve the specified index register
 		Register indexSelect1 = getX(index);
@@ -1258,7 +1247,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void amr(int register, int index, boolean isIndirectAddress, BitWord address)
+	public void amr(int register, int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{
 		// Retrieve the specified register
 		Register registerSelect1 = getR(register);
@@ -1332,7 +1321,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void smr(int register, int index, boolean isIndirectAddress, BitWord address)
+	public void smr(int register, int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{
 		// Retrieve the specified register
 		Register registerSelect1 = getR(register);
@@ -1407,7 +1396,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param register
 	 * @param immediate
 	 */
-	public void air(int register, BitWord immediate)
+	public void air(int register, BitWord immediate, boolean isSpecExec)
 	{
 		// Retrieve the specified register
 		Register registerSelect1 = getR(register);
@@ -1454,7 +1443,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param register
 	 * @param immediate
 	 */
-	public void sir(int register, BitWord immediate)
+	public void sir(int register, BitWord immediate, boolean isSpecExec)
 	{
 		// Retrieve the specified register
 		Register registerSelect1 = getR(register);
@@ -1505,7 +1494,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param register
 	 * @param devId
 	 */
-	public void in(int register, BitWord devId)
+	public void in(int register, BitWord devId, boolean isSpecExec)
 	{
 		if (isSpecExec) 
 		{
@@ -1627,7 +1616,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param register
 	 * @param devId
 	 */
-	public void out(int register, BitWord devId)
+	public void out(int register, BitWord devId, boolean isSpecExec)
 	{
 		if (isSpecExec) 
 		{
@@ -1649,7 +1638,7 @@ public class MiniComputer extends Observable implements Runnable
          * @param register
          * @param devId
          */
-        public void chk(int register, BitWord devId)
+        public void chk(int register, BitWord devId, boolean isSpecExec)
         {
         	
             Register selectedRegister = getR(register);
@@ -1720,7 +1709,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void jz(int register, int index, boolean isIndirectAddress, BitWord address)
+	public void jz(int register, int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{		
         String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
 		
@@ -1747,7 +1736,7 @@ public class MiniComputer extends Observable implements Runnable
 		{
 			PC.setBitValue(pcPlusOne.substring(4, 16));
 		}
-		singleStep();
+		singleStep(true);
 				
 		// Move the register contents into the Internal Result Register (IRR)?
 		IRR[0].setBitValue(registerSelect1.getBitValue());
@@ -1810,7 +1799,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void jne(int register, int index, boolean isIndirectAddress, BitWord address)
+	public void jne(int register, int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{
 		// Retrieve the specified register
 		Register registerSelect1 = getR(register);
@@ -1837,7 +1826,7 @@ public class MiniComputer extends Observable implements Runnable
 		{
 			PC.setBitValue(pcPlusOne.substring(4, 16));
 		}
-		singleStep();
+		singleStep(true);
 				
 		// Move the register contents into the Internal Result Register (IRR)?
 		IRR[0].setBitValue(registerSelect1.getBitValue());
@@ -1898,7 +1887,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void jcc(ConditionCode conditionCode, int index, boolean isIndirectAddress, BitWord address)
+	public void jcc(ConditionCode conditionCode, int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{		
 		String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
 		
@@ -1922,7 +1911,7 @@ public class MiniComputer extends Observable implements Runnable
 		{
 			PC.setBitValue(pcPlusOne.substring(4, 16));
 		}
-		singleStep();
+		singleStep(true);
 				
 		// Copy the specified bit from the CC register into the Internal Result Register (IRR)
 		IRR[0].setBitValue(ArithmeticLogicUnit.padZeros16(CC.getBitValue().getValue().substring(conditionCode.ordinal(), conditionCode.ordinal()+1)));
@@ -1981,7 +1970,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void jma(int index, boolean isIndirectAddress, BitWord address)
+	public void jma(int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{		
 		// Calculate the effective address (EA)
 		BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
@@ -2016,7 +2005,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void jsr(int index, boolean isIndirectAddress, BitWord address)
+	public void jsr(int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{
             // Calculate the effective address (EA)
             BitWord ea = calculateEffectiveAddress(index, isIndirectAddress, address);
@@ -2057,7 +2046,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * Return From Subroutine w/ return code as Immed
 	 * @param immed
 	 */
-	public void rfs(BitWord immed)
+	public void rfs(BitWord immed, boolean isSpecExec)
 	{
             // Set General Purpose Register 0 to Immed
             R0.setBitValue(new BitWord(ArithmeticLogicUnit.padZeros16(immed.getValue())));
@@ -2084,7 +2073,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void sob(int register, int index, boolean isIndirectAddress, BitWord address)
+	public void sob(int register, int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{
 		String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
 		
@@ -2115,7 +2104,7 @@ public class MiniComputer extends Observable implements Runnable
 		{
 			PC.setBitValue(pcPlusOne.substring(4, 16));
 		}
-		singleStep();
+		singleStep(true);
 				
 		// Move the register contents into the Internal Result Register (IRR)?
 		IRR[0].setBitValue(String.valueOf(differenceMap.get(ArithmeticLogicUnit.KEY_DIFFERENCE)));
@@ -2187,7 +2176,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param isIndirectAddress
 	 * @param address
 	 */
-	public void jge(int register, int index, boolean isIndirectAddress, BitWord address)
+	public void jge(int register, int index, boolean isIndirectAddress, BitWord address, boolean isSpecExec)
 	{
 		String bpbTag = calculateBPBTag(index, isIndirectAddress, address);
 		
@@ -2214,7 +2203,7 @@ public class MiniComputer extends Observable implements Runnable
 		{
 			PC.setBitValue(pcPlusOne.substring(4, 16));
 		}
-		singleStep();
+		singleStep(true);
 				
 		// Move the register contents into the Internal Result Register (IRR)?
 		IRR[0].setBitValue(registerSelect1.getBitValue());
@@ -2273,7 +2262,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param rx
 	 * @param ry
 	 */
-        public void mlt(int rx, int ry) {
+        public void mlt(int rx, int ry, boolean isSpecExec) {
             Register register1 = getR(rx);
             Register register2 = getR(ry);
             
@@ -2316,7 +2305,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param rx
 	 * @param ry
 	 */
-        public void dvd(int rx, int ry) {
+        public void dvd(int rx, int ry, boolean isSpecExec) {
             Register register1 = getR(rx);
             Register register2 = getR(ry);
             
@@ -2360,7 +2349,7 @@ public class MiniComputer extends Observable implements Runnable
 	 * @param rx
 	 * @param ry
 	 */
-        public void trr(int rx, int ry) {
+        public void trr(int rx, int ry, boolean isSpecExec) {
             Register register1 = getR(rx);
             Register register2 = getR(ry);
             boolean isEqual = register1.getBitValue().equals(register2.getBitValue());
@@ -2384,7 +2373,7 @@ public class MiniComputer extends Observable implements Runnable
          * @param leftOrRight
          * @param shiftCount
 	 */
-        public void src(int register, BitWord arithmeticOrLogic, BitWord leftOrRight, BitWord shiftCount)
+        public void src(int register, BitWord arithmeticOrLogic, BitWord leftOrRight, BitWord shiftCount, boolean isSpecExec)
     	{
             // Retrieve the specified register
             Register registerSelect1 = getR(register);
@@ -2423,7 +2412,7 @@ public class MiniComputer extends Observable implements Runnable
     	 * @param leftOrRight
     	 * @param shiftCount
     	 */
-    	public void rrc(int register, BitWord arithmeticOrLogic, BitWord leftOrRight, BitWord shiftCount)
+    	public void rrc(int register, BitWord arithmeticOrLogic, BitWord leftOrRight, BitWord shiftCount, boolean isSpecExec)
     	{
             // Retrieve the specified register
             Register registerSelect1 = getR(register);
@@ -2451,7 +2440,7 @@ public class MiniComputer extends Observable implements Runnable
         * @param register
         * @param register2
         */
-    	public void and(int register, int register2)
+    	public void and(int register, int register2, boolean isSpecExec)
     	{
             // Retrieve the specified register
             Register registerSelect1 = getR(register);
@@ -2486,7 +2475,7 @@ public class MiniComputer extends Observable implements Runnable
         * @param register
         * @param register2
         */        
-    	public void orr(int register, int register2)
+    	public void orr(int register, int register2, boolean isSpecExec)
     	{
             // Retrieve the specified register
             Register registerSelect1 = getR(register);
@@ -2521,7 +2510,7 @@ public class MiniComputer extends Observable implements Runnable
         * Logical not of Register and Register
         * @param register
         */        
-    	public void not(int register)
+    	public void not(int register, boolean isSpecExec)
     	{
             // Retrieve the specified register
             Register registerSelect1 = getR(register);
@@ -2548,9 +2537,6 @@ public class MiniComputer extends Observable implements Runnable
         		}
     		}
     	}
-
-	
-	// TODO in later parts: other instructions
 	
 	/* End Instruction methods */
 	
@@ -2652,7 +2638,7 @@ public class MiniComputer extends Observable implements Runnable
 			isRunningFault = true;
 			
 			// Run machine fault instruction
-			singleStep();
+			singleStep(false);
 		}
 		
 		String fault = MFR.getBitValue().getValue();

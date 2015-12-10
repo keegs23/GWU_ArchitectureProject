@@ -679,7 +679,7 @@ public class MiniComputerGui extends JFrame implements ActionListener, Observer,
 		}
 		else {
 			cpu.getPC().setBitValue(getPcInput());
-			cpu.singleStep();
+			cpu.singleStep(false);
 			sleep(200);
 			
 			populatePcInput();
